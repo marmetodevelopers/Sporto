@@ -1,0 +1,1835 @@
+<section data-component="promotions-grid" data-component-type="section" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="promotions-grid">
+  <script
+    type="application/json"
+    data-component-data
+  >{"numberOfSlides":{{ section.blocks.size | json }}}</script>
+  {% if section.settings.heading != blank %}
+    <section-wrapper>
+      <section-header>
+        <h2 class="promotions-grid__heading">{{ section.settings.heading }}</h2>
+      </section-header>
+    </section-wrapper>
+  {% endif %}
+  <section-wrapper {% if section.settings.wide %}width="wide" {% endif %}>
+    <section-content>
+      {% if section.blocks.size > 0 %}
+        {% liquid
+          comment
+            The height of each row is based on the height setting of the first block in the row
+            We need to do some calculations here to determine which block is first:
+            - The grid is 12-columns wide
+            - Each block has a width setting that corresponds to how many columns it spans across
+            - When we count more than 12 columns, we know that a new row has started
+            - Add its height setting to the array and then start the counter from its width
+            - Additionally, save the highest height value for use in the mobile slider
+          endcomment
+          assign row_heights = section.blocks[0].settings.block_height | append: '|'
+          assign largest_height = 0
+          assign current_column = 0
+
+          for block in section.blocks
+            assign height_int = block.settings.block_height | replace: 'px', '' | plus: 0
+            assign width_int = block.settings.block_width | plus: 0
+            assign current_column = current_column | plus: width_int
+
+            if current_column > 12
+              assign row_heights = row_heights | append: block.settings.block_height | append: '|'
+              assign current_column = width_int
+            endif
+
+            if height_int > largest_height
+              assign largest_height = height_int
+            endif
+          endfor
+
+          assign row_heights = row_heights | replace: '|', ' ' | strip
+        %}
+        <ul
+          class="
+            promotions-grid__wrapper
+            promotions-grid__wrapper--alignment-{{ section.settings.text_alignment }}
+            {% if section.settings.spacing %}
+              promotions-grid__wrapper--with-spacing
+            {% endif %}
+          "
+          style="
+            --row-heights: {{ row_heights }};
+            --mobile-height: {{ largest_height }}px;
+          "
+          data-promo-grid-slider-list
+          data-promo-grid-largest-slide="{{ largest_height }}"
+        >
+          {% for block in section.blocks %}
+            <li
+              class="promotions-grid__list-item"
+              style="--column-width: span {{ block.settings.block_width }};"
+              data-promo-grid-slider-item
+              data-promo-grid-slide-index="{{ forloop.index0 }}"
+              data-promo-grid-slider-item-height="{{ block.settings.block_height }}"
+              data-promo-grid-slider-item-width="{{ block.settings.block_width }}"
+              {{ block.shopify_attributes }}
+            >
+              {% case block.type %}
+                {% when 'editorial' %}
+                  {% comment %}Component block-promo-editorial:default begin{% endcomment %}
+                  {% liquid
+                    assign omit_shopify_attributes_64b30bfa = omit_shopify_attributes
+                    assign omit_shopify_attributes = true
+                  %}
+                  {% comment %}
+                    @param omit_shopify_attributes [Optional]
+                      Do not include the Shopify block attributes
+                  {% endcomment %}
+                  
+                  {% liquid
+                    if block.settings.color_overlay_opacity > 0
+                      assign overlay_opacity = block.settings.color_overlay_opacity | times: 0.01
+                    endif
+                  
+                    if block.settings.overlay_color != blank and block.settings.overlay_color != 'rgba(0,0,0,0)'
+                      assign overlay_color = block.settings.overlay_color | color_modify: 'alpha', overlay_opacity
+                    endif
+                  
+                    if block.settings.overlay_gradient != blank
+                      assign overlay_color = block.settings.overlay_gradient
+                    endif
+                  
+                    assign grid_position_heading = block.settings.position_heading | split: '_'
+                    assign grid_position_text = block.settings.position_text | split: '_'
+                    assign grid_position_button = block.settings.position_button | split: '_'
+                  %}
+                  <div
+                    data-component="block-promo-editorial"
+                    data-component-type="block"
+                    {% if tag != blank %}data-component-tag="{{ tag }}"
+                    {% endif %}class="
+                      block-promo-editorial
+                      block-promo-editorial--width-{{ block.settings.block_width }}
+                      {% if settings.enable_image_zoom_animation %}
+                        block-promo-editorial--animated
+                      {% endif %}
+                    "
+                    {% unless omit_shopify_attributes %}
+                      {{ block.shopify_attributes }}
+                    {% endunless %}
+                  >
+                    {% if block.settings.block_link != blank %}
+                      <a href="{{ block.settings.block_link }}" class="block-promo-editorial__link" tabindex="-1">
+                    {% endif %}
+                    {% if block.settings.image != blank %}
+                      {% comment %}Component lazy-img:default begin{% endcomment %}
+                      {% render 'lazy-img', img: block.settings.image, size: '512x', lazy: true, canvas: true, focal_point: block.settings.image.presentation.focal_point %}
+                      {% comment %}Component lazy-img:default end{% endcomment %}
+                    {% else %}
+                      {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                    {% endif %}
+                  
+                    <div
+                      class="block-promo-editorial__content-wrapper"
+                      style="
+                        --block-overlay-color: {{ overlay_color }};
+                        {% if block.settings.color_text != blank and block.settings.color_text != 'rgba(0,0,0,0)' %}
+                          --block-text-color: {{ block.settings.color_text }};
+                        {% endif %}
+                      "
+                      data-content-wrapper
+                    >
+                      <div class="block-promo-editiorial__content--top" data-content-area>
+                        {% if block.settings.heading != blank and grid_position_heading[0] == 'top' %}
+                          <h2
+                            class="
+                              block-promo-editorial__heading
+                              block-promo-editorial__heading--size-{{ block.settings.size_heading }}
+                            "
+                            style="--grid-justification: {{ grid_position_heading[1] }};"
+                          >
+                            {{ block.settings.heading | escape }}
+                          </h2>
+                        {% endif %}
+                        {% if block.settings.text != blank and grid_position_text[0] == 'top' %}
+                          <div
+                            class="
+                              block-promo-editorial__text
+                              block-promo-editorial__text--size-{{ block.settings.size_text }}
+                            "
+                            style="--grid-justification: {{ grid_position_text[1] }};"
+                          >
+                            {{ block.settings.text }}
+                          </div>
+                        {% endif %}
+                        {% if block.settings.button_text != blank and grid_position_button[0] == 'top' %}
+                        {% assign morph_base_color = block.settings.color_button_main %}
+                        {% assign morph_adjustment = 3 %}
+                        {% capture color_button_morphed %}{% comment %}Inject morph begin{% endcomment %}
+{% comment %}
+  This adjusts the color to give it an appropriate difference from the original color.
+  It is usually used for link hover color, and things where we need to distinguish a change.
+
+  @param morph_base_color {Color}
+    The origin color to morph
+
+  @param morph_adjustment {Number}
+    The number to multiply the lightness and saturation by. Default 2.
+{% endcomment %}
+
+{% if morph_adjustment == blank %}
+  {% assign morph_adjustment = 2 %}
+{% endif %}
+
+{% assign morph_adjustment = morph_adjustment | times: 1.0 %}
+
+{% assign color_lightness = morph_base_color | color_extract: 'lightness' %}
+
+{% if color_lightness > 20.0 %}
+  {% if color_lightness > 50.0 %}
+    {% assign light_adjustment = color_lightness | divided_by: 25.0 | times: morph_adjustment %}
+  {% else %}
+    {% assign light_adjustment = color_lightness | divided_by: 15.0 | times: morph_adjustment %}
+  {% endif %}
+  {% assign new_color = morph_base_color | color_darken: light_adjustment %}
+{% else %}
+  {% if color_lightness < 7.0 %}
+    {% assign light_adjustment = 3.0 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 45.0 %}
+  {% elsif color_lightness < 12.0 %}
+    {% assign light_adjustment = 2.25 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 15.0 %}
+  {% else %}
+    {% assign light_adjustment = 1.75 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color %}
+  {% endif %}
+  {% assign new_color = new_color | color_lighten: light_adjustment %}
+{% endif %}
+
+{{ new_color }}
+
+{% assign morph_base_color = blank %}
+{% assign morph_adjustment = blank %}
+
+{% comment %}Inject morph end{% endcomment %}{% endcapture %}
+                          <div
+                            class="block-promo-editorial__button"
+                            style="
+                              --grid-justification: {{ grid_position_button[1] }};
+                              --color-button-main-contrast: {{ block.settings.color_button_contrast }};
+                              --color-button-main: {{ block.settings.color_button_main }};
+                              --color-button-main-invoked: {{ color_button_morphed }};
+                            "
+                          >
+                            {% comment %}Component button:default begin{% endcomment %}
+                            {% liquid
+                              assign style_dc0acad5 = style
+                              assign style = block.settings.button_style
+                              assign size_dc0acad5 = size
+                              assign size = 'medium'
+                              assign text_dc0acad5 = text
+                              assign text = block.settings.button_text | escape
+                            %}
+                            {% comment %}
+                              @param style [Required]
+                                This is the style of the button: primary, secondary, tertiary, or text. Default primary.
+                            
+                              @param size [Required]
+                                This defines the size of the button: small, medium, or large. Default medium.
+                            
+                              @param text [Required]
+                                This is the text to be included in the button.
+                            
+                              @param attributes [Optional]
+                                This will include any additional attributes that the button needs. For example, aria-controls.
+                            {% endcomment %}
+                            
+                            <button
+                              data-component="button"
+                              data-component-type="component"
+                              {% if tag != blank %}data-component-tag="{{ tag }}"
+                              {% endif %}class="button button--{{ style }} button--{{ size }}{% if style == 'primary' or style == 'secondary' %} button--shadow{% endif %%}"
+                              {{ attributes }}
+                            >
+                              {{ text }}
+                            </button>
+                            
+                            {% liquid
+                              assign style = style_dc0acad5
+                              assign style_dc0acad5 = nil
+                              assign size = size_dc0acad5
+                              assign size_dc0acad5 = nil
+                              assign text = text_dc0acad5
+                              assign text_dc0acad5 = nil
+                            %}
+                            {% comment %}Component button:default end{% endcomment %}
+                          </div>
+                        {% endif %}
+                      </div>
+                      <div class="block-promo-editiorial__content--center" data-content-area>
+                        {% if block.settings.heading != blank and grid_position_heading[0] == 'center' %}
+                          <h2
+                            class="
+                              block-promo-editorial__heading
+                              block-promo-editorial__heading--size-{{ block.settings.size_heading }}
+                            "
+                            style="--grid-justification: {{ grid_position_heading[1] }};"
+                          >
+                            {{ block.settings.heading | escape }}
+                          </h2>
+                        {% endif %}
+                        {% if block.settings.text != blank and grid_position_text[0] == 'center' %}
+                          <div
+                            class="
+                              block-promo-editorial__text
+                              block-promo-editorial__text--size-{{ block.settings.size_text }}
+                            "
+                            style="--grid-justification: {{ grid_position_text[1] }};"
+                          >
+                            {{ block.settings.text }}
+                          </div>
+                        {% endif %}
+                        {% if block.settings.button_text != blank and grid_position_button[0] == 'center' %}
+                        {% assign morph_base_color = block.settings.color_button_main %}
+                        {% assign morph_adjustment = 3 %}
+                        {% capture color_button_morphed %}{% comment %}Inject morph begin{% endcomment %}
+{% comment %}
+  This adjusts the color to give it an appropriate difference from the original color.
+  It is usually used for link hover color, and things where we need to distinguish a change.
+
+  @param morph_base_color {Color}
+    The origin color to morph
+
+  @param morph_adjustment {Number}
+    The number to multiply the lightness and saturation by. Default 2.
+{% endcomment %}
+
+{% if morph_adjustment == blank %}
+  {% assign morph_adjustment = 2 %}
+{% endif %}
+
+{% assign morph_adjustment = morph_adjustment | times: 1.0 %}
+
+{% assign color_lightness = morph_base_color | color_extract: 'lightness' %}
+
+{% if color_lightness > 20.0 %}
+  {% if color_lightness > 50.0 %}
+    {% assign light_adjustment = color_lightness | divided_by: 25.0 | times: morph_adjustment %}
+  {% else %}
+    {% assign light_adjustment = color_lightness | divided_by: 15.0 | times: morph_adjustment %}
+  {% endif %}
+  {% assign new_color = morph_base_color | color_darken: light_adjustment %}
+{% else %}
+  {% if color_lightness < 7.0 %}
+    {% assign light_adjustment = 3.0 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 45.0 %}
+  {% elsif color_lightness < 12.0 %}
+    {% assign light_adjustment = 2.25 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 15.0 %}
+  {% else %}
+    {% assign light_adjustment = 1.75 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color %}
+  {% endif %}
+  {% assign new_color = new_color | color_lighten: light_adjustment %}
+{% endif %}
+
+{{ new_color }}
+
+{% assign morph_base_color = blank %}
+{% assign morph_adjustment = blank %}
+
+{% comment %}Inject morph end{% endcomment %}{% endcapture %}
+                          <div
+                            class="block-promo-editorial__button"
+                            style="
+                              --grid-justification: {{ grid_position_button[1] }};
+                              --color-button-main-contrast: {{ block.settings.color_button_contrast }};
+                              --color-button-main: {{ block.settings.color_button_main }};
+                              --color-button-main-invoked: {{ color_button_morphed }};
+                            "
+                          >
+                            {% comment %}Component button:default begin{% endcomment %}
+                            {% liquid
+                              assign style_dc0acad5 = style
+                              assign style = block.settings.button_style
+                              assign size_dc0acad5 = size
+                              assign size = 'medium'
+                              assign text_dc0acad5 = text
+                              assign text = block.settings.button_text | escape
+                            %}
+                            {% comment %}
+                              @param style [Required]
+                                This is the style of the button: primary, secondary, tertiary, or text. Default primary.
+                            
+                              @param size [Required]
+                                This defines the size of the button: small, medium, or large. Default medium.
+                            
+                              @param text [Required]
+                                This is the text to be included in the button.
+                            
+                              @param attributes [Optional]
+                                This will include any additional attributes that the button needs. For example, aria-controls.
+                            {% endcomment %}
+                            
+                            <button
+                              data-component="button"
+                              data-component-type="component"
+                              {% if tag != blank %}data-component-tag="{{ tag }}"
+                              {% endif %}class="button button--{{ style }} button--{{ size }}{% if style == 'primary' or style == 'secondary' %} button--shadow{% endif %%}"
+                              {{ attributes }}
+                            >
+                              {{ text }}
+                            </button>
+                            
+                            {% liquid
+                              assign style = style_dc0acad5
+                              assign style_dc0acad5 = nil
+                              assign size = size_dc0acad5
+                              assign size_dc0acad5 = nil
+                              assign text = text_dc0acad5
+                              assign text_dc0acad5 = nil
+                            %}
+                            {% comment %}Component button:default end{% endcomment %}
+                          </div>
+                        {% endif %}
+                      </div>
+                      <div class="block-promo-editiorial__content--bottom" data-content-area>
+                        {% if block.settings.heading != blank and grid_position_heading[0] == 'bottom' %}
+                          <h2
+                            class="
+                              block-promo-editorial__heading
+                              block-promo-editorial__heading--size-{{ block.settings.size_heading }}
+                            "
+                            style="--grid-justification: {{ grid_position_heading[1] }};"
+                          >
+                            {{ block.settings.heading | escape }}
+                          </h2>
+                        {% endif %}
+                        {% if block.settings.text != blank and grid_position_text[0] == 'bottom' %}
+                          <div
+                            class="
+                              block-promo-editorial__text
+                              block-promo-editorial__text--size-{{ block.settings.size_text }}
+                            "
+                            style="--grid-justification: {{ grid_position_text[1] }};"
+                          >
+                            {{ block.settings.text }}
+                          </div>
+                        {% endif %}
+                        {% if block.settings.button_text != blank and grid_position_button[0] == 'bottom' %}
+                        {% assign morph_base_color = block.settings.color_button_main %}
+                        {% assign morph_adjustment = 3 %}
+                        {% capture color_button_morphed %}{% comment %}Inject morph begin{% endcomment %}
+{% comment %}
+  This adjusts the color to give it an appropriate difference from the original color.
+  It is usually used for link hover color, and things where we need to distinguish a change.
+
+  @param morph_base_color {Color}
+    The origin color to morph
+
+  @param morph_adjustment {Number}
+    The number to multiply the lightness and saturation by. Default 2.
+{% endcomment %}
+
+{% if morph_adjustment == blank %}
+  {% assign morph_adjustment = 2 %}
+{% endif %}
+
+{% assign morph_adjustment = morph_adjustment | times: 1.0 %}
+
+{% assign color_lightness = morph_base_color | color_extract: 'lightness' %}
+
+{% if color_lightness > 20.0 %}
+  {% if color_lightness > 50.0 %}
+    {% assign light_adjustment = color_lightness | divided_by: 25.0 | times: morph_adjustment %}
+  {% else %}
+    {% assign light_adjustment = color_lightness | divided_by: 15.0 | times: morph_adjustment %}
+  {% endif %}
+  {% assign new_color = morph_base_color | color_darken: light_adjustment %}
+{% else %}
+  {% if color_lightness < 7.0 %}
+    {% assign light_adjustment = 3.0 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 45.0 %}
+  {% elsif color_lightness < 12.0 %}
+    {% assign light_adjustment = 2.25 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 15.0 %}
+  {% else %}
+    {% assign light_adjustment = 1.75 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color %}
+  {% endif %}
+  {% assign new_color = new_color | color_lighten: light_adjustment %}
+{% endif %}
+
+{{ new_color }}
+
+{% assign morph_base_color = blank %}
+{% assign morph_adjustment = blank %}
+
+{% comment %}Inject morph end{% endcomment %}{% endcapture %}
+                          <div
+                            class="block-promo-editorial__button"
+                            style="
+                              --grid-justification: {{ grid_position_button[1] }};
+                              --color-button-main-contrast: {{ block.settings.color_button_contrast }};
+                              --color-button-main: {{ block.settings.color_button_main }};
+                              --color-button-main-invoked: {{ color_button_morphed }};
+                            "
+                          >
+                            {% comment %}Component button:default begin{% endcomment %}
+                            {% liquid
+                              assign style_dc0acad5 = style
+                              assign style = block.settings.button_style
+                              assign size_dc0acad5 = size
+                              assign size = 'medium'
+                              assign text_dc0acad5 = text
+                              assign text = block.settings.button_text | escape
+                            %}
+                            {% comment %}
+                              @param style [Required]
+                                This is the style of the button: primary, secondary, tertiary, or text. Default primary.
+                            
+                              @param size [Required]
+                                This defines the size of the button: small, medium, or large. Default medium.
+                            
+                              @param text [Required]
+                                This is the text to be included in the button.
+                            
+                              @param attributes [Optional]
+                                This will include any additional attributes that the button needs. For example, aria-controls.
+                            {% endcomment %}
+                            
+                            <button
+                              data-component="button"
+                              data-component-type="component"
+                              {% if tag != blank %}data-component-tag="{{ tag }}"
+                              {% endif %}class="button button--{{ style }} button--{{ size }}{% if style == 'primary' or style == 'secondary' %} button--shadow{% endif %%}"
+                              {{ attributes }}
+                            >
+                              {{ text }}
+                            </button>
+                            
+                            {% liquid
+                              assign style = style_dc0acad5
+                              assign style_dc0acad5 = nil
+                              assign size = size_dc0acad5
+                              assign size_dc0acad5 = nil
+                              assign text = text_dc0acad5
+                              assign text_dc0acad5 = nil
+                            %}
+                            {% comment %}Component button:default end{% endcomment %}
+                          </div>
+                        {% endif %}
+                      </div>
+                    </div>
+                    {% if block.settings.block_link != blank %}
+                      </a>
+                    {% endif %}
+                  </div>
+                  {% liquid
+                    assign overlay_color = nil
+                    assign overlay_opacity = nil
+                  %}
+                  
+                  {% liquid
+                    assign omit_shopify_attributes = omit_shopify_attributes_64b30bfa
+                    assign omit_shopify_attributes_64b30bfa = nil
+                  %}
+                  {% comment %}Component block-promo-editorial:default end{% endcomment %}
+                {% when 'text' %}
+                  {% comment %}Component block-promo-text:default begin{% endcomment %}
+                  {% liquid
+                    assign omit_shopify_attributes_595ad28a = omit_shopify_attributes
+                    assign omit_shopify_attributes = true
+                  %}
+                  {% comment %}
+                    @param omit_shopify_attributes [Optional]
+                      Do not include the Shopify block attributes
+                  {% endcomment %}
+                  
+                  {% liquid
+                    assign background_color = block.settings.background_color
+                    if block.settings.background_gradient != blank
+                      assign background_color = block.settings.background_gradient
+                    endif
+                  
+                    assign horizontal_position = 'flex-start'
+                    assign vertical_position = 'flex-start'
+                    assign setting_positions = block.settings.position | split: '_'
+                  
+                    case setting_positions[0]
+                      when 'top'
+                      when 'center'
+                        assign vertical_position = 'center'
+                      when 'bottom'
+                        assign vertical_position = 'flex-end'
+                      else
+                    endcase
+                  
+                    case setting_positions[1]
+                      when 'left'
+                      when 'center'
+                        assign horizontal_position = 'center'
+                      when 'right'
+                        assign horizontal_position = 'flex-end'
+                      else
+                    endcase
+                  %}
+                  
+                  <div
+                    data-component="block-promo-text"
+                    data-component-type="block"
+                    {% if tag != blank %}data-component-tag="{{ tag }}"
+                    {% endif %}class="
+                      block-promo-text
+                      block-promo-text--width-{{ block.settings.block_width }}
+                    "
+                    style="
+                      --background-color: {{ background_color }};
+                      {% if block.settings.color_text != blank and block.settings.color_text != 'rgba(0,0,0,0)' %}
+                        --block-text-color: {{ block.settings.color_text }};
+                      {% endif %}
+                      --horizontal-position: {{ horizontal_position }};
+                      --vertical-position: {{ vertical_position }};
+                    "
+                    {% unless omit_shopify_attributes %}
+                      {{ block.shopify_attributes }}
+                    {% endunless %}
+                  >
+                    <div class="block-promo-text__content" data-content-area>
+                      {% if block.settings.image != blank %}
+                        <div class="block-promo-text__image">
+                          {% comment %}Component lazy-img:default begin{% endcomment %}
+                          {% render 'lazy-img', img: block.settings.image, size: 'x65', lazy: true, canvas: true, focal_point: block.settings.image.presentation.focal_point %}
+                          {% comment %}Component lazy-img:default end{% endcomment %}
+                        </div>
+                      {% endif %}
+                      {% if block.settings.preheading != blank %}
+                        <div
+                          class="
+                            block-promo-text__preheading
+                            block-promo-text__preheading--size-{{ block.settings.size_preheading }}
+                            {% if block.settings.bolder_preheading %}
+                              block-promo-text__preheading--bolder
+                            {% endif %}
+                            {% if block.settings.uppercase_preheading %}
+                              block-promo-text__preheading--uppercase
+                            {% endif %}
+                          "
+                        >
+                          {{ block.settings.preheading | escape }}
+                        </div>
+                      {% endif %}
+                      {% if block.settings.heading != blank %}
+                        <h2
+                          class="
+                            block-promo-text__heading
+                            block-promo-text__heading--size-{{ block.settings.size_heading }}
+                          "
+                        >
+                          {{ block.settings.heading | escape }}
+                        </h2>
+                      {% endif %}
+                      {% if block.settings.text != blank %}
+                        <div
+                          class="
+                            block-promo-text__text
+                            block-promo-text__text--size-{{ block.settings.size_text }}
+                          "
+                        >
+                          {{ block.settings.text }}
+                        </div>
+                      {% endif %}
+                      {% if block.settings.button_text_1 != blank or block.settings.button_text_2 != blank %}
+                        <div class="block-promo-text__button-group">
+                          {% if block.settings.button_text_1 != blank %}
+                            {% assign morph_base_color = block.settings.color_main_1 %}
+                            {% assign morph_adjustment = 3 %}
+                            {% capture color_button_morphed %}{% comment %}Inject morph begin{% endcomment %}
+{% comment %}
+  This adjusts the color to give it an appropriate difference from the original color.
+  It is usually used for link hover color, and things where we need to distinguish a change.
+
+  @param morph_base_color {Color}
+    The origin color to morph
+
+  @param morph_adjustment {Number}
+    The number to multiply the lightness and saturation by. Default 2.
+{% endcomment %}
+
+{% if morph_adjustment == blank %}
+  {% assign morph_adjustment = 2 %}
+{% endif %}
+
+{% assign morph_adjustment = morph_adjustment | times: 1.0 %}
+
+{% assign color_lightness = morph_base_color | color_extract: 'lightness' %}
+
+{% if color_lightness > 20.0 %}
+  {% if color_lightness > 50.0 %}
+    {% assign light_adjustment = color_lightness | divided_by: 25.0 | times: morph_adjustment %}
+  {% else %}
+    {% assign light_adjustment = color_lightness | divided_by: 15.0 | times: morph_adjustment %}
+  {% endif %}
+  {% assign new_color = morph_base_color | color_darken: light_adjustment %}
+{% else %}
+  {% if color_lightness < 7.0 %}
+    {% assign light_adjustment = 3.0 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 45.0 %}
+  {% elsif color_lightness < 12.0 %}
+    {% assign light_adjustment = 2.25 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 15.0 %}
+  {% else %}
+    {% assign light_adjustment = 1.75 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color %}
+  {% endif %}
+  {% assign new_color = new_color | color_lighten: light_adjustment %}
+{% endif %}
+
+{{ new_color }}
+
+{% assign morph_base_color = blank %}
+{% assign morph_adjustment = blank %}
+
+{% comment %}Inject morph end{% endcomment %}{% endcapture %}
+                            <div
+                              class="block-promo-text__button--first"
+                              style="
+                                --color-button-main-contrast: {{ block.settings.color_contrast_1 }};
+                                --color-button-main: {{ block.settings.color_main_1 }};
+                                --color-button-main-invoked: {{ color_button_morphed }};
+                              "
+                            >
+                              {% comment %}Component button-link:default begin{% endcomment %}
+                              {% liquid
+                                assign style_fb405dfb = style
+                                assign style = block.settings.button_style_1
+                                assign size_fb405dfb = size
+                                assign size = 'medium'
+                                assign href_fb405dfb = href
+                                assign href = block.settings.button_link_1
+                                assign text_fb405dfb = text
+                                assign text = block.settings.button_text_1
+                              %}
+                              {% comment %}
+                                @param href [Required]
+                                  This is the anchor tag for the link button.
+                              
+                                @param style [Required]
+                                  This is the style of the button: primary, secondary, tertiary, or text.
+                              
+                                @param size [Required]
+                                  This defines the size of the button: small, medium, or large.
+                              
+                                @param text [Required]
+                                  This is the text to be included in the button.
+                              
+                                @param attributes [Optional]
+                                  Any additional attributes to add to the button-link tag.
+                              {% endcomment %}
+                              
+                              <a
+                                data-component="button-link"
+                                data-component-type="component"
+                                {% if tag != blank %}data-component-tag="{{ tag }}"
+                                {% endif %}class="button-link button-link--{{ style }} button-link--{{ size }}{% if style == 'primary' or style == 'secondary' %} button-link--shadow{% endif %%}"
+                                {% if href != blank %}
+                                  href="{{ href }}"
+                                {% endif %}
+                                {{ attributes }}
+                              >
+                                {{ text }}
+                              </a>
+                              
+                              {% liquid
+                                assign style = style_fb405dfb
+                                assign style_fb405dfb = nil
+                                assign size = size_fb405dfb
+                                assign size_fb405dfb = nil
+                                assign href = href_fb405dfb
+                                assign href_fb405dfb = nil
+                                assign text = text_fb405dfb
+                                assign text_fb405dfb = nil
+                              %}
+                              {% comment %}Component button-link:default end{% endcomment %}
+                            </div>
+                          {% endif %}
+                          {% if block.settings.button_text_2 != blank %}
+                            {% assign morph_base_color = block.settings.color_main_2 %}
+                            {% assign morph_adjustment = 3 %}
+                            {% capture color_button_morphed %}{% comment %}Inject morph begin{% endcomment %}
+{% comment %}
+  This adjusts the color to give it an appropriate difference from the original color.
+  It is usually used for link hover color, and things where we need to distinguish a change.
+
+  @param morph_base_color {Color}
+    The origin color to morph
+
+  @param morph_adjustment {Number}
+    The number to multiply the lightness and saturation by. Default 2.
+{% endcomment %}
+
+{% if morph_adjustment == blank %}
+  {% assign morph_adjustment = 2 %}
+{% endif %}
+
+{% assign morph_adjustment = morph_adjustment | times: 1.0 %}
+
+{% assign color_lightness = morph_base_color | color_extract: 'lightness' %}
+
+{% if color_lightness > 20.0 %}
+  {% if color_lightness > 50.0 %}
+    {% assign light_adjustment = color_lightness | divided_by: 25.0 | times: morph_adjustment %}
+  {% else %}
+    {% assign light_adjustment = color_lightness | divided_by: 15.0 | times: morph_adjustment %}
+  {% endif %}
+  {% assign new_color = morph_base_color | color_darken: light_adjustment %}
+{% else %}
+  {% if color_lightness < 7.0 %}
+    {% assign light_adjustment = 3.0 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 45.0 %}
+  {% elsif color_lightness < 12.0 %}
+    {% assign light_adjustment = 2.25 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 15.0 %}
+  {% else %}
+    {% assign light_adjustment = 1.75 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color %}
+  {% endif %}
+  {% assign new_color = new_color | color_lighten: light_adjustment %}
+{% endif %}
+
+{{ new_color }}
+
+{% assign morph_base_color = blank %}
+{% assign morph_adjustment = blank %}
+
+{% comment %}Inject morph end{% endcomment %}{% endcapture %}
+                            <div
+                              class="block-promo-text__button--second"
+                              style="
+                                --color-button-main-contrast: {{ block.settings.color_contrast_2 }};
+                                --color-button-main: {{ block.settings.color_main_2 }};
+                                --color-button-main-invoked: {{ color_button_morphed }};
+                              "
+                            >
+                              {% comment %}Component button-link:default begin{% endcomment %}
+                              {% liquid
+                                assign style_fb405dfb = style
+                                assign style = block.settings.button_style_2
+                                assign size_fb405dfb = size
+                                assign size = 'medium'
+                                assign href_fb405dfb = href
+                                assign href = block.settings.button_link_2
+                                assign text_fb405dfb = text
+                                assign text = block.settings.button_text_2
+                              %}
+                              {% comment %}
+                                @param href [Required]
+                                  This is the anchor tag for the link button.
+                              
+                                @param style [Required]
+                                  This is the style of the button: primary, secondary, tertiary, or text.
+                              
+                                @param size [Required]
+                                  This defines the size of the button: small, medium, or large.
+                              
+                                @param text [Required]
+                                  This is the text to be included in the button.
+                              
+                                @param attributes [Optional]
+                                  Any additional attributes to add to the button-link tag.
+                              {% endcomment %}
+                              
+                              <a
+                                data-component="button-link"
+                                data-component-type="component"
+                                {% if tag != blank %}data-component-tag="{{ tag }}"
+                                {% endif %}class="button-link button-link--{{ style }} button-link--{{ size }}{% if style == 'primary' or style == 'secondary' %} button-link--shadow{% endif %%}"
+                                {% if href != blank %}
+                                  href="{{ href }}"
+                                {% endif %}
+                                {{ attributes }}
+                              >
+                                {{ text }}
+                              </a>
+                              
+                              {% liquid
+                                assign style = style_fb405dfb
+                                assign style_fb405dfb = nil
+                                assign size = size_fb405dfb
+                                assign size_fb405dfb = nil
+                                assign href = href_fb405dfb
+                                assign href_fb405dfb = nil
+                                assign text = text_fb405dfb
+                                assign text_fb405dfb = nil
+                              %}
+                              {% comment %}Component button-link:default end{% endcomment %}
+                            </div>
+                          {% endif %}
+                        </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                  
+                  {% liquid
+                    assign omit_shopify_attributes = omit_shopify_attributes_595ad28a
+                    assign omit_shopify_attributes_595ad28a = nil
+                  %}
+                  {% comment %}Component block-promo-text:default end{% endcomment %}
+                {% when 'image' %}
+                  {% comment %}Component block-promo-image:default begin{% endcomment %}
+                  {% liquid
+                    assign omit_shopify_attributes_bef22fb9 = omit_shopify_attributes
+                    assign omit_shopify_attributes = true
+                  %}
+                  {% comment %}
+                    @param omit_shopify_attributes [Optional]
+                      Do not include the Shopify block attributes
+                  {% endcomment %}
+                  
+                  {% liquid
+                    if block.settings.color_overlay_opacity > 0
+                      assign overlay_opacity = block.settings.color_overlay_opacity | times: 0.01
+                    endif
+                  
+                    if block.settings.overlay_color != blank and block.settings.overlay_color != 'rgba(0,0,0,0)'
+                      assign overlay_color = block.settings.overlay_color | color_modify: 'alpha', overlay_opacity
+                    endif
+                  
+                    if block.settings.overlay_gradient != blank
+                      assign overlay_color = block.settings.overlay_gradient
+                    endif
+                  %}
+                  
+                  <div
+                    data-component="block-promo-image"
+                    data-component-type="block"
+                    {% if tag != blank %}data-component-tag="{{ tag }}"
+                    {% endif %}class="
+                      block-promo-image
+                      block-promo-image--width-{{ block.settings.block_width }}
+                    "
+                    {% unless omit_shopify_attributes %}
+                      {{ block.shopify_attributes }}
+                    {% endunless %}
+                  >
+                    {% if block.settings.image_link != blank %}
+                      <a class="block-promo-image__image-link" href="{{ block.settings.image_link }}" aria-label="{{ block.settings.image.alt }}">
+                    {% endif %}
+                    {% if block.settings.image != blank %}
+                      {% comment %}Component lazy-img:default begin{% endcomment %}
+                      {% render 'lazy-img', img: block.settings.image, size: '512x', lazy: true, canvas: true, focal_point: block.settings.image.presentation.focal_point %}
+                      {% comment %}Component lazy-img:default end{% endcomment %}
+                    {% else %}
+                      {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+                    {% endif %}
+                    {% if block.settings.image_link != blank %}
+                      </a>
+                    {% endif %}
+                    {% if overlay_color != blank %}
+                      <div class="block-promo-image__overlay" style="--overlay-color: {{ overlay_color }};"></div>
+                    {% endif %}
+                  </div>
+                  {% liquid
+                    assign overlay_color = nil
+                    assign overlay_opacity = nil
+                  %}
+                  
+                  {% liquid
+                    assign omit_shopify_attributes = omit_shopify_attributes_bef22fb9
+                    assign omit_shopify_attributes_bef22fb9 = nil
+                  %}
+                  {% comment %}Component block-promo-image:default end{% endcomment %}
+              {% endcase %}
+            </li>
+          {% endfor %}
+        </ul>
+        {% if section.blocks.size > 1 %}
+          <div class="promotions-grid__slider-controls" data-promo-grid-slider-controls>
+            <button
+              class="
+                promotions-grid__slider-button
+                promotions-grid__slider-button--previous
+              "
+              data-promo-grid-slider-previous
+              disabled
+            >
+              {% comment %}Icon chevron-small:default begin{% endcomment %}
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path stroke="currentColor" stroke-width="1.75" d="m1 5 7 7 7-7"/></svg>
+              {% comment %}Icon chevron-small:default end{% endcomment %}
+            </button>
+            {% capture current_slide %}<span data-promo-grid-slider-navigation-current-slide="0">1</span>{% endcapture %}
+            <span class="promotions-grid__navigation-indicator">{{ 'sections.promotions_grid.navigation_html' | t: current_slide: current_slide, total_slide: section.blocks.size }}</span>
+            <button
+              class="
+                promotions-grid__slider-button
+                promotions-grid__slider-button--next
+              "
+              data-promo-grid-slider-next
+            >
+              {% comment %}Icon chevron-small:default begin{% endcomment %}
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path stroke="currentColor" stroke-width="1.75" d="m1 5 7 7 7-7"/></svg>
+              {% comment %}Icon chevron-small:default end{% endcomment %}
+            </button>
+          </div>
+        {% endif %}
+      {% endif %}
+    </section-content>
+  </section-wrapper>
+</section>
+{% schema %}
+{
+  "name": "t:common.component.promotions_grid",
+  "max_blocks": 8,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:common.text.heading",
+      "default": "Heading"
+    },
+    {
+      "type": "checkbox",
+      "id": "wide",
+      "label": "t:common.size.wide_display",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "spacing",
+      "label": "t:component.promotions_grid.spacing.label",
+      "info": "t:component.promotions_grid.spacing.info",
+      "default": true
+    },
+    {
+      "type": "text_alignment",
+      "id": "text_alignment",
+      "label": "t:common.text.text_alignment"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:common.component.promotions_grid",
+      "settings": {
+        "heading": "",
+        "wide": false
+      },
+      "blocks": [
+        {
+          "type": "editorial",
+          "settings": {
+            "block_width": "8"
+          }
+        },
+        {
+          "type": "image",
+          "settings": {
+            "block_width": "4"
+          }
+        },
+        {
+          "type": "editorial",
+          "settings": {
+            "block_width": "4",
+            "block_height": "550px",
+            "position_heading": "bottom_start"
+          }
+        },
+        {
+          "type": "editorial",
+          "settings": {
+            "block_width": "4",
+            "block_height": "550px",
+            "position_heading": "bottom_start"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "block_width": "4",
+            "block_height": "550px",
+            "position": "bottom_left",
+            "background_color": "#222222"
+          }
+        }
+      ],
+      "category": "t:component.promotions_grid.presets.promotions_grid.category"
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "*"
+    ]
+  },
+  "blocks": [
+    {
+      "type": "editorial",
+      "name": "t:component.block_promo_editorial.blocks.editorial.name",
+      "settings": [
+        {
+          "type": "select",
+          "id": "block_width",
+          "label": "t:common.style.block_width",
+          "options": [
+            {
+              "value": "3",
+              "label": "t:common.size.25_percent"
+            },
+            {
+              "value": "4",
+              "label": "t:common.size.33_percent"
+            },
+            {
+              "value": "6",
+              "label": "t:common.size.50_percent"
+            },
+            {
+              "value": "8",
+              "label": "t:common.size.66_percent"
+            },
+            {
+              "value": "9",
+              "label": "t:common.size.75_percent"
+            },
+            {
+              "value": "12",
+              "label": "t:common.size.100_percent"
+            }
+          ],
+          "default": "6"
+        },
+        {
+          "type": "select",
+          "id": "block_height",
+          "label": "t:common.style.block_height",
+          "info": "t:common.info.height_adapts_to_first_row",
+          "options": [
+            {
+              "value": "400px",
+              "label": "t:common.size.small_400px"
+            },
+            {
+              "value": "550px",
+              "label": "t:common.size.medium_550px"
+            },
+            {
+              "value": "700px",
+              "label": "t:common.size.large_700px"
+            },
+            {
+              "value": "auto",
+              "label": "t:common.size.natural_adapts"
+            }
+          ],
+          "default": "700px"
+        },
+        {
+          "type": "header",
+          "content": "t:common.image.image"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:common.image.image"
+        },
+        {
+          "type": "header",
+          "content": "t:common.text.text"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:common.text.heading",
+          "default": "Editorial"
+        },
+        {
+          "type": "select",
+          "id": "position_heading",
+          "label": "t:component.block_promo_editorial.blocks.editorial.position_heading.label",
+          "options": [
+            {
+              "value": "top_start",
+              "label": "t:common.layout.top_left"
+            },
+            {
+              "value": "top_center",
+              "label": "t:common.layout.top_middle"
+            },
+            {
+              "value": "top_end",
+              "label": "t:common.layout.top_right"
+            },
+            {
+              "value": "center_start",
+              "label": "t:common.layout.middle_left"
+            },
+            {
+              "value": "center_center",
+              "label": "t:common.layout.middle"
+            },
+            {
+              "value": "center_end",
+              "label": "t:common.layout.middle_right"
+            },
+            {
+              "value": "bottom_start",
+              "label": "t:common.layout.bottom_left"
+            },
+            {
+              "value": "bottom_center",
+              "label": "t:common.layout.bottom_middle"
+            },
+            {
+              "value": "bottom_end",
+              "label": "t:common.layout.bottom_right"
+            }
+          ],
+          "default": "top_start"
+        },
+        {
+          "type": "select",
+          "id": "size_heading",
+          "label": "t:common.text.heading_size",
+          "options": [
+            {
+              "value": "small",
+              "label": "t:common.size.small"
+            },
+            {
+              "value": "medium",
+              "label": "t:common.size.medium"
+            },
+            {
+              "value": "large",
+              "label": "t:common.size.large"
+            }
+          ],
+          "default": "large"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "t:common.text.text",
+          "default": "<p>Use this section to welcome customers to your store, say a bit about your brand, or share promotions.</p>"
+        },
+        {
+          "type": "select",
+          "id": "position_text",
+          "label": "t:common.text.text_position",
+          "options": [
+            {
+              "value": "top_start",
+              "label": "t:common.layout.top_left"
+            },
+            {
+              "value": "top_center",
+              "label": "t:common.layout.top_middle"
+            },
+            {
+              "value": "top_end",
+              "label": "t:common.layout.top_right"
+            },
+            {
+              "value": "center_start",
+              "label": "t:common.layout.middle_left"
+            },
+            {
+              "value": "center_center",
+              "label": "t:common.layout.middle"
+            },
+            {
+              "value": "center_end",
+              "label": "t:common.layout.middle_right"
+            },
+            {
+              "value": "bottom_start",
+              "label": "t:common.layout.bottom_left"
+            },
+            {
+              "value": "bottom_center",
+              "label": "t:common.layout.bottom_middle"
+            },
+            {
+              "value": "bottom_end",
+              "label": "t:common.layout.bottom_right"
+            }
+          ],
+          "default": "bottom_start"
+        },
+        {
+          "type": "select",
+          "id": "size_text",
+          "label": "t:common.text.text_size",
+          "options": [
+            {
+              "value": "small",
+              "label": "t:common.size.small"
+            },
+            {
+              "value": "medium",
+              "label": "t:common.size.medium"
+            },
+            {
+              "value": "large",
+              "label": "t:common.size.large"
+            }
+          ],
+          "default": "medium"
+        },
+        {
+          "type": "header",
+          "content": "t:component.block_promo_editorial.blocks.editorial.header_3.content"
+        },
+        {
+          "type": "url",
+          "id": "block_link",
+          "label": "t:common.component.link",
+          "info": "t:component.block_promo_editorial.blocks.editorial.block_link.info"
+        },
+        {
+          "type": "header",
+          "content": "t:common.component.button"
+        },
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "t:common.text.label",
+          "default": "Button"
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "t:common.style.style",
+          "options": [
+            {
+              "value": "primary",
+              "label": "t:common.style.primary"
+            },
+            {
+              "value": "secondary",
+              "label": "t:common.style.secondary"
+            },
+            {
+              "value": "icon",
+              "label": "t:common.image.icon"
+            },
+            {
+              "value": "text",
+              "label": "t:common.text.signpost"
+            }
+          ],
+          "default": "icon"
+        },
+        {
+          "type": "select",
+          "id": "position_button",
+          "label": "t:common.layout.position",
+          "options": [
+            {
+              "value": "top_start",
+              "label": "t:common.layout.top_left"
+            },
+            {
+              "value": "top_center",
+              "label": "t:common.layout.top_middle"
+            },
+            {
+              "value": "top_end",
+              "label": "t:common.layout.top_right"
+            },
+            {
+              "value": "center_start",
+              "label": "t:common.layout.middle_left"
+            },
+            {
+              "value": "center_center",
+              "label": "t:common.layout.middle"
+            },
+            {
+              "value": "center_end",
+              "label": "t:common.layout.middle_right"
+            },
+            {
+              "value": "bottom_start",
+              "label": "t:common.layout.bottom_left"
+            },
+            {
+              "value": "bottom_center",
+              "label": "t:common.layout.bottom_middle"
+            },
+            {
+              "value": "bottom_end",
+              "label": "t:common.layout.bottom_right"
+            }
+          ],
+          "default": "bottom_start"
+        },
+        {
+          "type": "color",
+          "id": "color_button_main",
+          "label": "t:common.style.main_color",
+          "default": "#FFFFFF"
+        },
+        {
+          "type": "color",
+          "id": "color_button_contrast",
+          "label": "t:common.style.contrast_color",
+          "default": "#000000"
+        },
+        {
+          "type": "header",
+          "content": "t:common.style.color"
+        },
+        {
+          "type": "color",
+          "id": "color_text",
+          "label": "t:common.text.text",
+          "default": "#FFFFFF"
+        },
+        {
+          "type": "color",
+          "id": "overlay_color",
+          "label": "t:common.style.solid_overlay",
+          "default": "#000000"
+        },
+        {
+          "type": "color_background",
+          "id": "overlay_gradient",
+          "label": "t:common.style.gradient_overlay"
+        },
+        {
+          "type": "range",
+          "id": "color_overlay_opacity",
+          "label": "t:common.image.overlay_opacity",
+          "info": "t:common.info.no_effect_with_gradient_overlay",
+          "step": 1,
+          "min": 0,
+          "max": 100,
+          "default": 20,
+          "unit": "t:common.unit.percent"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "t:common.text.text",
+      "settings": [
+        {
+          "type": "select",
+          "id": "block_width",
+          "label": "t:common.style.block_width",
+          "options": [
+            {
+              "value": "3",
+              "label": "t:common.size.25_percent"
+            },
+            {
+              "value": "4",
+              "label": "t:common.size.33_percent"
+            },
+            {
+              "value": "6",
+              "label": "t:common.size.50_percent"
+            },
+            {
+              "value": "8",
+              "label": "t:common.size.66_percent"
+            },
+            {
+              "value": "9",
+              "label": "t:common.size.75_percent"
+            },
+            {
+              "value": "12",
+              "label": "t:common.size.100_percent"
+            }
+          ],
+          "default": "6"
+        },
+        {
+          "type": "select",
+          "id": "block_height",
+          "label": "t:common.style.block_height",
+          "info": "t:common.info.height_adapts_to_first_row",
+          "options": [
+            {
+              "value": "400px",
+              "label": "t:common.size.small_400px"
+            },
+            {
+              "value": "550px",
+              "label": "t:common.size.medium_550px"
+            },
+            {
+              "value": "700px",
+              "label": "t:common.size.large_700px"
+            },
+            {
+              "value": "auto",
+              "label": "t:common.size.natural_adapts"
+            }
+          ],
+          "default": "700px"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:common.image.image"
+        },
+        {
+          "type": "header",
+          "content": "t:common.style.color"
+        },
+        {
+          "type": "color",
+          "id": "color_text",
+          "label": "t:common.text.text_color",
+          "default": "#FFFFFF"
+        },
+        {
+          "type": "color",
+          "id": "background_color",
+          "label": "t:component.block_promo_text.blocks.text.background_color.label",
+          "default": "#222222"
+        },
+        {
+          "type": "color_background",
+          "id": "background_gradient",
+          "label": "t:component.block_promo_text.blocks.text.background_gradient.label"
+        },
+        {
+          "type": "header",
+          "content": "t:common.text.text"
+        },
+        {
+          "type": "select",
+          "id": "position",
+          "label": "t:common.text.text_position",
+          "options": [
+            {
+              "value": "top_left",
+              "label": "t:common.layout.top_left"
+            },
+            {
+              "value": "top_center",
+              "label": "t:common.layout.top_middle"
+            },
+            {
+              "value": "top_right",
+              "label": "t:common.layout.top_right"
+            },
+            {
+              "value": "center_left",
+              "label": "t:common.layout.middle_left"
+            },
+            {
+              "value": "center_center",
+              "label": "t:common.layout.middle"
+            },
+            {
+              "value": "center_right",
+              "label": "t:common.layout.middle_right"
+            },
+            {
+              "value": "bottom_left",
+              "label": "t:common.layout.bottom_left"
+            },
+            {
+              "value": "bottom_center",
+              "label": "t:common.layout.bottom_middle"
+            },
+            {
+              "value": "bottom_right",
+              "label": "t:common.layout.bottom_right"
+            }
+          ],
+          "default": "bottom_left"
+        },
+        {
+          "type": "text",
+          "id": "preheading",
+          "label": "t:common.text.preheading"
+        },
+        {
+          "type": "select",
+          "id": "size_preheading",
+          "label": "t:component.block_promo_text.blocks.text.size_preheading.label",
+          "options": [
+            {
+              "value": "small",
+              "label": "t:common.size.small"
+            },
+            {
+              "value": "medium",
+              "label": "t:common.size.medium"
+            },
+            {
+              "value": "large",
+              "label": "t:common.size.large"
+            }
+          ],
+          "default": "large"
+        },
+        {
+          "type": "checkbox",
+          "label": "t:component.block_promo_text.blocks.text.bolder_preheading.label",
+          "id": "bolder_preheading",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "label": "t:component.block_promo_text.blocks.text.uppercase_preheading.label",
+          "id": "uppercase_preheading",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:common.text.heading",
+          "default": "Text"
+        },
+        {
+          "type": "select",
+          "id": "size_heading",
+          "label": "t:common.text.heading_size",
+          "options": [
+            {
+              "value": "small",
+              "label": "t:common.size.small"
+            },
+            {
+              "value": "medium",
+              "label": "t:common.size.medium"
+            },
+            {
+              "value": "large",
+              "label": "t:common.size.large"
+            }
+          ],
+          "default": "large"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "t:common.text.text",
+          "default": "<p>Use this section to welcome customers to your store, say a bit about your brand, or share promotions.</p>"
+        },
+        {
+          "type": "select",
+          "id": "size_text",
+          "label": "t:common.text.text_size",
+          "options": [
+            {
+              "value": "small",
+              "label": "t:common.size.small"
+            },
+            {
+              "value": "medium",
+              "label": "t:common.size.medium"
+            },
+            {
+              "value": "large",
+              "label": "t:common.size.large"
+            }
+          ],
+          "default": "medium"
+        },
+        {
+          "type": "header",
+          "content": "t:common.component.button_1"
+        },
+        {
+          "type": "text",
+          "id": "button_text_1",
+          "label": "t:common.text.label",
+          "default": "Button"
+        },
+        {
+          "type": "url",
+          "id": "button_link_1",
+          "label": "t:common.component.link"
+        },
+        {
+          "type": "select",
+          "id": "button_style_1",
+          "label": "t:common.style.style",
+          "options": [
+            {
+              "value": "primary",
+              "label": "t:common.style.primary"
+            },
+            {
+              "value": "secondary",
+              "label": "t:common.style.secondary"
+            },
+            {
+              "value": "icon",
+              "label": "t:common.image.icon"
+            },
+            {
+              "value": "text",
+              "label": "t:common.text.signpost"
+            }
+          ],
+          "default": "primary"
+        },
+        {
+          "type": "color",
+          "id": "color_main_1",
+          "label": "t:common.style.main_color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "color",
+          "id": "color_contrast_1",
+          "label": "t:common.style.contrast_color",
+          "default": "#000000"
+        },
+        {
+          "type": "header",
+          "content": "t:common.component.button_2"
+        },
+        {
+          "type": "text",
+          "id": "button_text_2",
+          "label": "t:common.text.label",
+          "default": "Button"
+        },
+        {
+          "type": "url",
+          "id": "button_link_2",
+          "label": "t:common.component.link"
+        },
+        {
+          "type": "select",
+          "id": "button_style_2",
+          "label": "t:common.style.style",
+          "options": [
+            {
+              "value": "primary",
+              "label": "t:common.style.primary"
+            },
+            {
+              "value": "secondary",
+              "label": "t:common.style.secondary"
+            },
+            {
+              "value": "icon",
+              "label": "t:common.image.icon"
+            },
+            {
+              "value": "text",
+              "label": "t:common.text.signpost"
+            }
+          ],
+          "default": "secondary"
+        },
+        {
+          "type": "color",
+          "id": "color_main_2",
+          "label": "t:common.style.main_color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "color",
+          "id": "color_contrast_2",
+          "label": "t:common.style.contrast_color",
+          "default": "#000000"
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "t:common.image.image",
+      "settings": [
+        {
+          "type": "select",
+          "id": "block_width",
+          "label": "t:common.style.block_width",
+          "options": [
+            {
+              "value": "3",
+              "label": "t:common.size.25_percent"
+            },
+            {
+              "value": "4",
+              "label": "t:common.size.33_percent"
+            },
+            {
+              "value": "6",
+              "label": "t:common.size.50_percent"
+            },
+            {
+              "value": "8",
+              "label": "t:common.size.66_percent"
+            },
+            {
+              "value": "9",
+              "label": "t:common.size.75_percent"
+            },
+            {
+              "value": "12",
+              "label": "t:common.size.100_percent"
+            }
+          ],
+          "default": "6"
+        },
+        {
+          "type": "select",
+          "id": "block_height",
+          "label": "t:common.style.block_height",
+          "info": "t:common.info.height_adapts_to_first_row",
+          "options": [
+            {
+              "value": "400px",
+              "label": "t:common.size.small_400px"
+            },
+            {
+              "value": "550px",
+              "label": "t:common.size.medium_550px"
+            },
+            {
+              "value": "700px",
+              "label": "t:common.size.large_700px"
+            },
+            {
+              "value": "auto",
+              "label": "t:common.size.natural_adapts"
+            }
+          ],
+          "default": "700px"
+        },
+        {
+          "type": "header",
+          "content": "t:common.image.image"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:common.image.image"
+        },
+        {
+          "type": "header",
+          "content": "t:common.style.color"
+        },
+        {
+          "type": "color",
+          "id": "overlay_color",
+          "label": "t:common.style.solid_overlay",
+          "default": "#000000"
+        },
+        {
+          "type": "color_background",
+          "id": "overlay_gradient",
+          "label": "t:common.style.gradient_overlay"
+        },
+        {
+          "type": "range",
+          "id": "color_overlay_opacity",
+          "label": "t:common.image.overlay_opacity",
+          "info": "t:common.info.no_effect_with_gradient_overlay",
+          "step": 1,
+          "min": 0,
+          "max": 100,
+          "default": 20,
+          "unit": "t:common.unit.percent"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

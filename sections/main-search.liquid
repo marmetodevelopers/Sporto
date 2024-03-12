@@ -1,0 +1,713 @@
+<section data-component="main-search" data-component-type="section" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="main-search">
+  <section-wrapper>
+    <section-content>
+
+      <h1 class="main-search__title">
+        {% if search.performed %}
+          {{ 'search.results.title' | t }}
+        {% else %}
+          {{ 'search.search' | t }}
+        {% endif %}
+      </h1>
+
+      {%- paginate search.results by section.settings.results_per_page -%}
+        {% comment %}Component faceted-filters:default begin{% endcomment %}
+        {% render 'faceted-filters', filter_context: search, paginate: paginate %}
+        {% comment %}Component faceted-filters:default end{% endcomment %}
+
+        {% comment %}Component faceted-filters-mobile:default begin{% endcomment %}
+        {% liquid
+          assign filter_context_89597f61 = filter_context
+          assign filter_context = search
+        %}
+        {% comment %}
+          @param filter_context [Required]
+            The filter_context that these filters are drawing from. For example: collection or search.
+        
+        {% endcomment %}
+        
+        {% assign active_count = 0 %}
+        {% for filter in filter_context.filters %}
+          {% case filter.type %}
+          {% when 'list' %}
+            {% assign active_count = active_count | plus: filter.active_values.size %}
+          {% when 'price_range' %}
+            {% if filter.min_value.value or filter.max_value.value %}
+              {% assign active_count = active_count | plus: 1 %}
+            {% endif %}
+          {% endcase %}
+        {% endfor %}
+        
+        <div
+          data-component="faceted-filters-mobile"
+          data-component-type="component"
+          {% if tag != blank %}data-component-tag="{{ tag }}"
+          {% endif %}class="faceted-filters-mobile"
+          data-faceted-filters-mobile
+        >
+          {% if section.settings.filters_show_filters or section.settings.filters_show_sorting %}
+            {% comment %}Component filters-buttons-mobile:default begin{% endcomment %}
+            {% liquid
+              assign show_filters_31bcf30f = show_filters
+              assign show_filters = section.settings.filters_show_filters
+              assign show_sorting_31bcf30f = show_sorting
+              assign show_sorting = section.settings.filters_show_sorting
+            %}
+            {% comment %}
+              @param filter_context [Required]
+                The filter_context that these filters are drawing from. For example: collection or search.
+            
+              @param active_count [Required]
+                The number of currently active filters.
+            
+              @param show_filters [Optional]
+                If true, show the filters button.
+            
+              @param show_sorting [Optional]
+                If true, show the sorting button.
+            
+            {% endcomment %}
+            
+            {% assign results_count = 0 %}
+            {% if filter_context == search %}
+              {% assign results_count = filter_context.results_count %}
+            {% else %}
+              {% assign results_count = filter_context.products_count %}
+            {% endif %}
+            
+            <div
+              data-component="filters-buttons-mobile"
+              data-component-type="component"
+              {% if tag != blank %}data-component-tag="{{ tag }}"
+              {% endif %}class="
+                filters-buttons-mobile
+                {% if show_filters == false or show_sorting == false %}filters-buttons-mobile--single{% endif %}
+                {% if filter_context == search and results_count == 0 %}hidden{% endif %}
+              "
+              data-results-count="{{ results_count }}"
+            >
+            
+              {% if show_filters %}
+                <button
+                  class="filters-buttons-mobile__filter-button"
+                  data-mobile-filters-button
+                >
+                  {% comment %}Icon filter:default begin{% endcomment %}
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#a)" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.422 8.589a3.022 3.022 0 1 0 0-6.045 3.022 3.022 0 0 0 0 6.045Zm3.023-3.022H20.4m-20.4 0h3.4m10.578 12.088a3.022 3.022 0 1 0 0-6.044 3.022 3.022 0 0 0 0 6.044Zm-3.022-3.022H0m20.4 0H17"/></g><defs><clipPath id="a"><path fill="#fff" d="M0 0h20v20H0z"/></clipPath></defs></svg>
+                  {% comment %}Icon filter:default end{% endcomment %}
+                  {{ 'products.filters.filter' | t }}
+                  {% if active_count > 0 %}
+                    <span class="filters-buttons-mobile__active-count">({{ active_count }})</span>
+                  {% endif %}
+                </button>
+              {% endif %}
+            
+              {% if show_sorting %}
+                {% assign label_text = 'products.filters.sort_by_label' | t %}
+                {% assign button_label = 'products.filters.sort_button' | t %}
+                {% assign selected_value = filter_context.sort_by | default: filter_context.default_sort_by %}
+                <div class="filters-buttons-mobile__sort-by" data-mobile-filters-sort-by>
+                  {% comment %}Component disclosure:default begin{% endcomment %}
+                  {% liquid
+                    assign namespace_30bf5877 = namespace
+                    assign namespace = 'sort_by'
+                    assign heading_30bf5877 = heading
+                    assign heading = label_text
+                    assign value_list_30bf5877 = value_list
+                    assign value_list = filter_context.sort_options
+                    assign value_key_30bf5877 = value_key
+                    assign value_key = 'value'
+                    assign name_key_30bf5877 = name_key
+                    assign name_key = 'name'
+                    assign current_value_30bf5877 = current_value
+                    assign current_value = selected_value
+                    assign input_name_30bf5877 = input_name
+                    assign input_name = 'sort_by'
+                    assign fill_container_30bf5877 = fill_container
+                    assign fill_container = true
+                    assign always_show_heading_30bf5877 = always_show_heading
+                    assign always_show_heading = true
+                  %}
+                  {%- comment -%}
+                    @param namespace [Required]
+                      The namespace that is used for aria-attributes.
+                  
+                    @param heading [Required]
+                      The heading/text that is shown when opening the disclosure on mobile. Also used by screen readers to describe the contents of the disclosure.
+                  
+                    @param button_label [Optional]
+                      Label for the no-js button.
+                  
+                    @param current_value [Required]
+                      The currently selected value.
+                  
+                    @param value_list [Required]
+                      The object that contains the list items to be rendered.
+                  
+                    @param value_key [Required]
+                      The key that is used while looping over value_list to access the value of the item.
+                  
+                    @param name_key [Required - unless using is_country_selector]
+                      The key that is used while looping over value_list to access the display name of the item.
+                  
+                    @param is_country_selector [Optional]
+                      If true, this disclosure uses the fields for country localization (instead of making an entirely new component just for currency)
+                  
+                    @param input_name [Optional]
+                      Used to specify the "name" attribute for the <input> element.
+                  
+                    @param fill_container [Optional]
+                      If true, the disclocure toggle button will fill its parent container.
+                  
+                    @param always_show_heading [Optional]
+                      If true, will always show the heading inside the button, instead of the selected value.
+                  {%- endcomment -%}
+                  
+                  {% liquid
+                    assign is_country_selector = is_country_selector | default: false
+                    assign always_show_heading = always_show_heading | default: false
+                  
+                    assign current_name = blank
+                    if is_country_selector
+                      assign current_name = localization.country.name | append: ' (' | append: localization.country.currency.iso_code | append: ' ' | append: localization.country.currency.symbol | append: ')'
+                    else
+                      for value_item in value_list
+                        if value_item[value_key] == current_value
+                          assign current_name = value_item[name_key]
+                        endif
+                      endfor
+                    endif
+                  %}
+                  
+                  <div data-component="disclosure" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="disclosure{% if fill_container %} disclosure--fill{% endif %}">
+                    <script
+                      type="application/json"
+                      data-component-data
+                    >
+                      {
+                        "inputName": "{{ input_name }}",
+                        "inputValue": "{{ current_value }}",
+                        "alwaysShowHeading": {{ always_show_heading }}
+                      }
+                    </script>
+                    <noscript>
+                      <div class="disclosure__select-list">
+                        <label class="visually-hidden" for="{{ namespace }}-select-{{ unique_id }}">
+                          {{ heading | escape }}
+                        </label>
+                        <select
+                          class="disclosure__select"
+                          id="{{ namespace }}-select-{{ unique_id }}"
+                          name="{{ input_name }}"
+                        >
+                          {% for value_item in value_list %}
+                            <option
+                              class="disclosure__option"
+                              value="{{ value_item[value_key] }}"
+                              {% if value_item[value_key] == current_value %}
+                                selected
+                              {% endif %}
+                            >
+                              {% if is_country_selector %}
+                                {{ value_item.name }} ({{ value_item.currency.iso_code }} {{ value_item.currency.symbol }})
+                              {% else %}
+                                {{ value_item[name_key] }}
+                              {% endif %}
+                            </option>
+                          {% endfor %}
+                        </select>
+                        {% comment %}Component button:default begin{% endcomment %}
+                        {% liquid
+                          assign style_ff265fe6 = style
+                          assign style = 'primary'
+                          assign size_ff265fe6 = size
+                          assign size = 'small'
+                          assign text_ff265fe6 = text
+                          assign text = button_label
+                        %}
+                        {% comment %}
+                          @param style [Required]
+                            This is the style of the button: primary, secondary, tertiary, or text. Default primary.
+                        
+                          @param size [Required]
+                            This defines the size of the button: small, medium, or large. Default medium.
+                        
+                          @param text [Required]
+                            This is the text to be included in the button.
+                        
+                          @param attributes [Optional]
+                            This will include any additional attributes that the button needs. For example, aria-controls.
+                        {% endcomment %}
+                        
+                        <button
+                          data-component="button"
+                          data-component-type="component"
+                          {% if tag != blank %}data-component-tag="{{ tag }}"
+                          {% endif %}class="button button--{{ style }} button--{{ size }}{% if style == 'primary' or style == 'secondary' %} button--shadow{% endif %%}"
+                          {{ attributes }}
+                        >
+                          {{ text }}
+                        </button>
+                        
+                        {% liquid
+                          assign style = style_ff265fe6
+                          assign style_ff265fe6 = nil
+                          assign size = size_ff265fe6
+                          assign size_ff265fe6 = nil
+                          assign text = text_ff265fe6
+                          assign text_ff265fe6 = nil
+                        %}
+                        {% comment %}Component button:default end{% endcomment %}
+                      </div>
+                    </noscript>
+                  
+                    <div class="disclosure__wrapper disclosure--no-js-hidden">
+                      {% assign unique_id = "now" | date: "%N" | modulo: 1000 %}
+                      <h2 class="visually-hidden" id="{{ namespace }}-heading-{{ unique_id }}">
+                        {{ heading | escape }}
+                      </h2>
+                      <button
+                        class="disclosure__toggle"
+                        type="button"
+                        aria-expanded="false"
+                        aria-controls="{{ namespace }}-list-{{ unique_id }}"
+                        aria-describedby="{{ namespace }}-heading-{{ unique_id }}"
+                        data-disclosure-toggle
+                      >
+                        {% if always_show_heading %}
+                          {{ heading }}
+                        {% else %}
+                          {{ current_name }}
+                        {% endif %}
+                      </button>
+                      <div
+                        class="disclosure__modal"
+                        id="{{ namespace }}-list-{{ unique_id }}"
+                        data-disclosure-modal
+                      >
+                        <h2 class="disclosure__heading">{{ heading }}</h2>
+                        <button
+                          class="disclosure__close"
+                          data-disclosure-close
+                        >
+                          <span class="visually-hidden">{{ 'general.close' | t }}</span>
+                        </button>
+                        <ul class="disclosure__list">
+                          {% for value_item in value_list %}
+                            <li class="disclosure__list-item">
+                              <a
+                                class="
+                                  disclosure__link
+                                  {% if value_item[value_key] == current_value %}disclosure__link--selected{% endif %}
+                                "
+                                href="#"
+                                data-value="{{ value_item[value_key] }}"
+                                {% if value_item[value_key] == current_value %}
+                                  aria-current="true"
+                                {% endif %}
+                                data-disclosure-option
+                              >
+                                {% if is_country_selector %}
+                                  {{ value_item.name }} ({{ value_item.currency.iso_code }} {{ value_item.currency.symbol }})
+                                {% else %}
+                                  {{ value_item[name_key] }}
+                                {% endif %}
+                              </a>
+                            </li>
+                          {% endfor %}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {% liquid
+                    assign namespace = namespace_30bf5877
+                    assign namespace_30bf5877 = nil
+                    assign heading = heading_30bf5877
+                    assign heading_30bf5877 = nil
+                    assign value_list = value_list_30bf5877
+                    assign value_list_30bf5877 = nil
+                    assign value_key = value_key_30bf5877
+                    assign value_key_30bf5877 = nil
+                    assign name_key = name_key_30bf5877
+                    assign name_key_30bf5877 = nil
+                    assign current_value = current_value_30bf5877
+                    assign current_value_30bf5877 = nil
+                    assign input_name = input_name_30bf5877
+                    assign input_name_30bf5877 = nil
+                    assign fill_container = fill_container_30bf5877
+                    assign fill_container_30bf5877 = nil
+                    assign always_show_heading = always_show_heading_30bf5877
+                    assign always_show_heading_30bf5877 = nil
+                  %}
+                  {% comment %}Component disclosure:default end{% endcomment %}
+                </div>
+              {% endif %}
+            </div>
+            
+            {% liquid
+              assign show_filters = show_filters_31bcf30f
+              assign show_filters_31bcf30f = nil
+              assign show_sorting = show_sorting_31bcf30f
+              assign show_sorting_31bcf30f = nil
+            %}
+            {% comment %}Component filters-buttons-mobile:default end{% endcomment %}
+          {% endif %}
+        
+          {% if section.settings.filters_show_filters %}
+            {% comment %}Component filters-active-mobile:default begin{% endcomment %}
+            {% comment %}
+              @param filter_context [Required]
+                The filter_context that these filters are drawing from. For example: collection or search.
+            
+              @param active_count [Required]
+                The number of currently active filters.
+            
+            {% endcomment %}
+            
+            <div
+              data-component="filters-active-mobile"
+              data-component-type="component"
+              {% if tag != blank %}data-component-tag="{{ tag }}"
+              {% endif %}class="
+                filters-active-mobile
+                {% if active_count == 0 %}hidden{% endif %}
+              "
+              data-filters-active-mobile
+            >
+              <a class="filters-active-mobile__clear-all" href="{{ filter_context.url }}?sort_by={{ filter_context.sort_by }}{% if filter_context == search and filter_context.terms %}&q={{ filter_context.terms }}{% endif %}">
+                {{ 'products.filters.clear_all' | t }}
+              </a>
+              <div class="filters-active-mobile__list" data-mobile-active-filter-list>
+                {%- for filter in filter_context.filters -%}
+                  {%- for value in filter.active_values -%}
+                    {% assign button_text = value.label | escape %}
+                    {% comment %}Component filters-tag-link:default begin{% endcomment %}
+                    {% liquid
+                      assign href_92f86394 = href
+                      assign href = value.url_to_remove
+                      assign text_92f86394 = text
+                      assign text = button_text
+                    %}
+                    {% comment %}
+                      @param href [Required]
+                        This is the anchor tag for the tag button.
+                    
+                      @param text [Required]
+                        This is the text to be included in the button.
+                    
+                      @param attributes [Optional]
+                        Any additional attributes to add to the button-link tag.
+                    {% endcomment %}
+                    
+                    <a
+                      data-component="filters-tag-link"
+                      data-component-type="component"
+                      {% if tag != blank %}data-component-tag="{{ tag }}"
+                      {% endif %}class="filters-tag-link"
+                      href="{{ href }}"
+                      {{ attributes }}
+                    >
+                      {{ text }}
+                    </a>
+                    
+                    {% liquid
+                      assign href = href_92f86394
+                      assign href_92f86394 = nil
+                      assign text = text_92f86394
+                      assign text_92f86394 = nil
+                    %}
+                    {% comment %}Component filters-tag-link:default end{% endcomment %}
+                  {%- endfor -%}
+                  {% if filter.type == "price_range" %}
+                    {%- if filter.min_value.value != nil or filter.max_value.value != nil -%}
+                      {% capture button_text %}
+                        {% if filter.min_value.value %}{{ filter.min_value.value | money }}{% else %}{{ 0 | money }}{% endif %} - {% if filter.max_value.value %}{{ filter.max_value.value | money }}{% else %}{{ filter.range_max | money }}{% endif %}
+                      {% endcapture %}
+                      {% comment %}Component filters-tag-link:default begin{% endcomment %}
+                      {% liquid
+                        assign href_92f86394 = href
+                        assign href = filter.url_to_remove
+                        assign text_92f86394 = text
+                        assign text = button_text
+                      %}
+                      {% comment %}
+                        @param href [Required]
+                          This is the anchor tag for the tag button.
+                      
+                        @param text [Required]
+                          This is the text to be included in the button.
+                      
+                        @param attributes [Optional]
+                          Any additional attributes to add to the button-link tag.
+                      {% endcomment %}
+                      
+                      <a
+                        data-component="filters-tag-link"
+                        data-component-type="component"
+                        {% if tag != blank %}data-component-tag="{{ tag }}"
+                        {% endif %}class="filters-tag-link"
+                        href="{{ href }}"
+                        {{ attributes }}
+                      >
+                        {{ text }}
+                      </a>
+                      
+                      {% liquid
+                        assign href = href_92f86394
+                        assign href_92f86394 = nil
+                        assign text = text_92f86394
+                        assign text_92f86394 = nil
+                      %}
+                      {% comment %}Component filters-tag-link:default end{% endcomment %}
+                    {%- endif -%}
+                  {% endif %}
+                {%- endfor -%}
+              </div>
+            </div>
+            
+            {% comment %}Component filters-active-mobile:default end{% endcomment %}
+        
+        
+            {% comment %}Component drawer-filters:default begin{% endcomment %}
+            {% render 'drawer-filters', filter_context: filter_context %}
+            {% comment %}Component drawer-filters:default end{% endcomment %}
+          {% endif %}
+        </div>
+        
+        {% liquid
+          assign filter_context = filter_context_89597f61
+          assign filter_context_89597f61 = nil
+        %}
+        {% comment %}Component faceted-filters-mobile:default end{% endcomment %}
+
+        <div class="main-search-results" id="search-results-list" data-filter-results>
+          {% if search.performed %}
+            {%- if search.results.size == 0 -%}
+              {% if search.filters != empty -%}
+                <div class="search-results__empty">
+                  <h2>{{ 'search.results.empty' | t }}</h2>
+                  {% assign search_url = search.url | append: '?sort_by=' | append: search.sort_by %}
+                  {% if search.terms %}
+                    {% assign search_url = search_url | append: '&q=' | append: search.terms %}
+                  {% endif %}
+                  <div>{{ 'search.results.use_fewer_filters_html' | t: link: search_url }}</div>
+                </div>
+              {%- else -%}
+                <p class="main-search-results__text" role="status">
+                  {{- 'search.results.no_results' | t: terms: search.terms -}}
+                </p>
+              {%- endif -%}
+            {%- else -%}
+              <ul
+                class="
+                  main-search-results__list
+                  main-search-results__list--columns-{{ section.settings.columns_desktop }}
+                "
+              >
+                {% for item in search.results %}
+                  {% case item.object_type %}
+                  {% when 'product' %}
+                    <li class="main-search-results__list-item">
+                      {% comment %}Component product-card:default begin{% endcomment %}
+                      {% render 'product-card', product_card_product: item, filter_context: search %}
+                      {% comment %}Component product-card:default end{% endcomment %}
+                    </li>
+                  {% when 'article' %}
+                    <li class="main-search-results__list-item">
+                      {% comment %}Component article-card-search:default begin{% endcomment %}
+                      {% liquid
+                        assign article_3caa5365 = article
+                        assign article = item
+                      %}
+                      {%- comment -%}
+                        @param article [Required]
+                          The article to use for the card
+                      {%- endcomment -%}
+                      
+                      <article data-component="article-card-search" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="article-card-search">
+                        <div class="article-card-search__content">
+                          <h3 class="article-card-search__title">
+                            <a class="article-card-search__location" href="{{ article.url }}">
+                              {{ article.title | escape }}
+                            </a>
+                          </h3>
+                      
+                          <p class="article-card-search__excerpt">
+                            {% if article.excerpt != blank %}
+                              {{ article.excerpt | strip_html }}
+                            {% else %}
+                              {{ article.content | strip_html | truncate: 90 }}
+                            {% endif %}
+                          </p>
+                      
+                          {% if section.settings.show_date or section.settings.show_author %}
+                            <div class="article-card-search__content-bottom">
+                              {% if section.settings.show_author and article.author and article.object_type == 'article' %}
+                                <span class="article-card-search__author">
+                                  {{ 'blogs.article.written_by' | t: author: article.author }}
+                                </span>
+                              {% endif %}
+                              {% if section.settings.show_date and article.published_at and article.object_type == 'article' %}
+                                <span class="article-card-search__date">
+                                  {{ article.published_at | time_tag: format: 'date' }}
+                                </span>
+                              {% endif %}
+                            </div>
+                          {% endif %}
+                        </div>
+                      </article>
+                      
+                      {% liquid
+                        assign article = article_3caa5365
+                        assign article_3caa5365 = nil
+                      %}
+                      {% comment %}Component article-card-search:default end{% endcomment %}
+                    </li>
+                  {% when 'page' %}
+                    <li class="main-search-results__list-item">
+                      {% comment %}Component article-card-search:default begin{% endcomment %}
+                      {% liquid
+                        assign article_3caa5365 = article
+                        assign article = item
+                      %}
+                      {%- comment -%}
+                        @param article [Required]
+                          The article to use for the card
+                      {%- endcomment -%}
+                      
+                      <article data-component="article-card-search" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="article-card-search">
+                        <div class="article-card-search__content">
+                          <h3 class="article-card-search__title">
+                            <a class="article-card-search__location" href="{{ article.url }}">
+                              {{ article.title | escape }}
+                            </a>
+                          </h3>
+                      
+                          <p class="article-card-search__excerpt">
+                            {% if article.excerpt != blank %}
+                              {{ article.excerpt | strip_html }}
+                            {% else %}
+                              {{ article.content | strip_html | truncate: 90 }}
+                            {% endif %}
+                          </p>
+                      
+                          {% if section.settings.show_date or section.settings.show_author %}
+                            <div class="article-card-search__content-bottom">
+                              {% if section.settings.show_author and article.author and article.object_type == 'article' %}
+                                <span class="article-card-search__author">
+                                  {{ 'blogs.article.written_by' | t: author: article.author }}
+                                </span>
+                              {% endif %}
+                              {% if section.settings.show_date and article.published_at and article.object_type == 'article' %}
+                                <span class="article-card-search__date">
+                                  {{ article.published_at | time_tag: format: 'date' }}
+                                </span>
+                              {% endif %}
+                            </div>
+                          {% endif %}
+                        </div>
+                      </article>
+                      
+                      {% liquid
+                        assign article = article_3caa5365
+                        assign article_3caa5365 = nil
+                      %}
+                      {% comment %}Component article-card-search:default end{% endcomment %}
+                    </li>
+                  {% endcase %}
+                {% endfor %}
+              </ul>
+            {%- endif -%}
+
+            {% if paginate.parts.size > 1 %}
+              {% comment %}Component pagination:default begin{% endcomment %}
+              {% render 'pagination', paginate: paginate %}
+              {% comment %}Component pagination:default end{% endcomment %}
+            {% endif %}
+          {% endif %}
+        </div>
+      {%- endpaginate -%}
+    </section-content>
+  </section-wrapper>
+</section>
+{% schema %}
+{
+  "name": "t:component.search.name",
+  "settings": [
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "t:common.collection.columns_per_row",
+      "info": "t:common.info.grid_columns_desktop",
+      "min": 3,
+      "max": 5,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "results_per_page",
+      "label": "t:component.search.results_per_page.label",
+      "options": [
+        {
+          "value": "12",
+          "label": "t:common.count.12"
+        },
+        {
+          "value": "24",
+          "label": "t:common.count.24"
+        },
+        {
+          "value": "36",
+          "label": "t:common.count.36"
+        }
+      ],
+      "default": "24"
+    },
+    {
+      "type": "checkbox",
+      "id": "filters_show_sorting",
+      "label": "t:common.collection.sorting_options",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "filters_show_filters",
+      "label": "t:common.collection.filtering_options",
+      "default": true,
+      "info": "t:common.info.faceted_filters"
+    },
+    {
+      "type": "header",
+      "content": "t:component.faceted_filters.header_1.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "filters_show_totals",
+      "label": "t:component.faceted_filters.filters_show_totals.label",
+      "info": "t:component.faceted_filters.filters_show_totals.info",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:component.article_card_search.header_1.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_author",
+      "label": "t:common.blog.show_article_author",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_date",
+      "label": "t:common.blog.show_article_date",
+      "default": true
+    }
+  ],
+  "templates": [
+    "search"
+  ]
+}
+{% endschema %}

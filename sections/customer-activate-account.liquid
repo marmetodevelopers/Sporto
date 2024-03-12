@@ -1,0 +1,262 @@
+<section data-component="customer-activate-account" data-component-type="section" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="customer-activate-account">
+  <section-wrapper width="constrained">
+    <section-header>
+      <h1>{{ 'customer.activate.title' | t }}</h1>
+      <p>{{ 'customer.activate.subtitle' | t }}</p>
+    </section-header>
+  </section-wrapper>
+
+  <section-wrapper width="constrained">
+    <section-content>
+      {% form 'activate_customer_password', class: 'customer-activate-account__form' %}
+        {% if form.errors %}
+          <div id="activate-account-error" tabindex="-1" autofocus>
+            {{ form.errors | default_errors }}
+          </div>
+        {% endif %}
+
+        {% assign label_text = 'general.customer.password' | t %}
+        {% capture field_attributes %}
+          autocomplete="new-password"
+          {% if form.errors contains 'password' %}
+            aria-invalid="true"
+          {% endif %}
+        {% endcapture %}
+        {% comment %}Component input-field:default begin{% endcomment %}
+        {% liquid
+          assign input_type_f470a551 = input_type
+          assign input_type = 'password'
+          assign form_namespace_f470a551 = form_namespace
+          assign form_namespace = 'customer'
+          assign field_name_f470a551 = field_name
+          assign field_name = 'password'
+          assign attributes_f470a551 = attributes
+          assign attributes = field_attributes
+        %}
+        {% comment %}
+          @param form [Required]
+            The form that the input lives in.
+        
+          @param form_namespace [Required]
+            The form's namespace that is used in "name" attribute as form_namespace[field_name].
+        
+          @param field_name [Required]
+            The field name for the form. Will be used for the "name" attribute.
+        
+          @param input_type [Required]
+            The type of field that is being rendered. Usually text, password, number, etc.
+        
+          @param input_id [Optional]
+            The type of field that is being rendered. Usually text, password, number, etc.
+        
+          @param label_text [Required]
+            The text for the label to be included.
+        
+          @param placeholder [Optional]
+            The placeholder for the input field.
+        
+          @param attributes [Optional]
+            Additional attributes to append to the input field.
+        {% endcomment %}
+        
+        {% if input_id == blank %}
+          {% comment %}UUID input_id begin{% endcomment %}
+          {% assign input_id = 'eebe0342-7540-4586-8fd6-5306281abb6d' %}
+          {% comment %}UUID input_id end{% endcomment %}
+        {% endif %}
+        
+        <div data-component="input-field" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="input-field">
+          <label for="{{ input_id }}">{{ label_text }}</label>
+          <input
+            id="{{ input_id }}"
+            type="{{ input_type }}"
+            name="{% if form_namespace %}{{ form_namespace }}[{{ field_name }}]{% else %}{{ field_name }}{% endif %}"
+            value="{{ form[field_name] }}"
+            placeholder="{{ placeholder }}"
+            {{ attributes }}
+          >
+        </div>
+        
+        {% liquid
+          assign input_type = input_type_f470a551
+          assign input_type_f470a551 = nil
+          assign form_namespace = form_namespace_f470a551
+          assign form_namespace_f470a551 = nil
+          assign field_name = field_name_f470a551
+          assign field_name_f470a551 = nil
+          assign attributes = attributes_f470a551
+          assign attributes_f470a551 = nil
+        %}
+        {% comment %}Component input-field:default end{% endcomment %}
+
+        {% assign label_text = 'general.customer.password_repeat' | t %}
+        {% capture field_attributes %}
+          autocomplete="new-password"
+          {% if form.errors contains 'password' %}
+            aria-invalid="true"
+          {% endif %}
+        {% endcapture %}
+        {% comment %}Component input-field:default begin{% endcomment %}
+        {% liquid
+          assign input_type_f470a551 = input_type
+          assign input_type = 'password'
+          assign form_namespace_f470a551 = form_namespace
+          assign form_namespace = 'customer'
+          assign field_name_f470a551 = field_name
+          assign field_name = 'password_confirmation'
+          assign attributes_f470a551 = attributes
+          assign attributes = field_attributes
+        %}
+        {% comment %}
+          @param form [Required]
+            The form that the input lives in.
+        
+          @param form_namespace [Required]
+            The form's namespace that is used in "name" attribute as form_namespace[field_name].
+        
+          @param field_name [Required]
+            The field name for the form. Will be used for the "name" attribute.
+        
+          @param input_type [Required]
+            The type of field that is being rendered. Usually text, password, number, etc.
+        
+          @param input_id [Optional]
+            The type of field that is being rendered. Usually text, password, number, etc.
+        
+          @param label_text [Required]
+            The text for the label to be included.
+        
+          @param placeholder [Optional]
+            The placeholder for the input field.
+        
+          @param attributes [Optional]
+            Additional attributes to append to the input field.
+        {% endcomment %}
+        
+        {% if input_id == blank %}
+          {% comment %}UUID input_id begin{% endcomment %}
+          {% assign input_id = '8d7c8b6a-5184-428a-9ba2-74690c5c3b97' %}
+          {% comment %}UUID input_id end{% endcomment %}
+        {% endif %}
+        
+        <div data-component="input-field" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="input-field">
+          <label for="{{ input_id }}">{{ label_text }}</label>
+          <input
+            id="{{ input_id }}"
+            type="{{ input_type }}"
+            name="{% if form_namespace %}{{ form_namespace }}[{{ field_name }}]{% else %}{{ field_name }}{% endif %}"
+            value="{{ form[field_name] }}"
+            placeholder="{{ placeholder }}"
+            {{ attributes }}
+          >
+        </div>
+        
+        {% liquid
+          assign input_type = input_type_f470a551
+          assign input_type_f470a551 = nil
+          assign form_namespace = form_namespace_f470a551
+          assign form_namespace_f470a551 = nil
+          assign field_name = field_name_f470a551
+          assign field_name_f470a551 = nil
+          assign attributes = attributes_f470a551
+          assign attributes_f470a551 = nil
+        %}
+        {% comment %}Component input-field:default end{% endcomment %}
+
+        <div class="customer-activate-account__actions">
+          {% assign button_text = 'customer.activate.submit' | t %}
+          {% comment %}Component button:default begin{% endcomment %}
+          {% liquid
+            assign style_6907dc8b = style
+            assign style = 'primary'
+            assign size_6907dc8b = size
+            assign size = 'medium'
+            assign text_6907dc8b = text
+            assign text = button_text
+          %}
+          {% comment %}
+            @param style [Required]
+              This is the style of the button: primary, secondary, tertiary, or text. Default primary.
+          
+            @param size [Required]
+              This defines the size of the button: small, medium, or large. Default medium.
+          
+            @param text [Required]
+              This is the text to be included in the button.
+          
+            @param attributes [Optional]
+              This will include any additional attributes that the button needs. For example, aria-controls.
+          {% endcomment %}
+          
+          <button
+            data-component="button"
+            data-component-type="component"
+            {% if tag != blank %}data-component-tag="{{ tag }}"
+            {% endif %}class="button button--{{ style }} button--{{ size }}{% if style == 'primary' or style == 'secondary' %} button--shadow{% endif %%}"
+            {{ attributes }}
+          >
+            {{ text }}
+          </button>
+          
+          {% liquid
+            assign style = style_6907dc8b
+            assign style_6907dc8b = nil
+            assign size = size_6907dc8b
+            assign size_6907dc8b = nil
+            assign text = text_6907dc8b
+            assign text_6907dc8b = nil
+          %}
+          {% comment %}Component button:default end{% endcomment %}
+
+          {% assign button_text = 'customer.activate.decline' | t %}
+          {% comment %}Component button:default begin{% endcomment %}
+          {% liquid
+            assign style_6907dc8b = style
+            assign style = 'secondary'
+            assign size_6907dc8b = size
+            assign size = 'medium'
+            assign text_6907dc8b = text
+            assign text = button_text
+            assign attributes_6907dc8b = attributes
+            assign attributes = 'name="decline"'
+          %}
+          {% comment %}
+            @param style [Required]
+              This is the style of the button: primary, secondary, tertiary, or text. Default primary.
+          
+            @param size [Required]
+              This defines the size of the button: small, medium, or large. Default medium.
+          
+            @param text [Required]
+              This is the text to be included in the button.
+          
+            @param attributes [Optional]
+              This will include any additional attributes that the button needs. For example, aria-controls.
+          {% endcomment %}
+          
+          <button
+            data-component="button"
+            data-component-type="component"
+            {% if tag != blank %}data-component-tag="{{ tag }}"
+            {% endif %}class="button button--{{ style }} button--{{ size }}{% if style == 'primary' or style == 'secondary' %} button--shadow{% endif %%}"
+            {{ attributes }}
+          >
+            {{ text }}
+          </button>
+          
+          {% liquid
+            assign style = style_6907dc8b
+            assign style_6907dc8b = nil
+            assign size = size_6907dc8b
+            assign size_6907dc8b = nil
+            assign text = text_6907dc8b
+            assign text_6907dc8b = nil
+            assign attributes = attributes_6907dc8b
+            assign attributes_6907dc8b = nil
+          %}
+          {% comment %}Component button:default end{% endcomment %}
+        </div>
+      {% endform %}
+    </section-content>
+  </section-wrapper>
+</section>

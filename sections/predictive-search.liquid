@@ -1,0 +1,282 @@
+{% comment %}
+  @param show_product_images {Boolean} [Optional] If true, include product images in search results
+{% endcomment %}
+
+{%- if predictive_search.performed -%}
+  {% liquid
+    assign results_count = 0
+    assign resource_types = 'articles,collections,pages,products' | split: ','
+
+    for type in resource_types
+      assign results_count = results_count | plus: predictive_search.resources[type].size
+    endfor
+  %}
+  <div
+    class="
+      predictive-search__results
+      {% if predictive_search.resources.products.size > 0 and predictive_search.resources.articles.size > 0 or predictive_search.resources.pages.size > 0 %}
+        predictive-search__results--multi-column
+      {% endif %}
+    "
+    data-predictive-search-results
+  >
+    {% if results_count > 0 %}
+      {%- if predictive_search.resources.queries.size > 0 or predictive_search.resources.collections.size > 0 -%}
+        <div class="predictive-search__query-suggestions">
+          <h2 class="predictive-search__query-suggestions-heading">
+            {{- 'search.live_search.query_suggestions_heading' | t -}}
+          </h2>
+
+          <ul class="predictive-search__results-list" role="listbox">
+            {%- for query in predictive_search.resources.queries -%}
+              <li
+                class="predictive-search__list-item"
+                role="option"
+                aria-selected="false"
+                data-predictive-search-result
+              >
+                <a class="predictive-search__item" href="{{ query.url }}">
+                  {{- query.styled_text -}}
+                </a>
+              </li>
+            {%- endfor -%}
+
+            {%- for collection in predictive_search.resources.collections -%}
+              <li
+                class="predictive-search__list-item"
+                role="option"
+                aria-selected="false"
+                data-predictive-search-result
+              >
+                <a class="predictive-search__item" href="{{ collection.url }}">
+                  {{- collection.title | escape -}}
+                </a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+
+      {% if predictive_search.resources.products.size > 0 %}
+        <div class="predictive-search__product-results-container">
+          <h2 class="predictive-search__products-heading">
+            {{- 'search.live_search.product_suggestions_heading' | t -}}
+          </h2>
+
+          <ul
+            class="
+              predictive-search__results-list
+              predictive-search__products-results-list
+            "
+            role="listbox"
+            aria-labelledby="predictive-search-products"
+          >
+            {%- for product in predictive_search.resources.products -%}
+              <li
+                class="predictive-search__list-item"
+                role="option"
+                aria-selected="false"
+                data-predictive-search-result
+              >
+                <a
+                  href="{{ product.url }}"
+                  class="
+                    predictive-search__item
+                    predictive-search__product-item
+                    predictive-search__product-item--link
+                    {% if settings.predictive_search_show_product_images %}
+                      predictive-search__product-item--show-image
+                    {% endif %}
+                  "
+                  aria-label="{{ product.title }}"
+                >
+                  {%- if settings.predictive_search_show_product_images -%}
+                    <div class="predictive-search__product-item-image-wrapper">
+                      {%- if product.featured_media != blank -%}
+                        {% comment %}Component lazy-img:default begin{% endcomment %}
+                        {% render 'lazy-img', img: product.featured_media.preview_image, size: '200x', fill_mode: 'fit', lazy: true, canvas: true %}
+                        {% comment %}Component lazy-img:default end{% endcomment %}
+                      {% else %}
+                        {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                      {%- endif -%}
+                    </div>
+                  {%- endif -%}
+                  <div class="predictive-search__product-item-content">
+                    <span class="visually-hidden">{{ 'accessibility.vendor' | t }}</span><div class="predictive-search__product-item-vendor">{{ product.vendor }}</div>
+                    <h3 class="predictive-search__product-item-heading">{{ product.title }}</h3>
+                    {% comment %}Component price:default begin{% endcomment %}
+                    {% render 'price', product: product %}
+                    {% comment %}Component price:default end{% endcomment %}
+                  </div>
+                </a>
+              </li>
+            {% else %}
+              <li class="predictive-search__list-item">
+                <p>{{ 'search.live_search.no_products' | t }}</p>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {% endif %}
+
+      {%- if predictive_search.resources.articles.size > 0 or predictive_search.resources.pages.size > 0 -%}
+        <div class="predictive-search__posts-pages-results-container">
+          <h2 class="predictive-search__pages-posts-heading">
+            {% if predictive_search.resources.articles.size > 0 and predictive_search.resources.pages.size > 0 %}
+              {{- 'search.live_search.pages_and_posts_heading' | t -}}
+            {% elsif predictive_search.resources.articles.size > 0 %}
+              {{- 'search.live_search.post_suggestions_heading' | t -}}
+            {% elsif predictive_search.resources.pages.size > 0 %}
+              {{- 'search.live_search.page_suggestions_heading' | t -}}
+            {% endif %}
+          </h2>
+
+          <ul class="predictive-search__results-list predictive-search__posts-pages-results-list" role="listbox" aria-labelledby="predictive-search-products">
+            {%- for article in predictive_search.resources.articles -%}
+              <li
+                class="predictive-search__list-item"
+                role="option"
+                aria-selected="false"
+                data-predictive-search-result
+              >
+                <div
+                  class="
+                    predictive-search__item
+                    predictive-search__article-item
+                  "
+                >
+                  {% if article.tags.size > 0 and settings.predictive_search_show_article_tags %}
+                    <div class="predictive-search__article-item-tags">
+                      {%- comment -%}
+                        `article.handle` contains the blog it belongs to ex: news/article-title
+                        Use that to determine the parent blog so that we always link to the correct blog
+                      {%- endcomment -%}
+                      {% liquid
+                        assign parent_blog = article.handle | split: '/'
+                        assign parent_blog_handle = parent_blog[0]
+                      %}
+                      {%- for tag in article.tags -%}
+                        {% liquid
+                          assign tag_handle = tag | handle
+                          assign tag_link = blogs[parent_blog_handle].url
+
+                          if tag_handle != blank
+                            assign tag_link = tag_link | append: '/tagged/' | append: tag_handle
+                          endif
+                        %}
+
+                        <a class="predictive-search__article-tag-link" href="{{ tag_link }}">
+                          {{- tag | escape -}}
+                        </a>
+                      {%- endfor -%}
+                    </div>
+                  {% endif %}
+                  <a
+                    href="{{ article.url }}"
+                    class="predictive-search__article-item-link"
+                    data-predictive-search-result-action
+                  >
+                    <h3 class="predictive-search__article-item-heading">
+                      {{- article.title -}}
+                    </h3>
+
+                    {% liquid
+                      assign show_author = settings.predictive_search_show_article_author
+                      assign show_date = settings.predictive_search_show_article_date
+
+                      if show_author and show_date
+                        assign divider = ' /'
+                      endif
+                    %}
+
+                    {% if show_author or show_date %}
+                      <div class="predictive-search__article-author-date">
+                        {% if show_author %}
+                          {{ 'search.live_search.post_byline' | t }} {{ article.author | append: divider }}
+                        {% endif %}
+
+                        {% if show_date %}
+                          {{ article.published_at | date: format: 'date' }}
+                        {% endif %}
+                      </div>
+                    {% endif %}
+                  </a>
+                </div>
+              </li>
+            {%- endfor -%}
+
+            {%- for page in predictive_search.resources.pages -%}
+              <li
+                class="predictive-search__list-item"
+                role="option"
+                aria-selected="false"
+                data-predictive-search-result
+              >
+                <a
+                  href="{{ page.url }}"
+                  class="
+                    predictive-search__item
+                    predictive-search__page-item
+                    predictive-search__page-item--link
+                  "
+                >
+                  <h3 class="predictive-search__page-item-heading">
+                    {{- page.title -}}
+                  </h3>
+                </a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+    {% else %}
+      <div class="predictive-search__no-results">
+        <p>{{ 'search.live_search.empty' | t }}</p>
+      </div>
+    {% endif %}
+
+    <div
+      class="predictive-search__cta"
+      role="option"
+      data-predictive-search-result
+    >
+      {% assign view_all_results_text = 'search.live_search.view_all_results' | t: search_terms: predictive_search.terms %}
+      {% comment %}Component button-text:default begin{% endcomment %}
+      {% liquid
+        assign text_8326f3f5 = text
+        assign text = view_all_results_text
+      %}
+      {% comment %}
+        @param text [Required]
+          This is the text to be included in the button.
+      
+        @param attributes [Optional]
+          This will include any additional attributes that the button needs. For example, aria-controls.
+      {% endcomment %}
+      
+      <button
+        data-component="button-text"
+        data-component-type="component"
+        {% if tag != blank %}data-component-tag="{{ tag }}"
+        {% endif %}class="button-text"
+        {{ attributes }}
+      >
+        {{ text }}
+      </button>
+      
+      {% liquid
+        assign text = text_8326f3f5
+        assign text_8326f3f5 = nil
+      %}
+      {% comment %}Component button-text:default end{% endcomment %}
+    </div>
+  </div>
+
+  <span class="hidden" data-predictive-search-live-region-count-value>
+    {%- if results_count == 0 -%}
+      {{ 'search.live_search.no_results' | t: terms: predictive_search.terms }}
+    {%- else -%}
+      {{ 'search.live_search.results_with_count' | t: terms: predictive_search.terms, count: results_count }}
+    {%- endif -%}
+  </span>
+{%- endif -%}

@@ -1,0 +1,33 @@
+<section data-component="collection-title" data-component-type="section" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="collection-title">
+  <section-wrapper>
+    <section-content>
+      <div class="collection-title__wrapper">
+        <h1 class="collection-title__title">
+          {{ collection.title | escape }}
+        </h1>
+        {% if section.settings.show_description and collection.description != blank %}
+          <div class="collection-title__description">
+            {{ collection.description }}
+          </div>
+        {% endif %}
+      </div>
+    </section-content>
+  </section-wrapper>
+</section>
+{% schema %}
+{
+  "name": "t:component.collection_title.name",
+  "class": "section-collection-title",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "t:component.collection_title.show_description.label",
+      "default": true
+    }
+  ],
+  "templates": [
+    "collection"
+  ]
+}
+{% endschema %}

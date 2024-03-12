@@ -1,0 +1,2644 @@
+{% liquid
+  assign is_double_image = false
+  if section.settings.image and section.settings.image_2
+    assign is_double_image = true
+  endif
+
+  assign has_mobile_image = false
+  if section.settings.mobile_image
+    assign has_mobile_image = true
+  endif
+
+  assign desktop_height = 'auto'
+
+  if section.settings.desktop_height != 'adapt'
+    assign desktop_height = section.settings.desktop_height | append: 'px'
+  endif
+
+  if section.settings.color_overlay_opacity > 0
+    assign overlay_opacity = section.settings.color_overlay_opacity | times: 0.01
+  endif
+
+  if section.settings.overlay_color != blank and section.settings.overlay_color != 'rgba(0,0,0,0)'
+    assign overlay_color = section.settings.overlay_color | color_modify: 'alpha', overlay_opacity
+  endif
+
+  if section.settings.overlay_gradient != blank
+    assign overlay_color = section.settings.overlay_gradient
+  endif
+
+  assign top_level_blocks = nil | sort
+  assign center_level_blocks = nil | sort
+  assign bottom_level_blocks = nil | sort
+
+  if section.blocks.size > 0
+    for block in section.blocks
+      assign position = block.settings.position | split: '_'
+      assign block_to_add = block | sort
+      case position[0]
+        when 'top'
+          assign top_level_blocks = top_level_blocks | concat: block_to_add
+        when 'center'
+          assign center_level_blocks = center_level_blocks | concat: block_to_add
+        when 'bottom'
+          assign bottom_level_blocks = bottom_level_blocks | concat: block_to_add
+      endcase
+    endfor
+  endif
+
+  assign text_color = section.settings.color_overlay_foreground
+  assign has_text_color = true
+  assign text_color_alpha = text_color | color_extract: 'alpha'
+
+  if text_color_alpha == 0
+    assign has_text_color = false
+  endif
+%}
+
+{% capture overlay_content_properties %}
+  {% if overlay_color != blank %}
+    --overlay-color: {{ overlay_color }};
+  {% endif %}
+  {% if has_text_color %}
+    --local-overlay-text-color: {{ section.settings.color_overlay_foreground }};
+  {% endif %}
+    --block-text-color: var(--local-overlay-text-color, var(--color-overlay-text));
+    --text-alignment: {{ section.settings.text_alignment }};
+{% endcapture %}
+
+<section data-component="image-banner" data-component-type="section" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="image-banner">
+  <script
+    type="application/json"
+    data-component-data
+  >
+    {
+      "desktopHeight": {{ section.settings.desktop_height | json }}
+    }
+  </script>
+  <section-wrapper {% if section.settings.wide %}width="wide"{% endif %}>
+    <section-content>
+      <div
+        class="
+          image-banner__wrapper
+          {% if is_double_image %}image-banner__wrapper--double-image{% endif %}
+        "
+        style="--desktop-height: {{ desktop_height }};"
+        data-image-banner-wrapper
+      >
+        {% if section.settings.image %}
+          <div
+            class="
+              image-banner__image
+              {% if section.settings.image_2 %}image-banner__image--half{% endif %}
+              {% if has_mobile_image %}image-banner__image--mobile-hidden{% endif %}
+            "
+            data-image-banner-image
+          >
+            {% comment %}Component lazy-img:default begin{% endcomment %}
+            {% render 'lazy-img', img: section.settings.image, lazy: true, canvas: true, focal_point: section.settings.image.presentation.focal_point %}
+            {% comment %}Component lazy-img:default end{% endcomment %}
+          </div>
+        {% elsif section.settings.image_2 == blank %}
+          <div class="image-banner__image" data-image-banner-image>
+            {{ 'lifestyle-2' | placeholder_svg_tag: 'placeholder-svg' }}
+          </div>
+        {% endif %}
+
+        {% if section.settings.image_2 %}
+          <div
+            class="
+              image-banner__image
+              image-banner__image--second
+              {% if section.settings.image %}image-banner__image--half{% endif %}
+            "
+            data-image-banner-image
+          >
+            {% comment %}Component lazy-img:default begin{% endcomment %}
+            {% render 'lazy-img', img: section.settings.image_2, lazy: true, canvas: true, focal_point: section.settings.image_2.presentation.focal_point %}
+            {% comment %}Component lazy-img:default end{% endcomment %}
+          </div>
+        {% endif %}
+
+        {% if section.settings.mobile_image %}
+          <div
+            class="
+              image-banner__image
+              image-banner__image--mobile
+            "
+            data-image-banner-image
+          >
+            {% comment %}Component lazy-img:default begin{% endcomment %}
+            {% render 'lazy-img', img: section.settings.mobile_image, lazy: true, canvas: true, focal_point: section.settings.mobile_image.presentation.focal_point %}
+            {% comment %}Component lazy-img:default end{% endcomment %}
+          </div>
+        {% endif %}
+
+        <div
+          class="
+            image-banner__overlay
+          "
+          style="{{ overlay_content_properties }}"
+        >
+          {% if section.blocks.size > 0 %}
+            <div
+              class="
+                image-banner__content-grid
+                image-banner__content-grid--{{ section.settings.text_alignment }}-aligned
+                {% if section.settings.wide %}
+                  image-banner__content-grid--wide
+                {% endif %}
+              "
+              data-image-banner-content
+            >
+              {% if top_level_blocks.size > 0 %}
+                <div class="image-banner__content-grid-cell image-banner__content-grid--top">
+                  {% liquid
+                    assign left_area_blocks = nil | sort
+                    assign center_area_blocks = nil | sort
+                    assign right_area_blocks = nil | sort
+
+                    for block in top_level_blocks
+                      assign position = block.settings.position | split: '_'
+                      assign block_to_add = block | sort
+
+                      case position[1]
+                        when 'left'
+                          assign left_area_blocks = left_area_blocks | concat: block_to_add
+                        when 'center'
+                          assign center_area_blocks = center_area_blocks | concat: block_to_add
+                        when 'right'
+                          assign right_area_blocks = right_area_blocks | concat: block_to_add
+                      endcase
+                    endfor
+                  %}
+                  {% if left_area_blocks.size > 0 %}
+                    <div class="image-banner__content image-banner__content--left">
+                      {% for block in left_area_blocks %}
+                        {% case block.type %}
+                          {% when 'heading' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-heading:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-heading"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="
+                                    block-heading
+                                    block-heading--desktop-{{ block.settings.size_desktop }}
+                                    {% unless block.settings.size_mobile == 'same_as_desktop' %}
+                                      block-heading--mobile-{{ block.settings.size_mobile }}
+                                    {% endunless %}
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  <h2>
+                                    {{ block.settings.content | escape }}
+                                  </h2>
+                                </div>
+                                
+                                {% comment %}Component block-heading:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'preheading' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-preheading:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-preheading"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="
+                                    block-preheading
+                                    block-preheading--{{ block.settings.size }}
+                                    {% if block.settings.bolder %}
+                                      block-preheading--bolder
+                                    {% endif %}
+                                    {% if block.settings.uppercase %}
+                                      block-preheading--uppercase
+                                    {% endif %}
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {{ block.settings.content | escape }}
+                                </div>
+                                
+                                {% comment %}Component block-preheading:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'text' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-richtext:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-richtext"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="block-richtext block-richtext--{{ block.settings.size }}"
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {{ block.settings.content }}
+                                </div>
+                                
+                                {% comment %}Component block-richtext:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'button' %}
+                            {% if block.settings.text != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-button-link:default begin{% endcomment %}
+                                {% liquid
+                                  assign size_2ed5d475 = size
+                                  assign size = 'medium'
+                                %}
+                                {% comment %}
+                                
+                                  @param size [Required]
+                                    This defines the size of the button: small, medium, or large.
+                                
+                                {% endcomment %}
+                                {% assign morph_base_color = block.settings.color_main %}
+                                {% assign morph_adjustment = 3 %}
+                                {% capture color_button_morphed %}{% comment %}Inject morph begin{% endcomment %}
+{% comment %}
+  This adjusts the color to give it an appropriate difference from the original color.
+  It is usually used for link hover color, and things where we need to distinguish a change.
+
+  @param morph_base_color {Color}
+    The origin color to morph
+
+  @param morph_adjustment {Number}
+    The number to multiply the lightness and saturation by. Default 2.
+{% endcomment %}
+
+{% if morph_adjustment == blank %}
+  {% assign morph_adjustment = 2 %}
+{% endif %}
+
+{% assign morph_adjustment = morph_adjustment | times: 1.0 %}
+
+{% assign color_lightness = morph_base_color | color_extract: 'lightness' %}
+
+{% if color_lightness > 20.0 %}
+  {% if color_lightness > 50.0 %}
+    {% assign light_adjustment = color_lightness | divided_by: 25.0 | times: morph_adjustment %}
+  {% else %}
+    {% assign light_adjustment = color_lightness | divided_by: 15.0 | times: morph_adjustment %}
+  {% endif %}
+  {% assign new_color = morph_base_color | color_darken: light_adjustment %}
+{% else %}
+  {% if color_lightness < 7.0 %}
+    {% assign light_adjustment = 3.0 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 45.0 %}
+  {% elsif color_lightness < 12.0 %}
+    {% assign light_adjustment = 2.25 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 15.0 %}
+  {% else %}
+    {% assign light_adjustment = 1.75 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color %}
+  {% endif %}
+  {% assign new_color = new_color | color_lighten: light_adjustment %}
+{% endif %}
+
+{{ new_color }}
+
+{% assign morph_base_color = blank %}
+{% assign morph_adjustment = blank %}
+
+{% comment %}Inject morph end{% endcomment %}{% endcapture %}
+                                
+                                <div
+                                  data-component="block-button-link"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="block-button-link"
+                                  style="
+                                    --color-button-main-contrast: {{ block.settings.color_contrast }};
+                                    --color-button-main: {{ block.settings.color_main }};
+                                    --color-button-main-invoked: {{ color_button_morphed | strip }};
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {% comment %}Component button-link:default begin{% endcomment %}
+                                  {% liquid
+                                    assign href_688534cc = href
+                                    assign href = block.settings.url
+                                    assign style_688534cc = style
+                                    assign style = block.settings.style
+                                    assign text_688534cc = text
+                                    assign text = block.settings.text | escape
+                                  %}
+                                  {% comment %}
+                                    @param href [Required]
+                                      This is the anchor tag for the link button.
+                                  
+                                    @param style [Required]
+                                      This is the style of the button: primary, secondary, tertiary, or text.
+                                  
+                                    @param size [Required]
+                                      This defines the size of the button: small, medium, or large.
+                                  
+                                    @param text [Required]
+                                      This is the text to be included in the button.
+                                  
+                                    @param attributes [Optional]
+                                      Any additional attributes to add to the button-link tag.
+                                  {% endcomment %}
+                                  
+                                  <a
+                                    data-component="button-link"
+                                    data-component-type="component"
+                                    {% if tag != blank %}data-component-tag="{{ tag }}"
+                                    {% endif %}class="button-link button-link--{{ style }} button-link--{{ size }}{% if style == 'primary' or style == 'secondary' %} button-link--shadow{% endif %%}"
+                                    {% if href != blank %}
+                                      href="{{ href }}"
+                                    {% endif %}
+                                    {{ attributes }}
+                                  >
+                                    {{ text }}
+                                  </a>
+                                  
+                                  {% liquid
+                                    assign href = href_688534cc
+                                    assign href_688534cc = nil
+                                    assign style = style_688534cc
+                                    assign style_688534cc = nil
+                                    assign text = text_688534cc
+                                    assign text_688534cc = nil
+                                  %}
+                                  {% comment %}Component button-link:default end{% endcomment %}
+                                </div>
+                                
+                                {% liquid
+                                  assign size = size_2ed5d475
+                                  assign size_2ed5d475 = nil
+                                %}
+                                {% comment %}Component block-button-link:default end{% endcomment %}
+                              </div>
+                            {% endif %}
+                        {% endcase %}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                  {% if center_area_blocks.size > 0 %}
+                    <div class="image-banner__content image-banner__content--center">
+                      {% for block in center_area_blocks %}
+                        {% case block.type %}
+                          {% when 'heading' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-heading:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-heading"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="
+                                    block-heading
+                                    block-heading--desktop-{{ block.settings.size_desktop }}
+                                    {% unless block.settings.size_mobile == 'same_as_desktop' %}
+                                      block-heading--mobile-{{ block.settings.size_mobile }}
+                                    {% endunless %}
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  <h2>
+                                    {{ block.settings.content | escape }}
+                                  </h2>
+                                </div>
+                                
+                                {% comment %}Component block-heading:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'preheading' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-preheading:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-preheading"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="
+                                    block-preheading
+                                    block-preheading--{{ block.settings.size }}
+                                    {% if block.settings.bolder %}
+                                      block-preheading--bolder
+                                    {% endif %}
+                                    {% if block.settings.uppercase %}
+                                      block-preheading--uppercase
+                                    {% endif %}
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {{ block.settings.content | escape }}
+                                </div>
+                                
+                                {% comment %}Component block-preheading:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'text' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-richtext:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-richtext"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="block-richtext block-richtext--{{ block.settings.size }}"
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {{ block.settings.content }}
+                                </div>
+                                
+                                {% comment %}Component block-richtext:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'button' %}
+                            {% if block.settings.text != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-button-link:default begin{% endcomment %}
+                                {% liquid
+                                  assign size_42d9e38f = size
+                                  assign size = 'medium'
+                                %}
+                                {% comment %}
+                                
+                                  @param size [Required]
+                                    This defines the size of the button: small, medium, or large.
+                                
+                                {% endcomment %}
+                                {% assign morph_base_color = block.settings.color_main %}
+                                {% assign morph_adjustment = 3 %}
+                                {% capture color_button_morphed %}{% comment %}Inject morph begin{% endcomment %}
+{% comment %}
+  This adjusts the color to give it an appropriate difference from the original color.
+  It is usually used for link hover color, and things where we need to distinguish a change.
+
+  @param morph_base_color {Color}
+    The origin color to morph
+
+  @param morph_adjustment {Number}
+    The number to multiply the lightness and saturation by. Default 2.
+{% endcomment %}
+
+{% if morph_adjustment == blank %}
+  {% assign morph_adjustment = 2 %}
+{% endif %}
+
+{% assign morph_adjustment = morph_adjustment | times: 1.0 %}
+
+{% assign color_lightness = morph_base_color | color_extract: 'lightness' %}
+
+{% if color_lightness > 20.0 %}
+  {% if color_lightness > 50.0 %}
+    {% assign light_adjustment = color_lightness | divided_by: 25.0 | times: morph_adjustment %}
+  {% else %}
+    {% assign light_adjustment = color_lightness | divided_by: 15.0 | times: morph_adjustment %}
+  {% endif %}
+  {% assign new_color = morph_base_color | color_darken: light_adjustment %}
+{% else %}
+  {% if color_lightness < 7.0 %}
+    {% assign light_adjustment = 3.0 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 45.0 %}
+  {% elsif color_lightness < 12.0 %}
+    {% assign light_adjustment = 2.25 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 15.0 %}
+  {% else %}
+    {% assign light_adjustment = 1.75 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color %}
+  {% endif %}
+  {% assign new_color = new_color | color_lighten: light_adjustment %}
+{% endif %}
+
+{{ new_color }}
+
+{% assign morph_base_color = blank %}
+{% assign morph_adjustment = blank %}
+
+{% comment %}Inject morph end{% endcomment %}{% endcapture %}
+                                
+                                <div
+                                  data-component="block-button-link"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="block-button-link"
+                                  style="
+                                    --color-button-main-contrast: {{ block.settings.color_contrast }};
+                                    --color-button-main: {{ block.settings.color_main }};
+                                    --color-button-main-invoked: {{ color_button_morphed | strip }};
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {% comment %}Component button-link:default begin{% endcomment %}
+                                  {% liquid
+                                    assign href_688534cc = href
+                                    assign href = block.settings.url
+                                    assign style_688534cc = style
+                                    assign style = block.settings.style
+                                    assign text_688534cc = text
+                                    assign text = block.settings.text | escape
+                                  %}
+                                  {% comment %}
+                                    @param href [Required]
+                                      This is the anchor tag for the link button.
+                                  
+                                    @param style [Required]
+                                      This is the style of the button: primary, secondary, tertiary, or text.
+                                  
+                                    @param size [Required]
+                                      This defines the size of the button: small, medium, or large.
+                                  
+                                    @param text [Required]
+                                      This is the text to be included in the button.
+                                  
+                                    @param attributes [Optional]
+                                      Any additional attributes to add to the button-link tag.
+                                  {% endcomment %}
+                                  
+                                  <a
+                                    data-component="button-link"
+                                    data-component-type="component"
+                                    {% if tag != blank %}data-component-tag="{{ tag }}"
+                                    {% endif %}class="button-link button-link--{{ style }} button-link--{{ size }}{% if style == 'primary' or style == 'secondary' %} button-link--shadow{% endif %%}"
+                                    {% if href != blank %}
+                                      href="{{ href }}"
+                                    {% endif %}
+                                    {{ attributes }}
+                                  >
+                                    {{ text }}
+                                  </a>
+                                  
+                                  {% liquid
+                                    assign href = href_688534cc
+                                    assign href_688534cc = nil
+                                    assign style = style_688534cc
+                                    assign style_688534cc = nil
+                                    assign text = text_688534cc
+                                    assign text_688534cc = nil
+                                  %}
+                                  {% comment %}Component button-link:default end{% endcomment %}
+                                </div>
+                                
+                                {% liquid
+                                  assign size = size_42d9e38f
+                                  assign size_42d9e38f = nil
+                                %}
+                                {% comment %}Component block-button-link:default end{% endcomment %}
+                              </div>
+                            {% endif %}
+                        {% endcase %}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                  {% if right_area_blocks.size > 0 %}
+                    <div class="image-banner__content image-banner__content--right">
+                      {% for block in right_area_blocks %}
+                        {% case block.type %}
+                          {% when 'heading' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-heading:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-heading"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="
+                                    block-heading
+                                    block-heading--desktop-{{ block.settings.size_desktop }}
+                                    {% unless block.settings.size_mobile == 'same_as_desktop' %}
+                                      block-heading--mobile-{{ block.settings.size_mobile }}
+                                    {% endunless %}
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  <h2>
+                                    {{ block.settings.content | escape }}
+                                  </h2>
+                                </div>
+                                
+                                {% comment %}Component block-heading:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'preheading' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-preheading:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-preheading"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="
+                                    block-preheading
+                                    block-preheading--{{ block.settings.size }}
+                                    {% if block.settings.bolder %}
+                                      block-preheading--bolder
+                                    {% endif %}
+                                    {% if block.settings.uppercase %}
+                                      block-preheading--uppercase
+                                    {% endif %}
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {{ block.settings.content | escape }}
+                                </div>
+                                
+                                {% comment %}Component block-preheading:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'text' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-richtext:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-richtext"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="block-richtext block-richtext--{{ block.settings.size }}"
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {{ block.settings.content }}
+                                </div>
+                                
+                                {% comment %}Component block-richtext:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'button' %}
+                            {% if block.settings.text != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-button-link:default begin{% endcomment %}
+                                {% liquid
+                                  assign size_42d9e38f = size
+                                  assign size = 'medium'
+                                %}
+                                {% comment %}
+                                
+                                  @param size [Required]
+                                    This defines the size of the button: small, medium, or large.
+                                
+                                {% endcomment %}
+                                {% assign morph_base_color = block.settings.color_main %}
+                                {% assign morph_adjustment = 3 %}
+                                {% capture color_button_morphed %}{% comment %}Inject morph begin{% endcomment %}
+{% comment %}
+  This adjusts the color to give it an appropriate difference from the original color.
+  It is usually used for link hover color, and things where we need to distinguish a change.
+
+  @param morph_base_color {Color}
+    The origin color to morph
+
+  @param morph_adjustment {Number}
+    The number to multiply the lightness and saturation by. Default 2.
+{% endcomment %}
+
+{% if morph_adjustment == blank %}
+  {% assign morph_adjustment = 2 %}
+{% endif %}
+
+{% assign morph_adjustment = morph_adjustment | times: 1.0 %}
+
+{% assign color_lightness = morph_base_color | color_extract: 'lightness' %}
+
+{% if color_lightness > 20.0 %}
+  {% if color_lightness > 50.0 %}
+    {% assign light_adjustment = color_lightness | divided_by: 25.0 | times: morph_adjustment %}
+  {% else %}
+    {% assign light_adjustment = color_lightness | divided_by: 15.0 | times: morph_adjustment %}
+  {% endif %}
+  {% assign new_color = morph_base_color | color_darken: light_adjustment %}
+{% else %}
+  {% if color_lightness < 7.0 %}
+    {% assign light_adjustment = 3.0 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 45.0 %}
+  {% elsif color_lightness < 12.0 %}
+    {% assign light_adjustment = 2.25 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 15.0 %}
+  {% else %}
+    {% assign light_adjustment = 1.75 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color %}
+  {% endif %}
+  {% assign new_color = new_color | color_lighten: light_adjustment %}
+{% endif %}
+
+{{ new_color }}
+
+{% assign morph_base_color = blank %}
+{% assign morph_adjustment = blank %}
+
+{% comment %}Inject morph end{% endcomment %}{% endcapture %}
+                                
+                                <div
+                                  data-component="block-button-link"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="block-button-link"
+                                  style="
+                                    --color-button-main-contrast: {{ block.settings.color_contrast }};
+                                    --color-button-main: {{ block.settings.color_main }};
+                                    --color-button-main-invoked: {{ color_button_morphed | strip }};
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {% comment %}Component button-link:default begin{% endcomment %}
+                                  {% liquid
+                                    assign href_688534cc = href
+                                    assign href = block.settings.url
+                                    assign style_688534cc = style
+                                    assign style = block.settings.style
+                                    assign text_688534cc = text
+                                    assign text = block.settings.text | escape
+                                  %}
+                                  {% comment %}
+                                    @param href [Required]
+                                      This is the anchor tag for the link button.
+                                  
+                                    @param style [Required]
+                                      This is the style of the button: primary, secondary, tertiary, or text.
+                                  
+                                    @param size [Required]
+                                      This defines the size of the button: small, medium, or large.
+                                  
+                                    @param text [Required]
+                                      This is the text to be included in the button.
+                                  
+                                    @param attributes [Optional]
+                                      Any additional attributes to add to the button-link tag.
+                                  {% endcomment %}
+                                  
+                                  <a
+                                    data-component="button-link"
+                                    data-component-type="component"
+                                    {% if tag != blank %}data-component-tag="{{ tag }}"
+                                    {% endif %}class="button-link button-link--{{ style }} button-link--{{ size }}{% if style == 'primary' or style == 'secondary' %} button-link--shadow{% endif %%}"
+                                    {% if href != blank %}
+                                      href="{{ href }}"
+                                    {% endif %}
+                                    {{ attributes }}
+                                  >
+                                    {{ text }}
+                                  </a>
+                                  
+                                  {% liquid
+                                    assign href = href_688534cc
+                                    assign href_688534cc = nil
+                                    assign style = style_688534cc
+                                    assign style_688534cc = nil
+                                    assign text = text_688534cc
+                                    assign text_688534cc = nil
+                                  %}
+                                  {% comment %}Component button-link:default end{% endcomment %}
+                                </div>
+                                
+                                {% liquid
+                                  assign size = size_42d9e38f
+                                  assign size_42d9e38f = nil
+                                %}
+                                {% comment %}Component block-button-link:default end{% endcomment %}
+                              </div>
+                            {% endif %}
+                        {% endcase %}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+              </div>
+            {% endif %}
+
+            {% if center_level_blocks.size > 0 %}
+              <div class="image-banner__content-grid-cell image-banner__content-grid--center">
+                {% liquid
+                  assign left_area_blocks = nil | sort
+                  assign center_area_blocks = nil | sort
+                  assign right_area_blocks = nil | sort
+
+                  for block in center_level_blocks
+                    assign position = block.settings.position | split: '_'
+                    assign block_to_add = block | sort
+
+                    case position[1]
+                      when 'left'
+                        assign left_area_blocks = left_area_blocks | concat: block_to_add
+                      when 'center'
+                        assign center_area_blocks = center_area_blocks | concat: block_to_add
+                      when 'right'
+                        assign right_area_blocks = right_area_blocks | concat: block_to_add
+                    endcase
+                  endfor
+                %}
+                  {% if left_area_blocks.size > 0 %}
+                    <div class="image-banner__content image-banner__content--left">
+                      {% for block in left_area_blocks %}
+                        {% case block.type %}
+                          {% when 'heading' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-heading:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-heading"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="
+                                    block-heading
+                                    block-heading--desktop-{{ block.settings.size_desktop }}
+                                    {% unless block.settings.size_mobile == 'same_as_desktop' %}
+                                      block-heading--mobile-{{ block.settings.size_mobile }}
+                                    {% endunless %}
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  <h2>
+                                    {{ block.settings.content | escape }}
+                                  </h2>
+                                </div>
+                                
+                                {% comment %}Component block-heading:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'preheading' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-preheading:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-preheading"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="
+                                    block-preheading
+                                    block-preheading--{{ block.settings.size }}
+                                    {% if block.settings.bolder %}
+                                      block-preheading--bolder
+                                    {% endif %}
+                                    {% if block.settings.uppercase %}
+                                      block-preheading--uppercase
+                                    {% endif %}
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {{ block.settings.content | escape }}
+                                </div>
+                                
+                                {% comment %}Component block-preheading:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'text' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-richtext:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-richtext"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="block-richtext block-richtext--{{ block.settings.size }}"
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {{ block.settings.content }}
+                                </div>
+                                
+                                {% comment %}Component block-richtext:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'button' %}
+                            {% if block.settings.text != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-button-link:default begin{% endcomment %}
+                                {% liquid
+                                  assign size_42d9e38f = size
+                                  assign size = 'medium'
+                                %}
+                                {% comment %}
+                                
+                                  @param size [Required]
+                                    This defines the size of the button: small, medium, or large.
+                                
+                                {% endcomment %}
+                                {% assign morph_base_color = block.settings.color_main %}
+                                {% assign morph_adjustment = 3 %}
+                                {% capture color_button_morphed %}{% comment %}Inject morph begin{% endcomment %}
+{% comment %}
+  This adjusts the color to give it an appropriate difference from the original color.
+  It is usually used for link hover color, and things where we need to distinguish a change.
+
+  @param morph_base_color {Color}
+    The origin color to morph
+
+  @param morph_adjustment {Number}
+    The number to multiply the lightness and saturation by. Default 2.
+{% endcomment %}
+
+{% if morph_adjustment == blank %}
+  {% assign morph_adjustment = 2 %}
+{% endif %}
+
+{% assign morph_adjustment = morph_adjustment | times: 1.0 %}
+
+{% assign color_lightness = morph_base_color | color_extract: 'lightness' %}
+
+{% if color_lightness > 20.0 %}
+  {% if color_lightness > 50.0 %}
+    {% assign light_adjustment = color_lightness | divided_by: 25.0 | times: morph_adjustment %}
+  {% else %}
+    {% assign light_adjustment = color_lightness | divided_by: 15.0 | times: morph_adjustment %}
+  {% endif %}
+  {% assign new_color = morph_base_color | color_darken: light_adjustment %}
+{% else %}
+  {% if color_lightness < 7.0 %}
+    {% assign light_adjustment = 3.0 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 45.0 %}
+  {% elsif color_lightness < 12.0 %}
+    {% assign light_adjustment = 2.25 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 15.0 %}
+  {% else %}
+    {% assign light_adjustment = 1.75 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color %}
+  {% endif %}
+  {% assign new_color = new_color | color_lighten: light_adjustment %}
+{% endif %}
+
+{{ new_color }}
+
+{% assign morph_base_color = blank %}
+{% assign morph_adjustment = blank %}
+
+{% comment %}Inject morph end{% endcomment %}{% endcapture %}
+                                
+                                <div
+                                  data-component="block-button-link"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="block-button-link"
+                                  style="
+                                    --color-button-main-contrast: {{ block.settings.color_contrast }};
+                                    --color-button-main: {{ block.settings.color_main }};
+                                    --color-button-main-invoked: {{ color_button_morphed | strip }};
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {% comment %}Component button-link:default begin{% endcomment %}
+                                  {% liquid
+                                    assign href_688534cc = href
+                                    assign href = block.settings.url
+                                    assign style_688534cc = style
+                                    assign style = block.settings.style
+                                    assign text_688534cc = text
+                                    assign text = block.settings.text | escape
+                                  %}
+                                  {% comment %}
+                                    @param href [Required]
+                                      This is the anchor tag for the link button.
+                                  
+                                    @param style [Required]
+                                      This is the style of the button: primary, secondary, tertiary, or text.
+                                  
+                                    @param size [Required]
+                                      This defines the size of the button: small, medium, or large.
+                                  
+                                    @param text [Required]
+                                      This is the text to be included in the button.
+                                  
+                                    @param attributes [Optional]
+                                      Any additional attributes to add to the button-link tag.
+                                  {% endcomment %}
+                                  
+                                  <a
+                                    data-component="button-link"
+                                    data-component-type="component"
+                                    {% if tag != blank %}data-component-tag="{{ tag }}"
+                                    {% endif %}class="button-link button-link--{{ style }} button-link--{{ size }}{% if style == 'primary' or style == 'secondary' %} button-link--shadow{% endif %%}"
+                                    {% if href != blank %}
+                                      href="{{ href }}"
+                                    {% endif %}
+                                    {{ attributes }}
+                                  >
+                                    {{ text }}
+                                  </a>
+                                  
+                                  {% liquid
+                                    assign href = href_688534cc
+                                    assign href_688534cc = nil
+                                    assign style = style_688534cc
+                                    assign style_688534cc = nil
+                                    assign text = text_688534cc
+                                    assign text_688534cc = nil
+                                  %}
+                                  {% comment %}Component button-link:default end{% endcomment %}
+                                </div>
+                                
+                                {% liquid
+                                  assign size = size_42d9e38f
+                                  assign size_42d9e38f = nil
+                                %}
+                                {% comment %}Component block-button-link:default end{% endcomment %}
+                              </div>
+                            {% endif %}
+                        {% endcase %}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                  {% if center_area_blocks.size > 0 %}
+                    <div class="image-banner__content image-banner__content--center">
+                      {% for block in center_area_blocks %}
+                        {% case block.type %}
+                          {% when 'heading' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-heading:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-heading"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="
+                                    block-heading
+                                    block-heading--desktop-{{ block.settings.size_desktop }}
+                                    {% unless block.settings.size_mobile == 'same_as_desktop' %}
+                                      block-heading--mobile-{{ block.settings.size_mobile }}
+                                    {% endunless %}
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  <h2>
+                                    {{ block.settings.content | escape }}
+                                  </h2>
+                                </div>
+                                
+                                {% comment %}Component block-heading:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'preheading' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-preheading:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-preheading"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="
+                                    block-preheading
+                                    block-preheading--{{ block.settings.size }}
+                                    {% if block.settings.bolder %}
+                                      block-preheading--bolder
+                                    {% endif %}
+                                    {% if block.settings.uppercase %}
+                                      block-preheading--uppercase
+                                    {% endif %}
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {{ block.settings.content | escape }}
+                                </div>
+                                
+                                {% comment %}Component block-preheading:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'text' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-richtext:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-richtext"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="block-richtext block-richtext--{{ block.settings.size }}"
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {{ block.settings.content }}
+                                </div>
+                                
+                                {% comment %}Component block-richtext:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'button' %}
+                            {% if block.settings.text != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-button-link:default begin{% endcomment %}
+                                {% liquid
+                                  assign size_42d9e38f = size
+                                  assign size = 'medium'
+                                %}
+                                {% comment %}
+                                
+                                  @param size [Required]
+                                    This defines the size of the button: small, medium, or large.
+                                
+                                {% endcomment %}
+                                {% assign morph_base_color = block.settings.color_main %}
+                                {% assign morph_adjustment = 3 %}
+                                {% capture color_button_morphed %}{% comment %}Inject morph begin{% endcomment %}
+{% comment %}
+  This adjusts the color to give it an appropriate difference from the original color.
+  It is usually used for link hover color, and things where we need to distinguish a change.
+
+  @param morph_base_color {Color}
+    The origin color to morph
+
+  @param morph_adjustment {Number}
+    The number to multiply the lightness and saturation by. Default 2.
+{% endcomment %}
+
+{% if morph_adjustment == blank %}
+  {% assign morph_adjustment = 2 %}
+{% endif %}
+
+{% assign morph_adjustment = morph_adjustment | times: 1.0 %}
+
+{% assign color_lightness = morph_base_color | color_extract: 'lightness' %}
+
+{% if color_lightness > 20.0 %}
+  {% if color_lightness > 50.0 %}
+    {% assign light_adjustment = color_lightness | divided_by: 25.0 | times: morph_adjustment %}
+  {% else %}
+    {% assign light_adjustment = color_lightness | divided_by: 15.0 | times: morph_adjustment %}
+  {% endif %}
+  {% assign new_color = morph_base_color | color_darken: light_adjustment %}
+{% else %}
+  {% if color_lightness < 7.0 %}
+    {% assign light_adjustment = 3.0 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 45.0 %}
+  {% elsif color_lightness < 12.0 %}
+    {% assign light_adjustment = 2.25 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 15.0 %}
+  {% else %}
+    {% assign light_adjustment = 1.75 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color %}
+  {% endif %}
+  {% assign new_color = new_color | color_lighten: light_adjustment %}
+{% endif %}
+
+{{ new_color }}
+
+{% assign morph_base_color = blank %}
+{% assign morph_adjustment = blank %}
+
+{% comment %}Inject morph end{% endcomment %}{% endcapture %}
+                                
+                                <div
+                                  data-component="block-button-link"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="block-button-link"
+                                  style="
+                                    --color-button-main-contrast: {{ block.settings.color_contrast }};
+                                    --color-button-main: {{ block.settings.color_main }};
+                                    --color-button-main-invoked: {{ color_button_morphed | strip }};
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {% comment %}Component button-link:default begin{% endcomment %}
+                                  {% liquid
+                                    assign href_688534cc = href
+                                    assign href = block.settings.url
+                                    assign style_688534cc = style
+                                    assign style = block.settings.style
+                                    assign text_688534cc = text
+                                    assign text = block.settings.text | escape
+                                  %}
+                                  {% comment %}
+                                    @param href [Required]
+                                      This is the anchor tag for the link button.
+                                  
+                                    @param style [Required]
+                                      This is the style of the button: primary, secondary, tertiary, or text.
+                                  
+                                    @param size [Required]
+                                      This defines the size of the button: small, medium, or large.
+                                  
+                                    @param text [Required]
+                                      This is the text to be included in the button.
+                                  
+                                    @param attributes [Optional]
+                                      Any additional attributes to add to the button-link tag.
+                                  {% endcomment %}
+                                  
+                                  <a
+                                    data-component="button-link"
+                                    data-component-type="component"
+                                    {% if tag != blank %}data-component-tag="{{ tag }}"
+                                    {% endif %}class="button-link button-link--{{ style }} button-link--{{ size }}{% if style == 'primary' or style == 'secondary' %} button-link--shadow{% endif %%}"
+                                    {% if href != blank %}
+                                      href="{{ href }}"
+                                    {% endif %}
+                                    {{ attributes }}
+                                  >
+                                    {{ text }}
+                                  </a>
+                                  
+                                  {% liquid
+                                    assign href = href_688534cc
+                                    assign href_688534cc = nil
+                                    assign style = style_688534cc
+                                    assign style_688534cc = nil
+                                    assign text = text_688534cc
+                                    assign text_688534cc = nil
+                                  %}
+                                  {% comment %}Component button-link:default end{% endcomment %}
+                                </div>
+                                
+                                {% liquid
+                                  assign size = size_42d9e38f
+                                  assign size_42d9e38f = nil
+                                %}
+                                {% comment %}Component block-button-link:default end{% endcomment %}
+                              </div>
+                            {% endif %}
+                        {% endcase %}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                  {% if right_area_blocks.size > 0 %}
+                    <div class="image-banner__content image-banner__content--right">
+                      {% for block in right_area_blocks %}
+                        {% case block.type %}
+                          {% when 'heading' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-heading:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-heading"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="
+                                    block-heading
+                                    block-heading--desktop-{{ block.settings.size_desktop }}
+                                    {% unless block.settings.size_mobile == 'same_as_desktop' %}
+                                      block-heading--mobile-{{ block.settings.size_mobile }}
+                                    {% endunless %}
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  <h2>
+                                    {{ block.settings.content | escape }}
+                                  </h2>
+                                </div>
+                                
+                                {% comment %}Component block-heading:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'preheading' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-preheading:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-preheading"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="
+                                    block-preheading
+                                    block-preheading--{{ block.settings.size }}
+                                    {% if block.settings.bolder %}
+                                      block-preheading--bolder
+                                    {% endif %}
+                                    {% if block.settings.uppercase %}
+                                      block-preheading--uppercase
+                                    {% endif %}
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {{ block.settings.content | escape }}
+                                </div>
+                                
+                                {% comment %}Component block-preheading:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'text' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-richtext:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-richtext"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="block-richtext block-richtext--{{ block.settings.size }}"
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {{ block.settings.content }}
+                                </div>
+                                
+                                {% comment %}Component block-richtext:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'button' %}
+                            {% if block.settings.text != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-button-link:default begin{% endcomment %}
+                                {% liquid
+                                  assign size_42d9e38f = size
+                                  assign size = 'medium'
+                                %}
+                                {% comment %}
+                                
+                                  @param size [Required]
+                                    This defines the size of the button: small, medium, or large.
+                                
+                                {% endcomment %}
+                                {% assign morph_base_color = block.settings.color_main %}
+                                {% assign morph_adjustment = 3 %}
+                                {% capture color_button_morphed %}{% comment %}Inject morph begin{% endcomment %}
+{% comment %}
+  This adjusts the color to give it an appropriate difference from the original color.
+  It is usually used for link hover color, and things where we need to distinguish a change.
+
+  @param morph_base_color {Color}
+    The origin color to morph
+
+  @param morph_adjustment {Number}
+    The number to multiply the lightness and saturation by. Default 2.
+{% endcomment %}
+
+{% if morph_adjustment == blank %}
+  {% assign morph_adjustment = 2 %}
+{% endif %}
+
+{% assign morph_adjustment = morph_adjustment | times: 1.0 %}
+
+{% assign color_lightness = morph_base_color | color_extract: 'lightness' %}
+
+{% if color_lightness > 20.0 %}
+  {% if color_lightness > 50.0 %}
+    {% assign light_adjustment = color_lightness | divided_by: 25.0 | times: morph_adjustment %}
+  {% else %}
+    {% assign light_adjustment = color_lightness | divided_by: 15.0 | times: morph_adjustment %}
+  {% endif %}
+  {% assign new_color = morph_base_color | color_darken: light_adjustment %}
+{% else %}
+  {% if color_lightness < 7.0 %}
+    {% assign light_adjustment = 3.0 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 45.0 %}
+  {% elsif color_lightness < 12.0 %}
+    {% assign light_adjustment = 2.25 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 15.0 %}
+  {% else %}
+    {% assign light_adjustment = 1.75 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color %}
+  {% endif %}
+  {% assign new_color = new_color | color_lighten: light_adjustment %}
+{% endif %}
+
+{{ new_color }}
+
+{% assign morph_base_color = blank %}
+{% assign morph_adjustment = blank %}
+
+{% comment %}Inject morph end{% endcomment %}{% endcapture %}
+                                
+                                <div
+                                  data-component="block-button-link"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="block-button-link"
+                                  style="
+                                    --color-button-main-contrast: {{ block.settings.color_contrast }};
+                                    --color-button-main: {{ block.settings.color_main }};
+                                    --color-button-main-invoked: {{ color_button_morphed | strip }};
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {% comment %}Component button-link:default begin{% endcomment %}
+                                  {% liquid
+                                    assign href_688534cc = href
+                                    assign href = block.settings.url
+                                    assign style_688534cc = style
+                                    assign style = block.settings.style
+                                    assign text_688534cc = text
+                                    assign text = block.settings.text | escape
+                                  %}
+                                  {% comment %}
+                                    @param href [Required]
+                                      This is the anchor tag for the link button.
+                                  
+                                    @param style [Required]
+                                      This is the style of the button: primary, secondary, tertiary, or text.
+                                  
+                                    @param size [Required]
+                                      This defines the size of the button: small, medium, or large.
+                                  
+                                    @param text [Required]
+                                      This is the text to be included in the button.
+                                  
+                                    @param attributes [Optional]
+                                      Any additional attributes to add to the button-link tag.
+                                  {% endcomment %}
+                                  
+                                  <a
+                                    data-component="button-link"
+                                    data-component-type="component"
+                                    {% if tag != blank %}data-component-tag="{{ tag }}"
+                                    {% endif %}class="button-link button-link--{{ style }} button-link--{{ size }}{% if style == 'primary' or style == 'secondary' %} button-link--shadow{% endif %%}"
+                                    {% if href != blank %}
+                                      href="{{ href }}"
+                                    {% endif %}
+                                    {{ attributes }}
+                                  >
+                                    {{ text }}
+                                  </a>
+                                  
+                                  {% liquid
+                                    assign href = href_688534cc
+                                    assign href_688534cc = nil
+                                    assign style = style_688534cc
+                                    assign style_688534cc = nil
+                                    assign text = text_688534cc
+                                    assign text_688534cc = nil
+                                  %}
+                                  {% comment %}Component button-link:default end{% endcomment %}
+                                </div>
+                                
+                                {% liquid
+                                  assign size = size_42d9e38f
+                                  assign size_42d9e38f = nil
+                                %}
+                                {% comment %}Component block-button-link:default end{% endcomment %}
+                              </div>
+                            {% endif %}
+                        {% endcase %}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+              </div>
+            {% endif %}
+
+            {% if bottom_level_blocks.size > 0 %}
+              <div class="image-banner__content-grid-cell image-banner__content-grid--bottom">
+                {% liquid
+                  assign left_area_blocks = nil | sort
+                  assign center_area_blocks = nil | sort
+                  assign right_area_blocks = nil | sort
+
+                  for block in bottom_level_blocks
+                    assign position = block.settings.position | split: '_'
+                    assign block_to_add = block | sort
+
+                    case position[1]
+                      when 'left'
+                        assign left_area_blocks = left_area_blocks | concat: block_to_add
+                      when 'center'
+                        assign center_area_blocks = center_area_blocks | concat: block_to_add
+                      when 'right'
+                        assign right_area_blocks = right_area_blocks | concat: block_to_add
+                    endcase
+                  endfor
+                %}
+                  {% if left_area_blocks.size > 0 %}
+                    <div class="image-banner__content image-banner__content--left">
+                      {% for block in left_area_blocks %}
+                        {% case block.type %}
+                          {% when 'heading' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-heading:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-heading"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="
+                                    block-heading
+                                    block-heading--desktop-{{ block.settings.size_desktop }}
+                                    {% unless block.settings.size_mobile == 'same_as_desktop' %}
+                                      block-heading--mobile-{{ block.settings.size_mobile }}
+                                    {% endunless %}
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  <h2>
+                                    {{ block.settings.content | escape }}
+                                  </h2>
+                                </div>
+                                
+                                {% comment %}Component block-heading:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'preheading' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-preheading:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-preheading"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="
+                                    block-preheading
+                                    block-preheading--{{ block.settings.size }}
+                                    {% if block.settings.bolder %}
+                                      block-preheading--bolder
+                                    {% endif %}
+                                    {% if block.settings.uppercase %}
+                                      block-preheading--uppercase
+                                    {% endif %}
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {{ block.settings.content | escape }}
+                                </div>
+                                
+                                {% comment %}Component block-preheading:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'text' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-richtext:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-richtext"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="block-richtext block-richtext--{{ block.settings.size }}"
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {{ block.settings.content }}
+                                </div>
+                                
+                                {% comment %}Component block-richtext:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'button' %}
+                            {% if block.settings.text != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-button-link:default begin{% endcomment %}
+                                {% liquid
+                                  assign size_42d9e38f = size
+                                  assign size = 'medium'
+                                %}
+                                {% comment %}
+                                
+                                  @param size [Required]
+                                    This defines the size of the button: small, medium, or large.
+                                
+                                {% endcomment %}
+                                {% assign morph_base_color = block.settings.color_main %}
+                                {% assign morph_adjustment = 3 %}
+                                {% capture color_button_morphed %}{% comment %}Inject morph begin{% endcomment %}
+{% comment %}
+  This adjusts the color to give it an appropriate difference from the original color.
+  It is usually used for link hover color, and things where we need to distinguish a change.
+
+  @param morph_base_color {Color}
+    The origin color to morph
+
+  @param morph_adjustment {Number}
+    The number to multiply the lightness and saturation by. Default 2.
+{% endcomment %}
+
+{% if morph_adjustment == blank %}
+  {% assign morph_adjustment = 2 %}
+{% endif %}
+
+{% assign morph_adjustment = morph_adjustment | times: 1.0 %}
+
+{% assign color_lightness = morph_base_color | color_extract: 'lightness' %}
+
+{% if color_lightness > 20.0 %}
+  {% if color_lightness > 50.0 %}
+    {% assign light_adjustment = color_lightness | divided_by: 25.0 | times: morph_adjustment %}
+  {% else %}
+    {% assign light_adjustment = color_lightness | divided_by: 15.0 | times: morph_adjustment %}
+  {% endif %}
+  {% assign new_color = morph_base_color | color_darken: light_adjustment %}
+{% else %}
+  {% if color_lightness < 7.0 %}
+    {% assign light_adjustment = 3.0 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 45.0 %}
+  {% elsif color_lightness < 12.0 %}
+    {% assign light_adjustment = 2.25 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 15.0 %}
+  {% else %}
+    {% assign light_adjustment = 1.75 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color %}
+  {% endif %}
+  {% assign new_color = new_color | color_lighten: light_adjustment %}
+{% endif %}
+
+{{ new_color }}
+
+{% assign morph_base_color = blank %}
+{% assign morph_adjustment = blank %}
+
+{% comment %}Inject morph end{% endcomment %}{% endcapture %}
+                                
+                                <div
+                                  data-component="block-button-link"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="block-button-link"
+                                  style="
+                                    --color-button-main-contrast: {{ block.settings.color_contrast }};
+                                    --color-button-main: {{ block.settings.color_main }};
+                                    --color-button-main-invoked: {{ color_button_morphed | strip }};
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {% comment %}Component button-link:default begin{% endcomment %}
+                                  {% liquid
+                                    assign href_688534cc = href
+                                    assign href = block.settings.url
+                                    assign style_688534cc = style
+                                    assign style = block.settings.style
+                                    assign text_688534cc = text
+                                    assign text = block.settings.text | escape
+                                  %}
+                                  {% comment %}
+                                    @param href [Required]
+                                      This is the anchor tag for the link button.
+                                  
+                                    @param style [Required]
+                                      This is the style of the button: primary, secondary, tertiary, or text.
+                                  
+                                    @param size [Required]
+                                      This defines the size of the button: small, medium, or large.
+                                  
+                                    @param text [Required]
+                                      This is the text to be included in the button.
+                                  
+                                    @param attributes [Optional]
+                                      Any additional attributes to add to the button-link tag.
+                                  {% endcomment %}
+                                  
+                                  <a
+                                    data-component="button-link"
+                                    data-component-type="component"
+                                    {% if tag != blank %}data-component-tag="{{ tag }}"
+                                    {% endif %}class="button-link button-link--{{ style }} button-link--{{ size }}{% if style == 'primary' or style == 'secondary' %} button-link--shadow{% endif %%}"
+                                    {% if href != blank %}
+                                      href="{{ href }}"
+                                    {% endif %}
+                                    {{ attributes }}
+                                  >
+                                    {{ text }}
+                                  </a>
+                                  
+                                  {% liquid
+                                    assign href = href_688534cc
+                                    assign href_688534cc = nil
+                                    assign style = style_688534cc
+                                    assign style_688534cc = nil
+                                    assign text = text_688534cc
+                                    assign text_688534cc = nil
+                                  %}
+                                  {% comment %}Component button-link:default end{% endcomment %}
+                                </div>
+                                
+                                {% liquid
+                                  assign size = size_42d9e38f
+                                  assign size_42d9e38f = nil
+                                %}
+                                {% comment %}Component block-button-link:default end{% endcomment %}
+                              </div>
+                            {% endif %}
+                        {% endcase %}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                  {% if center_area_blocks.size > 0 %}
+                    <div class="image-banner__content image-banner__content--center">
+                      {% for block in center_area_blocks %}
+                        {% case block.type %}
+                          {% when 'heading' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-heading:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-heading"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="
+                                    block-heading
+                                    block-heading--desktop-{{ block.settings.size_desktop }}
+                                    {% unless block.settings.size_mobile == 'same_as_desktop' %}
+                                      block-heading--mobile-{{ block.settings.size_mobile }}
+                                    {% endunless %}
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  <h2>
+                                    {{ block.settings.content | escape }}
+                                  </h2>
+                                </div>
+                                
+                                {% comment %}Component block-heading:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'preheading' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-preheading:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-preheading"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="
+                                    block-preheading
+                                    block-preheading--{{ block.settings.size }}
+                                    {% if block.settings.bolder %}
+                                      block-preheading--bolder
+                                    {% endif %}
+                                    {% if block.settings.uppercase %}
+                                      block-preheading--uppercase
+                                    {% endif %}
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {{ block.settings.content | escape }}
+                                </div>
+                                
+                                {% comment %}Component block-preheading:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'text' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-richtext:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-richtext"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="block-richtext block-richtext--{{ block.settings.size }}"
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {{ block.settings.content }}
+                                </div>
+                                
+                                {% comment %}Component block-richtext:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'button' %}
+                            {% if block.settings.text != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-button-link:default begin{% endcomment %}
+                                {% liquid
+                                  assign size_42d9e38f = size
+                                  assign size = 'medium'
+                                %}
+                                {% comment %}
+                                
+                                  @param size [Required]
+                                    This defines the size of the button: small, medium, or large.
+                                
+                                {% endcomment %}
+                                {% assign morph_base_color = block.settings.color_main %}
+                                {% assign morph_adjustment = 3 %}
+                                {% capture color_button_morphed %}{% comment %}Inject morph begin{% endcomment %}
+{% comment %}
+  This adjusts the color to give it an appropriate difference from the original color.
+  It is usually used for link hover color, and things where we need to distinguish a change.
+
+  @param morph_base_color {Color}
+    The origin color to morph
+
+  @param morph_adjustment {Number}
+    The number to multiply the lightness and saturation by. Default 2.
+{% endcomment %}
+
+{% if morph_adjustment == blank %}
+  {% assign morph_adjustment = 2 %}
+{% endif %}
+
+{% assign morph_adjustment = morph_adjustment | times: 1.0 %}
+
+{% assign color_lightness = morph_base_color | color_extract: 'lightness' %}
+
+{% if color_lightness > 20.0 %}
+  {% if color_lightness > 50.0 %}
+    {% assign light_adjustment = color_lightness | divided_by: 25.0 | times: morph_adjustment %}
+  {% else %}
+    {% assign light_adjustment = color_lightness | divided_by: 15.0 | times: morph_adjustment %}
+  {% endif %}
+  {% assign new_color = morph_base_color | color_darken: light_adjustment %}
+{% else %}
+  {% if color_lightness < 7.0 %}
+    {% assign light_adjustment = 3.0 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 45.0 %}
+  {% elsif color_lightness < 12.0 %}
+    {% assign light_adjustment = 2.25 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 15.0 %}
+  {% else %}
+    {% assign light_adjustment = 1.75 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color %}
+  {% endif %}
+  {% assign new_color = new_color | color_lighten: light_adjustment %}
+{% endif %}
+
+{{ new_color }}
+
+{% assign morph_base_color = blank %}
+{% assign morph_adjustment = blank %}
+
+{% comment %}Inject morph end{% endcomment %}{% endcapture %}
+                                
+                                <div
+                                  data-component="block-button-link"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="block-button-link"
+                                  style="
+                                    --color-button-main-contrast: {{ block.settings.color_contrast }};
+                                    --color-button-main: {{ block.settings.color_main }};
+                                    --color-button-main-invoked: {{ color_button_morphed | strip }};
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {% comment %}Component button-link:default begin{% endcomment %}
+                                  {% liquid
+                                    assign href_688534cc = href
+                                    assign href = block.settings.url
+                                    assign style_688534cc = style
+                                    assign style = block.settings.style
+                                    assign text_688534cc = text
+                                    assign text = block.settings.text | escape
+                                  %}
+                                  {% comment %}
+                                    @param href [Required]
+                                      This is the anchor tag for the link button.
+                                  
+                                    @param style [Required]
+                                      This is the style of the button: primary, secondary, tertiary, or text.
+                                  
+                                    @param size [Required]
+                                      This defines the size of the button: small, medium, or large.
+                                  
+                                    @param text [Required]
+                                      This is the text to be included in the button.
+                                  
+                                    @param attributes [Optional]
+                                      Any additional attributes to add to the button-link tag.
+                                  {% endcomment %}
+                                  
+                                  <a
+                                    data-component="button-link"
+                                    data-component-type="component"
+                                    {% if tag != blank %}data-component-tag="{{ tag }}"
+                                    {% endif %}class="button-link button-link--{{ style }} button-link--{{ size }}{% if style == 'primary' or style == 'secondary' %} button-link--shadow{% endif %%}"
+                                    {% if href != blank %}
+                                      href="{{ href }}"
+                                    {% endif %}
+                                    {{ attributes }}
+                                  >
+                                    {{ text }}
+                                  </a>
+                                  
+                                  {% liquid
+                                    assign href = href_688534cc
+                                    assign href_688534cc = nil
+                                    assign style = style_688534cc
+                                    assign style_688534cc = nil
+                                    assign text = text_688534cc
+                                    assign text_688534cc = nil
+                                  %}
+                                  {% comment %}Component button-link:default end{% endcomment %}
+                                </div>
+                                
+                                {% liquid
+                                  assign size = size_42d9e38f
+                                  assign size_42d9e38f = nil
+                                %}
+                                {% comment %}Component block-button-link:default end{% endcomment %}
+                              </div>
+                            {% endif %}
+                        {% endcase %}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                  {% if right_area_blocks.size > 0 %}
+                    <div class="image-banner__content image-banner__content--right">
+                      {% for block in right_area_blocks %}
+                        {% case block.type %}
+                          {% when 'heading' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-heading:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-heading"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="
+                                    block-heading
+                                    block-heading--desktop-{{ block.settings.size_desktop }}
+                                    {% unless block.settings.size_mobile == 'same_as_desktop' %}
+                                      block-heading--mobile-{{ block.settings.size_mobile }}
+                                    {% endunless %}
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  <h2>
+                                    {{ block.settings.content | escape }}
+                                  </h2>
+                                </div>
+                                
+                                {% comment %}Component block-heading:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'preheading' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-preheading:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-preheading"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="
+                                    block-preheading
+                                    block-preheading--{{ block.settings.size }}
+                                    {% if block.settings.bolder %}
+                                      block-preheading--bolder
+                                    {% endif %}
+                                    {% if block.settings.uppercase %}
+                                      block-preheading--uppercase
+                                    {% endif %}
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {{ block.settings.content | escape }}
+                                </div>
+                                
+                                {% comment %}Component block-preheading:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'text' %}
+                            {% if block.settings.content != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-richtext:sizeable begin{% endcomment %}
+                                <div
+                                  data-component="block-richtext"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="block-richtext block-richtext--{{ block.settings.size }}"
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {{ block.settings.content }}
+                                </div>
+                                
+                                {% comment %}Component block-richtext:sizeable end{% endcomment %}
+                              </div>
+                            {% endif %}
+                          {% when 'button' %}
+                            {% if block.settings.text != blank %}
+                              <div class="image-banner__block-wrapper">
+                                {% comment %}Component block-button-link:default begin{% endcomment %}
+                                {% liquid
+                                  assign size_42d9e38f = size
+                                  assign size = 'medium'
+                                %}
+                                {% comment %}
+                                
+                                  @param size [Required]
+                                    This defines the size of the button: small, medium, or large.
+                                
+                                {% endcomment %}
+                                {% assign morph_base_color = block.settings.color_main %}
+                                {% assign morph_adjustment = 3 %}
+                                {% capture color_button_morphed %}{% comment %}Inject morph begin{% endcomment %}
+{% comment %}
+  This adjusts the color to give it an appropriate difference from the original color.
+  It is usually used for link hover color, and things where we need to distinguish a change.
+
+  @param morph_base_color {Color}
+    The origin color to morph
+
+  @param morph_adjustment {Number}
+    The number to multiply the lightness and saturation by. Default 2.
+{% endcomment %}
+
+{% if morph_adjustment == blank %}
+  {% assign morph_adjustment = 2 %}
+{% endif %}
+
+{% assign morph_adjustment = morph_adjustment | times: 1.0 %}
+
+{% assign color_lightness = morph_base_color | color_extract: 'lightness' %}
+
+{% if color_lightness > 20.0 %}
+  {% if color_lightness > 50.0 %}
+    {% assign light_adjustment = color_lightness | divided_by: 25.0 | times: morph_adjustment %}
+  {% else %}
+    {% assign light_adjustment = color_lightness | divided_by: 15.0 | times: morph_adjustment %}
+  {% endif %}
+  {% assign new_color = morph_base_color | color_darken: light_adjustment %}
+{% else %}
+  {% if color_lightness < 7.0 %}
+    {% assign light_adjustment = 3.0 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 45.0 %}
+  {% elsif color_lightness < 12.0 %}
+    {% assign light_adjustment = 2.25 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 15.0 %}
+  {% else %}
+    {% assign light_adjustment = 1.75 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color %}
+  {% endif %}
+  {% assign new_color = new_color | color_lighten: light_adjustment %}
+{% endif %}
+
+{{ new_color }}
+
+{% assign morph_base_color = blank %}
+{% assign morph_adjustment = blank %}
+
+{% comment %}Inject morph end{% endcomment %}{% endcapture %}
+                                
+                                <div
+                                  data-component="block-button-link"
+                                  data-component-type="block"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="block-button-link"
+                                  style="
+                                    --color-button-main-contrast: {{ block.settings.color_contrast }};
+                                    --color-button-main: {{ block.settings.color_main }};
+                                    --color-button-main-invoked: {{ color_button_morphed | strip }};
+                                  "
+                                  {{ block.shopify_attributes }}
+                                >
+                                  {% comment %}Component button-link:default begin{% endcomment %}
+                                  {% liquid
+                                    assign href_688534cc = href
+                                    assign href = block.settings.url
+                                    assign style_688534cc = style
+                                    assign style = block.settings.style
+                                    assign text_688534cc = text
+                                    assign text = block.settings.text | escape
+                                  %}
+                                  {% comment %}
+                                    @param href [Required]
+                                      This is the anchor tag for the link button.
+                                  
+                                    @param style [Required]
+                                      This is the style of the button: primary, secondary, tertiary, or text.
+                                  
+                                    @param size [Required]
+                                      This defines the size of the button: small, medium, or large.
+                                  
+                                    @param text [Required]
+                                      This is the text to be included in the button.
+                                  
+                                    @param attributes [Optional]
+                                      Any additional attributes to add to the button-link tag.
+                                  {% endcomment %}
+                                  
+                                  <a
+                                    data-component="button-link"
+                                    data-component-type="component"
+                                    {% if tag != blank %}data-component-tag="{{ tag }}"
+                                    {% endif %}class="button-link button-link--{{ style }} button-link--{{ size }}{% if style == 'primary' or style == 'secondary' %} button-link--shadow{% endif %%}"
+                                    {% if href != blank %}
+                                      href="{{ href }}"
+                                    {% endif %}
+                                    {{ attributes }}
+                                  >
+                                    {{ text }}
+                                  </a>
+                                  
+                                  {% liquid
+                                    assign href = href_688534cc
+                                    assign href_688534cc = nil
+                                    assign style = style_688534cc
+                                    assign style_688534cc = nil
+                                    assign text = text_688534cc
+                                    assign text_688534cc = nil
+                                  %}
+                                  {% comment %}Component button-link:default end{% endcomment %}
+                                </div>
+                                
+                                {% liquid
+                                  assign size = size_42d9e38f
+                                  assign size_42d9e38f = nil
+                                %}
+                                {% comment %}Component block-button-link:default end{% endcomment %}
+                              </div>
+                            {% endif %}
+                        {% endcase %}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            {% endif %}
+        {% endif %}
+        </div>
+      </div>
+    </section-content>
+  </section-wrapper>
+</section>
+{% schema %}
+{
+  "name": "t:common.component.image_banner",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "wide",
+      "label": "t:common.size.wide_display",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:component.image_banner.header_1.content"
+    },
+    {
+      "type": "select",
+      "id": "desktop_height",
+      "label": "t:common.size.desktop_height",
+      "info": "t:component.image_banner.desktop_height.info",
+      "options": [
+        {
+          "value": "400",
+          "label": "t:common.size.400px"
+        },
+        {
+          "value": "500",
+          "label": "t:common.size.500px"
+        },
+        {
+          "value": "600",
+          "label": "t:common.size.600px"
+        },
+        {
+          "value": "700",
+          "label": "t:common.size.700px"
+        },
+        {
+          "value": "800",
+          "label": "t:common.size.800px"
+        },
+        {
+          "value": "adapt",
+          "label": "t:component.image_banner.desktop_height.option_6"
+        }
+      ],
+      "default": "800"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:component.image_banner.image.label",
+      "info": "t:component.image_banner.image.info"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_2",
+      "label": "t:component.image_banner.image_2.label",
+      "info": "t:component.image_banner.image_2.info"
+    },
+    {
+      "type": "header",
+      "content": "t:component.image_banner.header_2.content"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "t:common.image.mobile_image",
+      "info": "t:component.image_banner.mobile_image.info"
+    },
+    {
+      "type": "header",
+      "content": "t:component.image_banner.header_3.content"
+    },
+    {
+      "type": "text_alignment",
+      "id": "text_alignment",
+      "label": "t:common.text.text_alignment"
+    },
+    {
+      "type": "header",
+      "content": "t:common.style.color"
+    },
+    {
+      "type": "color",
+      "id": "color_overlay_foreground",
+      "label": "t:common.text.text",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "t:common.style.solid_overlay",
+      "default": "#000000"
+    },
+    {
+      "type": "color_background",
+      "id": "overlay_gradient",
+      "label": "t:common.style.gradient_overlay"
+    },
+    {
+      "type": "range",
+      "id": "color_overlay_opacity",
+      "label": "t:common.image.overlay_opacity",
+      "info": "t:common.info.no_effect_with_gradient_overlay",
+      "step": 1,
+      "min": 0,
+      "max": 100,
+      "default": 30,
+      "unit": "t:common.unit.percent"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:common.component.image_banner",
+      "blocks": [
+        {
+          "type": "preheading",
+          "settings": {
+            "size": "large",
+            "position": "top_left"
+          }
+        },
+        {
+          "type": "heading",
+          "settings": {
+            "content": "Image banner",
+            "size_desktop": "extra-large",
+            "size_mobile": "same_as_desktop",
+            "position": "top_left"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "content": "<p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.</p>",
+            "size": "large",
+            "position": "top_left"
+          }
+        },
+        {
+          "type": "button",
+          "settings": {
+            "style": "tertiary",
+            "position": "bottom_right",
+            "color_contrast": "#000000",
+            "color_main": "#FFFFFF"
+          }
+        }
+      ],
+      "category": "t:component.image_banner.presets.image_banner.category"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "preheading",
+      "name": "t:common.text.preheading",
+      "settings": [
+        {
+          "type": "select",
+          "id": "position",
+          "label": "t:common.text.text_position",
+          "info": "t:common.info.text_position_block_settings",
+          "options": [
+            {
+              "value": "top_left",
+              "label": "t:common.layout.top_left"
+            },
+            {
+              "value": "top_center",
+              "label": "t:common.layout.top_middle"
+            },
+            {
+              "value": "top_right",
+              "label": "t:common.layout.top_right"
+            },
+            {
+              "value": "center_left",
+              "label": "t:common.layout.middle_left"
+            },
+            {
+              "value": "center_center",
+              "label": "t:common.layout.middle"
+            },
+            {
+              "value": "center_right",
+              "label": "t:common.layout.middle_right"
+            },
+            {
+              "value": "bottom_left",
+              "label": "t:common.layout.bottom_left"
+            },
+            {
+              "value": "bottom_center",
+              "label": "t:common.layout.bottom_middle"
+            },
+            {
+              "value": "bottom_right",
+              "label": "t:common.layout.bottom_right"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "content",
+          "label": "t:common.text.content",
+          "default": "Preheading"
+        },
+        {
+          "type": "select",
+          "id": "size",
+          "label": "t:common.text.size",
+          "options": [
+            {
+              "value": "small",
+              "label": "t:common.size.small"
+            },
+            {
+              "value": "medium",
+              "label": "t:common.size.medium"
+            },
+            {
+              "value": "large",
+              "label": "t:common.size.large"
+            }
+          ],
+          "default": "large"
+        },
+        {
+          "type": "checkbox",
+          "id": "bolder",
+          "label": "t:common.text.bolder",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "uppercase",
+          "label": "t:common.text.uppercase_text",
+          "default": true
+        }
+      ],
+      "limit": 1
+    },
+    {
+      "type": "heading",
+      "name": "t:common.text.heading",
+      "settings": [
+        {
+          "type": "select",
+          "id": "position",
+          "label": "t:common.text.text_position",
+          "info": "t:common.info.text_position_block_settings",
+          "options": [
+            {
+              "value": "top_left",
+              "label": "t:common.layout.top_left"
+            },
+            {
+              "value": "top_center",
+              "label": "t:common.layout.top_middle"
+            },
+            {
+              "value": "top_right",
+              "label": "t:common.layout.top_right"
+            },
+            {
+              "value": "center_left",
+              "label": "t:common.layout.middle_left"
+            },
+            {
+              "value": "center_center",
+              "label": "t:common.layout.middle"
+            },
+            {
+              "value": "center_right",
+              "label": "t:common.layout.middle_right"
+            },
+            {
+              "value": "bottom_left",
+              "label": "t:common.layout.bottom_left"
+            },
+            {
+              "value": "bottom_center",
+              "label": "t:common.layout.bottom_middle"
+            },
+            {
+              "value": "bottom_right",
+              "label": "t:common.layout.bottom_right"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "content",
+          "label": "t:common.text.heading",
+          "default": "Talk about your brand"
+        },
+        {
+          "type": "select",
+          "id": "size_desktop",
+          "label": "t:component.block_heading.blocks.heading.size_desktop.label",
+          "options": [
+            {
+              "value": "small",
+              "label": "t:common.size.small"
+            },
+            {
+              "value": "medium",
+              "label": "t:common.size.medium"
+            },
+            {
+              "value": "large",
+              "label": "t:common.size.large"
+            },
+            {
+              "value": "extra-large",
+              "label": "t:common.size.extra_large"
+            }
+          ],
+          "default": "medium"
+        },
+        {
+          "type": "select",
+          "id": "size_mobile",
+          "label": "t:component.block_heading.blocks.heading.size_mobile.label",
+          "options": [
+            {
+              "value": "same_as_desktop",
+              "label": "t:component.block_heading.blocks.heading.size_mobile.option_1"
+            },
+            {
+              "value": "small",
+              "label": "t:common.size.small"
+            },
+            {
+              "value": "medium",
+              "label": "t:common.size.medium"
+            },
+            {
+              "value": "large",
+              "label": "t:common.size.large"
+            },
+            {
+              "value": "extra-large",
+              "label": "t:common.size.extra_large"
+            }
+          ],
+          "default": "same_as_desktop"
+        }
+      ],
+      "limit": 1
+    },
+    {
+      "type": "text",
+      "name": "t:common.text.text",
+      "settings": [
+        {
+          "type": "select",
+          "id": "position",
+          "label": "t:common.text.text_position",
+          "info": "t:common.info.text_position_block_settings",
+          "options": [
+            {
+              "value": "top_left",
+              "label": "t:common.layout.top_left"
+            },
+            {
+              "value": "top_center",
+              "label": "t:common.layout.top_middle"
+            },
+            {
+              "value": "top_right",
+              "label": "t:common.layout.top_right"
+            },
+            {
+              "value": "center_left",
+              "label": "t:common.layout.middle_left"
+            },
+            {
+              "value": "center_center",
+              "label": "t:common.layout.middle"
+            },
+            {
+              "value": "center_right",
+              "label": "t:common.layout.middle_right"
+            },
+            {
+              "value": "bottom_left",
+              "label": "t:common.layout.bottom_left"
+            },
+            {
+              "value": "bottom_center",
+              "label": "t:common.layout.bottom_middle"
+            },
+            {
+              "value": "bottom_right",
+              "label": "t:common.layout.bottom_right"
+            }
+          ]
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "t:common.text.description",
+          "default": "<p>Share information about your brand with your customers. Describe a product, make announcements, or welcome customers to your store.</p>"
+        },
+        {
+          "type": "select",
+          "id": "size",
+          "label": "t:common.text.size",
+          "options": [
+            {
+              "value": "small",
+              "label": "t:common.size.small"
+            },
+            {
+              "value": "medium",
+              "label": "t:common.size.medium"
+            },
+            {
+              "value": "large",
+              "label": "t:common.size.large"
+            }
+          ],
+          "default": "medium"
+        }
+      ],
+      "limit": 1
+    },
+    {
+      "type": "button",
+      "name": "t:common.component.button",
+      "settings": [
+        {
+          "type": "select",
+          "id": "style",
+          "label": "t:common.style.style",
+          "options": [
+            {
+              "value": "primary",
+              "label": "t:common.style.primary"
+            },
+            {
+              "value": "secondary",
+              "label": "t:common.style.secondary"
+            },
+            {
+              "value": "icon",
+              "label": "t:common.image.icon"
+            },
+            {
+              "value": "text",
+              "label": "t:common.text.signpost"
+            }
+          ],
+          "default": "icon"
+        },
+        {
+          "type": "select",
+          "id": "position",
+          "label": "t:common.layout.position",
+          "info": "t:component.image_banner.blocks.button.position.info",
+          "options": [
+            {
+              "value": "top_left",
+              "label": "t:common.layout.top_left"
+            },
+            {
+              "value": "top_center",
+              "label": "t:common.layout.top_middle"
+            },
+            {
+              "value": "top_right",
+              "label": "t:common.layout.top_right"
+            },
+            {
+              "value": "center_left",
+              "label": "t:common.layout.middle_left"
+            },
+            {
+              "value": "center_center",
+              "label": "t:common.layout.middle"
+            },
+            {
+              "value": "center_right",
+              "label": "t:common.layout.middle_right"
+            },
+            {
+              "value": "bottom_left",
+              "label": "t:common.layout.bottom_left"
+            },
+            {
+              "value": "bottom_center",
+              "label": "t:common.layout.bottom_middle"
+            },
+            {
+              "value": "bottom_right",
+              "label": "t:common.layout.bottom_right"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "t:common.text.label",
+          "default": "Button"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "t:common.component.link"
+        },
+        {
+          "type": "color",
+          "id": "color_main",
+          "label": "t:common.style.main_color",
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "color_contrast",
+          "label": "t:common.style.contrast_color",
+          "default": "#ffffff"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "*"
+    ]
+  }
+}
+{% endschema %}

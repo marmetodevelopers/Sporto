@@ -1,0 +1,137 @@
+{% comment %}
+  @param product {Object} [Required]
+    The product which we want to display the price for
+
+  @param selected_variant {Variant} [Optional]
+    Renders selected variant instead of overall product pricing
+
+  @param class {String} [Optional]
+    Adds any additional classes to the price element
+{% endcomment %}
+
+{%- liquid
+  if selected_variant
+    assign current_product = selected_variant
+  else
+    assign current_product = product
+  endif
+
+  assign compare_at_price = current_product.compare_at_price
+  assign price = current_product.price | default: 1999
+  assign available = current_product.available | default: false
+  assign money_price = price | money
+  assign money_compare = compare_at_price | money
+  if settings.currency_code_enabled
+    assign money_price = price | money_with_currency
+    assign money_compare = compare_at_price | money_with_currency
+  endif
+  assign savings_varies = false
+  assign savings = blank
+  assign money_savings = blank
+
+  if compare_at_price > price
+    if settings.price_savings_style == 'dollar'
+      assign savings = compare_at_price | minus: price
+    else
+      assign savings = price | times: 100 | divided_by: compare_at_price
+      assign savings = 100 | minus: savings
+    endif
+  endif
+
+  if current_product == product
+    if current_product.price_varies
+      assign money_price = 'products.price.from_price' | t: price: money_price
+    endif
+
+    if settings.price_show_saved and current_product.variants.size > 1
+      for product_variant in current_product.variants
+        if product_variant.compare_at_price > product_variant.price
+          if settings.price_savings_style == 'dollar'
+            assign variant_savings = product_variant.compare_at_price | minus: product_variant.price
+          else
+            assign variant_savings = product_variant.price | times: 100 | divided_by: product_variant.compare_at_price
+            assign variant_savings = 100 | minus: variant_savings
+          endif
+          if variant_savings != savings
+            assign savings_varies = true
+          endif
+          if variant_savings > savings
+            assign savings = variant_savings
+          endif
+        elsif savings > 0
+          assign savings_varies = true
+        endif
+      endfor
+    endif
+  endif
+
+  if savings != blank
+    if settings.price_savings_style == 'dollar'
+      assign money_savings = savings | money
+
+      if settings.currency_code_enabled
+        assign money_savings = savings | money_with_currency
+      endif
+    else
+      assign money_savings = savings | append: '%'
+    endif
+  endif
+-%}
+
+<div data-component="price" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="price
+  {% if available == false %}price--sold-out{% endif %}
+  {% if compare_at_price > price %}price--on-sale{% endif %}
+  {% if current_product.price_varies %}price--varies{% endif %}
+  {{ class }}
+">
+  <div class="price__regular">
+    <span class="visually-hidden">{{ 'products.price.regular_price' | t }}</span>
+    <span class="price__regular-value money">
+      {{ money_price }}
+    </span>
+  </div>
+  <div class="price__sale">
+    {%- if current_product.price_varies == blank or current_product.price_varies == false %}
+      <span class="visually-hidden">{{ 'products.price.regular_price' | t }}</span>
+      <s class="price__sale-compare money">{{ money_compare }}</s>
+    {%- endif -%}
+    <span class="visually-hidden">{{ 'products.price.sale_price' | t }}</span>
+    <span class="price__sale-value money">
+      {{ money_price }}
+    </span>
+
+    {% if settings.price_show_saved and savings != blank %}
+      <span class="price__savings">
+        {% if savings_varies %}
+          {{ 'products.price.savings_up_to' | t: amount: money_savings }}
+        {% else %}
+          {{ 'products.price.savings' | t: amount: money_savings }}
+        {% endif %}
+      </span>
+    {% endif %}
+  </div>
+
+  {% comment %} Unit prices need to be done on a variant, so we set current product to the first variant if none was provided {% endcomment %}
+  {% if selected_variant == blank %}
+    {% assign current_product = current_product.selected_or_first_available_variant %}
+  {% endif %}
+
+  {% if current_product.unit_price_measurement != nil %}
+    <div class="price__per-unit">
+      <small class="price__unit-price">
+        <span class="visually-hidden">{{ 'products.price.unit_price' | t }}</span>
+        <span class="price__unit-price-value">
+          <span>{{- current_product.unit_price | money -}}</span>
+          <span aria-hidden="true">/</span>
+          <span class="visually-hidden">&nbsp;{{ 'products.price.unit_price_separator' | t }}&nbsp;</span>
+          <span>
+            {%- if current_product.unit_price_measurement.reference_value != 1 -%}
+              {{- current_product.unit_price_measurement.reference_value -}}
+            {%- endif -%}
+            {{ current_product.unit_price_measurement.reference_unit }}
+          </span>
+        </span>
+      </small>
+    </div>
+  {% endif %}
+</div>

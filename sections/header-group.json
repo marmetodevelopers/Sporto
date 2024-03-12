@@ -1,0 +1,44 @@
+{
+  "type": "header",
+  "name": "Header",
+  "sections": {
+    "header": {
+      "type": "header",
+      "blocks": {
+        "announcement": {
+          "type": "announcement",
+          "settings": {
+          }
+        },
+        "announcement_2": {
+          "type": "announcement",
+          "settings": {
+          }
+        },
+        "meganav": {
+          "type": "meganav_default",
+          "settings": {
+          }
+        },
+        "meganav_2": {
+          "type": "meganav_default",
+          "settings": {
+          }
+        }
+      },
+      "block_order": [
+        "announcement",
+        "announcement_2",
+        "meganav",
+        "meganav_2"
+      ],
+      "settings": {
+        "show_social_icons": false,
+        "enable_country_selector": false
+      }
+    }
+  },
+  "order": [
+    "header"
+  ]
+}

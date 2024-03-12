@@ -1,0 +1,43 @@
+<section data-component="spacer" data-component-type="section" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="spacer spacer--{{ section.settings.spacing }}"></section>
+{% schema %}
+{
+  "name": "t:common.component.spacer",
+  "settings": [
+    {
+      "type": "select",
+      "id": "spacing",
+      "label": "t:common.style.spacing",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:common.style.none"
+        },
+        {
+          "value": "small",
+          "label": "t:common.size.small"
+        },
+        {
+          "value": "medium",
+          "label": "t:common.size.medium"
+        },
+        {
+          "value": "large",
+          "label": "t:common.size.large"
+        }
+      ],
+      "default": "medium"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:common.component.spacer",
+      "category": "t:component.spacer.presets.spacer.category"
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "*"
+    ]
+  }
+}
+{% endschema %}

@@ -1,0 +1,71 @@
+<section data-component="main404" data-component-type="section" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="main-404">
+  <section-wrapper width="constrained">
+    <section-content>
+      <h1 class="main-404__heading">
+        {{ 'templates.404.title' | t }}
+      </h1>
+      <p class="main-404__subtext">
+        {{ 'templates.404.subtext' | t }}
+      </p>
+
+      {% assign button_text = 'general.continue_shopping' | t %}
+      {% comment %}Component button-link:default begin{% endcomment %}
+      {% liquid
+        assign href_52675108 = href
+        assign href = routes.all_products_collection_url
+        assign style_52675108 = style
+        assign style = 'primary'
+        assign size_52675108 = size
+        assign size = 'medium'
+        assign text_52675108 = text
+        assign text = button_text
+      %}
+      {% comment %}
+        @param href [Required]
+          This is the anchor tag for the link button.
+      
+        @param style [Required]
+          This is the style of the button: primary, secondary, tertiary, or text.
+      
+        @param size [Required]
+          This defines the size of the button: small, medium, or large.
+      
+        @param text [Required]
+          This is the text to be included in the button.
+      
+        @param attributes [Optional]
+          Any additional attributes to add to the button-link tag.
+      {% endcomment %}
+      
+      <a
+        data-component="button-link"
+        data-component-type="component"
+        {% if tag != blank %}data-component-tag="{{ tag }}"
+        {% endif %}class="button-link button-link--{{ style }} button-link--{{ size }}{% if style == 'primary' or style == 'secondary' %} button-link--shadow{% endif %%}"
+        {% if href != blank %}
+          href="{{ href }}"
+        {% endif %}
+        {{ attributes }}
+      >
+        {{ text }}
+      </a>
+      
+      {% liquid
+        assign href = href_52675108
+        assign href_52675108 = nil
+        assign style = style_52675108
+        assign style_52675108 = nil
+        assign size = size_52675108
+        assign size_52675108 = nil
+        assign text = text_52675108
+        assign text_52675108 = nil
+      %}
+      {% comment %}Component button-link:default end{% endcomment %}
+    </section-content>
+  </section-wrapper>
+</section>
+{% schema %}
+{
+  "name": "t:component.404.name"
+}
+{% endschema %}

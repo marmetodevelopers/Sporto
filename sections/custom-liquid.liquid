@@ -1,0 +1,40 @@
+<section data-component="custom-liquid" data-component-type="section" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="custom-liquid">
+  {% if section.settings.heading != blank %}
+    <section-wrapper>
+      <section-header>
+        <h2 class="custom-liquid__heading">{{ section.settings.heading | escape }}</h2>
+      </section-header>
+    </section-wrapper>
+  {% endif %}
+  <section-wrapper>
+    <section-content>
+      {{ section.settings.custom_liquid }}
+    </section-content>
+  </section-wrapper>
+</section>
+{% schema %}
+{
+  "name": "t:common.component.custom_liquid",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:common.text.heading",
+      "default": "Custom Liquid"
+    },
+    {
+      "type": "liquid",
+      "id": "custom_liquid",
+      "label": "t:common.component.custom_liquid",
+      "info": "t:common.info.custom_liquid",
+      "default": "{{ 'Write or paste your Liquid code here' }}"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:common.component.custom_liquid",
+      "category": "t:component.custom_liquid.presets.custom_liquid.category"
+    }
+  ]
+}
+{% endschema %}

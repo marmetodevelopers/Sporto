@@ -1,0 +1,55 @@
+{% comment %}
+  @param paginate [Required]
+    The pagination object that is used to display the pagination.
+
+{% endcomment %}
+
+<nav data-component="pagination" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="pagination" role="navigation" aria-label="{{ 'general.pagination.label' | t }}">
+  {% if paginate.previous %}
+    <a
+      href="{{ paginate.previous.url }}"
+      class="pagination__previous-button"
+      aria-label="{{ 'general.pagination.previous' | t }}"
+    >
+      {% comment %}Icon chevron:default begin{% endcomment %}
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path stroke="currentColor" stroke-width="1.75" d="m1 5 7 7 7-7"/></svg>
+      {% comment %}Icon chevron:default end{% endcomment %}
+      <span class="pagination__previous-text">{{ 'general.pagination.previous' | t }}</span>
+    </a>
+  {% endif %}
+
+  <ul class="pagination__page-list" role="list">
+    {% for part in paginate.parts %}
+      {% if part.is_link %}
+        <li class="pagination__page">
+          <a href="{{ part.url }}" aria-label="{{ 'general.pagination.page' | t: number: part.title }}">{{ part.title }}</a>
+        </li>
+      {% else %}
+        {% if part.title == paginate.current_page %}
+          <li class="pagination__page pagination__page--current" aria-current="page" aria-label="{{ 'general.pagination.page' | t: number: part.title }}">
+            <span>{{ part.title }}</span>
+          </li>
+        {% else %}
+          <li class="pagination__page pagination__page--elipses">{{ part.title }}</li>
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  </ul>
+
+  <div class="pagination__mobile">
+    {{ paginate.current_page }} / {{ paginate.pages }}
+  </div>
+
+  {% if paginate.next %}
+    <a
+      href="{{ paginate.next.url }}"
+      class="pagination__next-button"
+      aria-label="{{ 'general.pagination.next' | t }}"
+    >
+      <span class="pagination__next-text">{{ 'general.pagination.next' | t }}</span>
+      {% comment %}Icon chevron:default begin{% endcomment %}
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path stroke="currentColor" stroke-width="1.75" d="m1 5 7 7 7-7"/></svg>
+      {% comment %}Icon chevron:default end{% endcomment %}
+    </a>
+  {% endif %}
+</nav>

@@ -1,0 +1,702 @@
+{% comment %}
+  @param filter_context [Required]
+    The filter_context that these filters are drawing from. For example: collection or search.
+
+{% endcomment %}
+
+<div data-component="drawer-filters" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}>
+  <div class="drawer-filters" data-drawer-filters data-ready="false">
+    <form
+      class="drawer-filters__form"
+      data-filter-form
+    >
+      {% if filter_context == search %}
+        <input type="hidden" name="q" value="{{ filter_context.terms | escape }}" data-search-input>
+      {% endif %}
+
+      <div class="drawer-filters__header">
+        <button
+          class="drawer-filters__close-button"
+          type="button"
+          aria-label="{{ 'general.close' | t }}"
+          data-drawer-filters-close
+        >
+          {% comment %}Icon close:default begin{% endcomment %}
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m1 1 8 8m8-8L9 9m8 8L9 9m-8 8 8-8" stroke="currentColor" stroke-width="1.75"/></svg>
+          {% comment %}Icon close:default end{% endcomment %}
+        </button>
+        <h2 class="drawer-filters__heading" id="drawer-title">{{ 'products.filters.filter' | t }}</h2>
+        <a
+          class="drawer-filters__clear-all"
+          href="{{ filter_context.url }}?sort_by={{ filter_context.sort_by }}{% if filter_context == search and filter_context.terms %}&q={{ filter_context.terms }}{% endif %}"
+          data-drawer-filters-clear
+        >
+          {{ 'products.filters.clear_all' | t }}
+        </a>
+      </div>
+      <div class="drawer-filters__filters" data-filter-disclosures>
+        <div class="drawer-filters__empty{% if filter_context.filters.size != 0 %} hidden{% endif %}" data-filters-empty>
+          {{ 'products.filters.empty_filters' | t }}
+        </div>
+
+        {%- for filter in filter_context.filters -%}
+          {% case filter.type %}
+          {% when 'list' %}
+            <details class="drawer-filter" data-filter-disclosure data-key="{{ filter.param_name }}">
+              <summary class="drawer-filter__summary" data-filter-summary>
+                <span>
+                  {{ filter.label | escape }}
+                  {% if filter.active_values.size > 0 %}
+                    <span class="drawer-filter__summary-count">({{ filter.active_values.size }})</span>
+                    <span class="drawer-filter__summary-list">
+                      {%- assign active_list = '' -%}
+                      {%- for value in filter.active_values -%}
+                        {%- assign active_list = active_list | append: value.label -%}
+                        {%- if forloop.last != true -%}
+                          {%- assign active_list = active_list | append: ', ' -%}
+                        {%- endif -%}
+                      {%- endfor -%}
+
+                      {{ active_list }}
+                    </span>
+                  {% endif %}
+                </span>
+              </summary>
+              <div class="drawer-filter__content" tabindex="-1">
+                <div class="drawer-filter__header">
+                  <button
+                    class="drawer-filter__back"
+                    type="button"
+                    aria-label="{{ 'products.filters.back_to_filters' | t }}"
+                    data-id="{{ filter.param_name }}"
+                    data-filter-back-button
+                  >
+                    {% comment %}Icon arrow:default begin{% endcomment %}
+                    <svg width="24" height="18" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 17 2 9m0 0 8-8M2 9h21.5" stroke="currentColor" stroke-width="2"/></svg>
+                    {% comment %}Icon arrow:default end{% endcomment %}
+                  </button>
+                  <h3 class="drawer-filter__heading" data-filter-heading>
+                    {{ filter.label | escape }}
+                    {% if filter.active_values.size > 0 %}
+                      <span class="drawer-filter__heading-summary-count">({{ filter.active_values.size }})</span>
+                    {% endif %}
+                  </h3>
+
+                  <a
+                    class="drawer-filter__remove"
+                    href="{{ filter.url_to_remove }}"
+                    data-filter-reset
+                  >
+                    {{ 'products.filters.reset' | t }}
+                  </a>
+                </div>
+
+                <ul class="drawer-filter__list" role="list" data-filter-form-items>
+                  {%- for value in filter.values -%}
+                    <li class="drawer-filter__list-item">
+                      {% capture label_text %}
+                        <span class="drawer-filter__text">{{ value.label | escape }}</span>
+                        <span class="drawer-filter__count ">{{ value.count }}</span>
+                      {% endcapture %}
+
+                      {% assign value_disabled = false %}
+                      {% if value.count == 0 and value.active == false %}
+                        {% assign value_disabled = true %}
+                      {% endif %}
+
+                      {% if filter.type == 'list' %}
+                        {% case filter.presentation %}
+                          {% when 'text' %}
+                            {% comment %}Component input-checkbox-row:default begin{% endcomment %}
+                            {% liquid
+                              assign form_id_6af283f3 = form_id
+                              assign form_id = 'mobile-filters'
+                              assign field_name_6af283f3 = field_name
+                              assign field_name = value.param_name
+                              assign field_value_6af283f3 = field_value
+                              assign field_value = value.value
+                              assign checked_6af283f3 = checked
+                              assign checked = value.active
+                              assign disabled_6af283f3 = disabled
+                              assign disabled = value_disabled
+                            %}
+                            {% comment %}
+                              @param form_id [Optional]
+                                The id of the form that will help identify where this checkbox is.
+                            
+                              @param label_text [Required]
+                                The text for the label to be included.
+                            
+                              @param form_namespace [Required]
+                                The form's namespace that is used in "name" attribute as form_namespace[field_name].
+                            
+                              @param field_name [Required]
+                                The field name for the form. Will be used for the "name" attribute.
+                            
+                              @param field_value [Optional]
+                                The value for the checkbox.
+                            
+                              @param checked [Optional]
+                                Boolean. If true, the checkbox will appear checked.
+                            
+                              @param disabled [Optional]
+                                Boolean. If true, the checkbox will appear disabled.
+                            
+                              @param attributes [Optional]
+                                Additional attributes to append to the input field.
+                            {% endcomment %}
+                            
+                            <div
+                              data-component="input-checkbox-row"
+                              data-component-type="component"
+                              {% if tag != blank %}data-component-tag="{{ tag }}"
+                              {% endif %}class="
+                                input-checkbox-row
+                                {% if checked %}input-checkbox-row--checked{% endif %}
+                                {% if disabled %}input-checkbox-row--disabled{% endif %}
+                              "
+                            >
+                              <input
+                                class="input-checkbox-row__checkbox"
+                                id="{% if form_namespace %}{{ form_namespace }}-{% endif %}{{ field_name }}-{{ field_value }}{% if form_id %}-{{form_id}}{% endif %}"
+                                type="checkbox"
+                                name="{% if form_namespace %}{{ form_namespace }}[{{ field_name }}]{% else %}{{ field_name }}{% endif %}"
+                                {% if field_value %}value="{{ field_value }}"{% endif %}
+                                {% if checked %}checked{% endif %}
+                                {% if disabled %}disabled{% endif %}
+                                {{ attributes }}
+                              >
+                              <label class="input-checkbox-row__label" for="{% if form_namespace %}{{ form_namespace }}-{% endif %}{{ field_name }}-{{ field_value }}{% if form_id %}-{{form_id}}{% endif %}" tabindex="-1">
+                                {{ label_text }}
+                              </label>
+                            </div>
+                            
+                            {% liquid
+                              assign form_id = form_id_6af283f3
+                              assign form_id_6af283f3 = nil
+                              assign field_name = field_name_6af283f3
+                              assign field_name_6af283f3 = nil
+                              assign field_value = field_value_6af283f3
+                              assign field_value_6af283f3 = nil
+                              assign checked = checked_6af283f3
+                              assign checked_6af283f3 = nil
+                              assign disabled = disabled_6af283f3
+                              assign disabled_6af283f3 = nil
+                            %}
+                            {% comment %}Component input-checkbox-row:default end{% endcomment %}
+                          {% else %}
+                            {% comment %}Component input-checkbox-swatch-row:default begin{% endcomment %}
+                            {% liquid
+                              assign form_id_8dc61059 = form_id
+                              assign form_id = 'mobile-filters'
+                              assign field_name_8dc61059 = field_name
+                              assign field_name = value.param_name
+                              assign field_value_8dc61059 = field_value
+                              assign field_value = value.value
+                              assign checked_8dc61059 = checked
+                              assign checked = value.active
+                              assign disabled_8dc61059 = disabled
+                              assign disabled = value_disabled
+                              assign display_type_8dc61059 = display_type
+                              assign display_type = value.display.type
+                              assign display_value_8dc61059 = display_value
+                              assign display_value = value.display.value
+                            %}
+                            {% comment %}
+                              @param form_id [Optional]
+                                The id of the form that will help identify where this checkbox is.
+                            
+                              @param label_text [Required]
+                                The text for the label to be included.
+                            
+                              @param form_namespace [Required]
+                                The form's namespace that is used in "name" attribute as form_namespace[field_name].
+                            
+                              @param field_name [Required]
+                                The field name for the form. Will be used for the "name" attribute.
+                            
+                              @param field_value [Optional]
+                                The value for the checkbox.
+                            
+                              @param checked [Optional]
+                                Boolean. If true, the checkbox will appear checked.
+                            
+                              @param disabled [Optional]
+                                Boolean. If true, the checkbox will appear disabled.
+                            
+                              @param attributes [Optional]
+                                Additional attributes to append to the input field.
+                            
+                              @param display_type [Required]
+                                The type of visual representation, either "colors" or "image".
+                            
+                              @param display_value [Required]
+                                The visual representation, either a list of colors, or an image.
+                            {% endcomment %}
+                            
+                            <div
+                              data-component="input-checkbox-swatch-row"
+                              data-component-type="component"
+                              {% if tag != blank %}data-component-tag="{{ tag }}"
+                              {% endif %}class="
+                                input-checkbox-swatch-row
+                                {% if checked %}input-checkbox-swatch-row--checked{% endif %}
+                                {% if disabled %}input-checkbox-swatch-row--disabled{% endif %}
+                              "
+                            >
+                              <input
+                                class="input-checkbox-swatch-row__checkbox"
+                                id="{% if form_namespace %}{{ form_namespace }}-{% endif %}{{ field_name }}-{{ field_value }}{% if form_id %}-{{form_id}}{% endif %}"
+                                type="checkbox"
+                                name="{% if form_namespace %}{{ form_namespace }}[{{ field_name }}]{% else %}{{ field_name }}{% endif %}"
+                                {% if field_value %}value="{{ field_value }}"{% endif %}
+                                {% if checked %}checked{% endif %}
+                                {% if disabled %}disabled{% endif %}
+                                {{ attributes }}
+                              >
+                              <label class="input-checkbox-swatch-row__label" for="{% if form_namespace %}{{ form_namespace }}-{% endif %}{{ field_name }}-{{ field_value }}{% if form_id %}-{{form_id}}{% endif %}" tabindex="-1">
+                                {% comment %}Component faceted-filters-swatch:default begin{% endcomment %}
+                                {% comment %}
+                                  @param display_type [Required]
+                                    The type of visual representation, either "colors" or "image".
+                                
+                                  @param display_value [Required]
+                                    The visual representation, either a list of colors, or an image.
+                                {% endcomment %}
+                                
+                                <div
+                                  data-component="faceted-filters-swatch"
+                                  data-component-type="component"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="
+                                    faceted-filter-swatch
+                                    faceted-filter-swatch--{{ settings.swatch_shape }}
+                                  "
+                                >
+                                  {%- case display_type -%}
+                                    {%- when 'colors' -%}
+                                      <div class="faceted-filter-swatch__color" style="--faceted-filter-swatch-color: {{ display_value }};"></div>
+                                
+                                    {%- when 'image' -%}
+                                      {{- display_value | image_url: width: 100 | image_tag: class: 'faceted-filter-swatch__image', alt: display_value.alt, loading: 'lazy' -}}
+                                  {%- endcase -%}
+                                </div>
+                                
+                                {% comment %}Component faceted-filters-swatch:default end{% endcomment %}
+                                {{ label_text }}
+                              </label>
+                            </div>
+                            
+                            {% liquid
+                              assign form_id = form_id_8dc61059
+                              assign form_id_8dc61059 = nil
+                              assign field_name = field_name_8dc61059
+                              assign field_name_8dc61059 = nil
+                              assign field_value = field_value_8dc61059
+                              assign field_value_8dc61059 = nil
+                              assign checked = checked_8dc61059
+                              assign checked_8dc61059 = nil
+                              assign disabled = disabled_8dc61059
+                              assign disabled_8dc61059 = nil
+                              assign display_type = display_type_8dc61059
+                              assign display_type_8dc61059 = nil
+                              assign display_value = display_value_8dc61059
+                              assign display_value_8dc61059 = nil
+                            %}
+                            {% comment %}Component input-checkbox-swatch-row:default end{% endcomment %}
+                        {% endcase %}
+                      {% else %}
+                        {% comment %}Component input-checkbox-row:default begin{% endcomment %}
+                        {% liquid
+                          assign form_id_d6373395 = form_id
+                          assign form_id = 'mobile-filters'
+                          assign field_name_d6373395 = field_name
+                          assign field_name = value.param_name
+                          assign field_value_d6373395 = field_value
+                          assign field_value = value.value
+                          assign checked_d6373395 = checked
+                          assign checked = value.active
+                          assign disabled_d6373395 = disabled
+                          assign disabled = value_disabled
+                        %}
+                        {% comment %}
+                          @param form_id [Optional]
+                            The id of the form that will help identify where this checkbox is.
+                        
+                          @param label_text [Required]
+                            The text for the label to be included.
+                        
+                          @param form_namespace [Required]
+                            The form's namespace that is used in "name" attribute as form_namespace[field_name].
+                        
+                          @param field_name [Required]
+                            The field name for the form. Will be used for the "name" attribute.
+                        
+                          @param field_value [Optional]
+                            The value for the checkbox.
+                        
+                          @param checked [Optional]
+                            Boolean. If true, the checkbox will appear checked.
+                        
+                          @param disabled [Optional]
+                            Boolean. If true, the checkbox will appear disabled.
+                        
+                          @param attributes [Optional]
+                            Additional attributes to append to the input field.
+                        {% endcomment %}
+                        
+                        <div
+                          data-component="input-checkbox-row"
+                          data-component-type="component"
+                          {% if tag != blank %}data-component-tag="{{ tag }}"
+                          {% endif %}class="
+                            input-checkbox-row
+                            {% if checked %}input-checkbox-row--checked{% endif %}
+                            {% if disabled %}input-checkbox-row--disabled{% endif %}
+                          "
+                        >
+                          <input
+                            class="input-checkbox-row__checkbox"
+                            id="{% if form_namespace %}{{ form_namespace }}-{% endif %}{{ field_name }}-{{ field_value }}{% if form_id %}-{{form_id}}{% endif %}"
+                            type="checkbox"
+                            name="{% if form_namespace %}{{ form_namespace }}[{{ field_name }}]{% else %}{{ field_name }}{% endif %}"
+                            {% if field_value %}value="{{ field_value }}"{% endif %}
+                            {% if checked %}checked{% endif %}
+                            {% if disabled %}disabled{% endif %}
+                            {{ attributes }}
+                          >
+                          <label class="input-checkbox-row__label" for="{% if form_namespace %}{{ form_namespace }}-{% endif %}{{ field_name }}-{{ field_value }}{% if form_id %}-{{form_id}}{% endif %}" tabindex="-1">
+                            {{ label_text }}
+                          </label>
+                        </div>
+                        
+                        {% liquid
+                          assign form_id = form_id_d6373395
+                          assign form_id_d6373395 = nil
+                          assign field_name = field_name_d6373395
+                          assign field_name_d6373395 = nil
+                          assign field_value = field_value_d6373395
+                          assign field_value_d6373395 = nil
+                          assign checked = checked_d6373395
+                          assign checked_d6373395 = nil
+                          assign disabled = disabled_d6373395
+                          assign disabled_d6373395 = nil
+                        %}
+                        {% comment %}Component input-checkbox-row:default end{% endcomment %}
+                      {% endif %}
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              </div>
+            </details>
+
+          {% when 'price_range' %}
+            <details class="drawer-filter" data-filter-disclosure data-key="{{ filter.param_name }}">
+              <summary class="drawer-filter__summary" data-filter-summary>
+                <span>
+                  {{ filter.label | escape }}
+                  {% if filter.min_value.value or filter.max_value.value %}
+                    <span class="drawer-filter__summary-count">({{ cart.currency.symbol }})</span>
+                  {% endif %}
+                </span>
+
+                {%- if filter.min_value.value != nil or filter.max_value.value != nil -%}
+                  <span class="drawer-filter__summary-list">
+                    {% if filter.min_value.value %}{{ filter.min_value.value | money }}{% else %}{{ 0 | money }}{% endif %} - {% if filter.max_value.value %}{{ filter.max_value.value | money }}{% else %}{{ filter.range_max | money }}{% endif %}
+                  </span>
+                {%- endif -%}
+              </summary>
+              <div class="drawer-filter__content">
+                <div class="drawer-filter__header">
+                  <button
+                    class="drawer-filter__back"
+                    type="button"
+                    aria-label="{{ 'products.filters.back_to_filters' | t }}"
+                    data-id="{{ filter.param_name }}"
+                    data-filter-back-button
+                  >
+                    {% comment %}Icon arrow:default begin{% endcomment %}
+                    <svg width="24" height="18" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 17 2 9m0 0 8-8M2 9h21.5" stroke="currentColor" stroke-width="2"/></svg>
+                    {% comment %}Icon arrow:default end{% endcomment %}
+                  </button>
+
+                  <h3 class="drawer-filter__heading" data-filter-heading>
+                    {{ filter.label | escape }}
+                  </h3>
+
+                  <a
+                    class="drawer-filter__remove"
+                    href="{{ filter.url_to_remove }}"
+                    data-filter-reset
+                  >
+                    {{ 'products.filters.reset' | t }}
+                  </a>
+                </div>
+
+                <div class="drawer-filter__price-range" data-filter-form-items>
+                  {%- assign max_price_amount = filter.range_max | money | strip_html | escape -%}
+                  <p class="drawer-filter__max-price">{{ 'products.filters.max_price' | t: price: max_price_amount }}</p>
+
+                  {% assign label_text = 'products.filters.from' | t %}
+                  {% comment %}Component input-currency:default begin{% endcomment %}
+                  {% liquid
+                    assign id_77bf1965 = id
+                    assign id = 'Drawer-Filter-Price-GTE'
+                    assign field_name_77bf1965 = field_name
+                    assign field_name = filter.min_value.param_name
+                    assign field_value_77bf1965 = field_value
+                    assign field_value = filter.min_value.value
+                    assign placeholder_77bf1965 = placeholder
+                    assign placeholder = '0'
+                    assign max_value_77bf1965 = max_value
+                    assign max_value = filter.range_max
+                  %}
+                  {% comment %}
+                    @param id [Required]
+                      A unique id to connect the label with the input.
+                  
+                    @param form_namespace [Required]
+                      The form's namespace that is used in "name" attribute as form_namespace[field_name].
+                  
+                    @param label_text [Required]
+                      The text for the label to be included.
+                  
+                    @param field_name [Required]
+                      The field name for the form. Will be used for the "name" attribute.
+                  
+                    @param field_value [Required]
+                      The value for the input.
+                  
+                    @param placeholder [Optional]
+                      The placeholder to show in the field if no value is present.
+                  
+                    @param max_value [Required]
+                      The maximum value that can be entered into the field. This will also populate the placeholder if no placeholder is provided.
+                  
+                    @param disabled [Optional]
+                      Boolean. If true, the input will appear disabled.
+                  
+                    @param attributes [Optional]
+                      Additional attributes to append to the input field.
+                  {% endcomment %}
+                  
+                  {% liquid
+                    assign currencies_using_comma_decimals = 'ANG,ARS,BRL,BYN,BYR,CLF,CLP,COP,CRC,CZK,DKK,EUR,HRK,HUF,IDR,ISK,MZN,NOK,PLN,RON,RUB,SEK,TRY,UYU,VES,VND' | split: ','
+                    assign uses_comma_decimals = false
+                    if currencies_using_comma_decimals contains cart.currency.iso_code
+                      assign uses_comma_decimals = true
+                    endif
+                  %}
+                  
+                  <div data-component="input-currency" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="input-currency">
+                    <label
+                      class="input-currency__label"
+                      for="{{ id }}"
+                    >
+                      {{ label_text }}
+                    </label>
+                    <div class="input-currency__field">
+                      <span class="input-currency__currency">{{ cart.currency.symbol }}</span>
+                      <input
+                        class="input-currency__input"
+                        id="{{ id }}"
+                        type="number"
+                        name="{% if form_namespace %}{{ form_namespace }}[{{ field_name }}]{% else %}{{ field_name }}{% endif %}"
+                        {%- if uses_comma_decimals -%}value="{{ field_value | money_without_currency | replace: '.', '' | replace: ',', '.' }}"{%- else -%}value="{{ field_value | money_without_currency | replace: ',', '' }}"{% endif %}
+                        min="0"
+                  
+                        {%- if placeholder -%}
+                          placeholder="{{ placeholder }}"
+                        {%- elsif max_value -%}
+                          {%- if uses_comma_decimals -%}
+                            placeholder="{{ max_value | money_without_currency | replace: '.', '' | replace: ',', '.' }}"
+                          {%- else -%}
+                            placeholder="{{ max_value | money_without_currency | replace: ',', '' }}"
+                          {% endif %}
+                        {% endif %}
+                  
+                        {%- if max_value -%}
+                          {%- if uses_comma_decimals -%}
+                            max="{{ max_value | money_without_currency | replace: '.', '' | replace: ',', '.' }}"
+                          {%- else -%}
+                            max="{{ max_value | money_without_currency | replace: ',', '' }}"
+                          {% endif %}
+                        {%- endif -%}
+                  
+                        {{ attributes }}
+                      >
+                    </div>
+                  </div>
+                  
+                  {% liquid
+                    assign id = id_77bf1965
+                    assign id_77bf1965 = nil
+                    assign field_name = field_name_77bf1965
+                    assign field_name_77bf1965 = nil
+                    assign field_value = field_value_77bf1965
+                    assign field_value_77bf1965 = nil
+                    assign placeholder = placeholder_77bf1965
+                    assign placeholder_77bf1965 = nil
+                    assign max_value = max_value_77bf1965
+                    assign max_value_77bf1965 = nil
+                  %}
+                  {% comment %}Component input-currency:default end{% endcomment %}
+
+                  {% assign label_text = 'products.filters.to' | t %}
+                  {% comment %}Component input-currency:default begin{% endcomment %}
+                  {% liquid
+                    assign id_77bf1965 = id
+                    assign id = 'Drawer-Filter-Price-LTE'
+                    assign field_name_77bf1965 = field_name
+                    assign field_name = filter.max_value.param_name
+                    assign field_value_77bf1965 = field_value
+                    assign field_value = filter.max_value.value
+                    assign max_value_77bf1965 = max_value
+                    assign max_value = filter.range_max
+                  %}
+                  {% comment %}
+                    @param id [Required]
+                      A unique id to connect the label with the input.
+                  
+                    @param form_namespace [Required]
+                      The form's namespace that is used in "name" attribute as form_namespace[field_name].
+                  
+                    @param label_text [Required]
+                      The text for the label to be included.
+                  
+                    @param field_name [Required]
+                      The field name for the form. Will be used for the "name" attribute.
+                  
+                    @param field_value [Required]
+                      The value for the input.
+                  
+                    @param placeholder [Optional]
+                      The placeholder to show in the field if no value is present.
+                  
+                    @param max_value [Required]
+                      The maximum value that can be entered into the field. This will also populate the placeholder if no placeholder is provided.
+                  
+                    @param disabled [Optional]
+                      Boolean. If true, the input will appear disabled.
+                  
+                    @param attributes [Optional]
+                      Additional attributes to append to the input field.
+                  {% endcomment %}
+                  
+                  {% liquid
+                    assign currencies_using_comma_decimals = 'ANG,ARS,BRL,BYN,BYR,CLF,CLP,COP,CRC,CZK,DKK,EUR,HRK,HUF,IDR,ISK,MZN,NOK,PLN,RON,RUB,SEK,TRY,UYU,VES,VND' | split: ','
+                    assign uses_comma_decimals = false
+                    if currencies_using_comma_decimals contains cart.currency.iso_code
+                      assign uses_comma_decimals = true
+                    endif
+                  %}
+                  
+                  <div data-component="input-currency" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="input-currency">
+                    <label
+                      class="input-currency__label"
+                      for="{{ id }}"
+                    >
+                      {{ label_text }}
+                    </label>
+                    <div class="input-currency__field">
+                      <span class="input-currency__currency">{{ cart.currency.symbol }}</span>
+                      <input
+                        class="input-currency__input"
+                        id="{{ id }}"
+                        type="number"
+                        name="{% if form_namespace %}{{ form_namespace }}[{{ field_name }}]{% else %}{{ field_name }}{% endif %}"
+                        {%- if uses_comma_decimals -%}value="{{ field_value | money_without_currency | replace: '.', '' | replace: ',', '.' }}"{%- else -%}value="{{ field_value | money_without_currency | replace: ',', '' }}"{% endif %}
+                        min="0"
+                  
+                        {%- if placeholder -%}
+                          placeholder="{{ placeholder }}"
+                        {%- elsif max_value -%}
+                          {%- if uses_comma_decimals -%}
+                            placeholder="{{ max_value | money_without_currency | replace: '.', '' | replace: ',', '.' }}"
+                          {%- else -%}
+                            placeholder="{{ max_value | money_without_currency | replace: ',', '' }}"
+                          {% endif %}
+                        {% endif %}
+                  
+                        {%- if max_value -%}
+                          {%- if uses_comma_decimals -%}
+                            max="{{ max_value | money_without_currency | replace: '.', '' | replace: ',', '.' }}"
+                          {%- else -%}
+                            max="{{ max_value | money_without_currency | replace: ',', '' }}"
+                          {% endif %}
+                        {%- endif -%}
+                  
+                        {{ attributes }}
+                      >
+                    </div>
+                  </div>
+                  
+                  {% liquid
+                    assign id = id_77bf1965
+                    assign id_77bf1965 = nil
+                    assign field_name = field_name_77bf1965
+                    assign field_name_77bf1965 = nil
+                    assign field_value = field_value_77bf1965
+                    assign field_value_77bf1965 = nil
+                    assign max_value = max_value_77bf1965
+                    assign max_value_77bf1965 = nil
+                  %}
+                  {% comment %}Component input-currency:default end{% endcomment %}
+                </div>
+              </div>
+            </details>
+          {% endcase %}
+        {%- endfor-%}
+      </div>
+    </form>
+    <div class="drawer-filters__view-results" data-drawer-view-results>
+      {% if filter_context == search %}
+        {% assign button_text = 'products.filters.view_results' | t: count: filter_context.results_count %}
+      {% else %}
+        {% assign button_text = 'products.filters.view_results' | t: count: filter_context.products_count %}
+      {% endif %}
+      {% comment %}Component button:default begin{% endcomment %}
+      {% liquid
+        assign style_5dd2ec12 = style
+        assign style = 'primary'
+        assign size_5dd2ec12 = size
+        assign size = 'medium'
+        assign text_5dd2ec12 = text
+        assign text = button_text
+      %}
+      {% comment %}
+        @param style [Required]
+          This is the style of the button: primary, secondary, tertiary, or text. Default primary.
+      
+        @param size [Required]
+          This defines the size of the button: small, medium, or large. Default medium.
+      
+        @param text [Required]
+          This is the text to be included in the button.
+      
+        @param attributes [Optional]
+          This will include any additional attributes that the button needs. For example, aria-controls.
+      {% endcomment %}
+      
+      <button
+        data-component="button"
+        data-component-type="component"
+        {% if tag != blank %}data-component-tag="{{ tag }}"
+        {% endif %}class="button button--{{ style }} button--{{ size }}{% if style == 'primary' or style == 'secondary' %} button--shadow{% endif %%}"
+        {{ attributes }}
+      >
+        {{ text }}
+      </button>
+      
+      {% liquid
+        assign style = style_5dd2ec12
+        assign style_5dd2ec12 = nil
+        assign size = size_5dd2ec12
+        assign size_5dd2ec12 = nil
+        assign text = text_5dd2ec12
+        assign text_5dd2ec12 = nil
+      %}
+      {% comment %}Component button:default end{% endcomment %}
+    </div>
+  </div>
+</div>

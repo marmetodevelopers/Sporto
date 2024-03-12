@@ -1,0 +1,92 @@
+{% comment %}
+
+  @param image {Image} [Optional] Image for promo
+
+  @param link {Link} [Optional] Link for entire promo block
+
+  @param preheading {String} [Optional] Text to display before heading
+
+  @param heading {String} [Optional] Text for heading
+
+  @param subheading {String} [Optional] Text for subheading
+
+  @param aspect_ratio {String} [Optional] Preferred aspect ratio in a format supported
+  by the css aspect-ratio property (ie `16 / 9`). Defaults to auto (defined by the text content)
+
+  @param text_color {Color} [Optional] Color to be used for text. Defaults to "inherit"
+
+  @param background {Color} [Optional] CSS background value for block. Defaults to "transparent".
+{% endcomment %}
+
+{% liquid
+  assign image = image | default: nil
+  assign link = link | default: nil
+  assign preheading = preheading | default: nil
+  assign heading = heading | default: nil
+  assign subheading = subheading | default: nil
+  assign aspect_ratio = aspect_ratio | default: 'auto'
+  assign text_color = text_color | default: 'rgba(0,0,0,0)'
+  assign background = background
+
+  assign has_text_color = true
+  assign text_color_alpha = text_color | color_extract: 'alpha'
+
+  if text_color_alpha == 0
+    assign has_text_color = false
+  endif
+
+  assign show_overlay = false
+
+  if image
+    if preheading or heading or subheading
+      assign show_overlay = true
+    endif
+  endif
+%}
+
+{% if link %}<a class="responsive-image-promo-link" href="{{ link }}">{% endif %}
+  <div
+    class="
+      responsive-image-promo
+      {% if show_overlay %}
+        responsive-image-promo--show-overlay
+      {% endif %}
+    "
+    style="
+      --responsive-image-promo-aspect-ratio: {{ aspect_ratio }};
+      {% if has_text_color %}
+        --responsive-image-promo-text-color: {{ text_color }};
+      {% endif %}
+      {% if image == blank and background != blank %}
+        --responsive-image-promo-background: {{ background }};
+      {% endif %}
+    "
+  >
+    {% if image %}
+      <div
+        class="
+          responsive-image-promo__image-wrapper
+        "
+      >
+        {% comment %}Component lazy-img:default begin{% endcomment %}
+        {% render 'lazy-img', img: image, size: '1600x', lazy: true, canvas: true, focal_point: image.presentation.focal_point %}
+        {% comment %}Component lazy-img:default end{% endcomment %}
+      </div>
+    {% endif %}
+    {% unless preheading == blank %}
+      <p class="responsive-image-promo__preheading">
+        {{ preheading }}
+      </p>
+    {% endunless %}
+    {% unless heading == blank %}
+      <p class="responsive-image-promo__heading">
+        {{ heading }}
+      </p>
+    {% endunless %}
+    {% unless subheading == blank %}
+      <p class="responsive-image-promo__subheading">
+        {{ subheading }}
+      </p>
+    {% endunless %}
+  </div>
+{% if link %}</a>{% endif %}

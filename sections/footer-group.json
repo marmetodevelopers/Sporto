@@ -1,0 +1,42 @@
+{
+  "type": "footer",
+  "name": "Footer",
+  "sections": {
+    "footer": {
+      "type": "footer",
+      "blocks": {
+        "logo": {
+          "type": "logo",
+          "settings": {
+          }
+        },
+        "menu": {
+          "type": "menu",
+          "settings": {
+          }
+        },
+        "about": {
+          "type": "about",
+          "settings": {
+          }
+        },
+        "newsletter": {
+          "type": "footer_email_form",
+          "settings": {
+          }
+        }
+      },
+      "block_order": [
+        "logo",
+        "menu",
+        "about",
+        "newsletter"
+      ],
+      "settings": {
+      }
+    }
+  },
+  "order": [
+    "footer"
+  ]
+}

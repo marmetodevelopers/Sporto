@@ -1,0 +1,44 @@
+<section data-component="custom-html" data-component-type="section" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="custom-html">
+  {% if section.settings.heading != blank %}
+    <section-wrapper>
+      <section-header>
+        <h2 class="custom-html__heading">{{ section.settings.heading | escape }}</h2>
+      </section-header>
+    </section-wrapper>
+  {% endif %}
+  <section-wrapper>
+    <section-content>
+      {{ section.settings.custom_html }}
+    </section-content>
+  </section-wrapper>
+</section>
+{% schema %}
+{
+  "name": "t:common.component.custom_html",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:common.text.heading",
+      "default": "Custom HTML"
+    },
+    {
+      "type": "html",
+      "id": "custom_html",
+      "label": "t:common.component.custom_html",
+      "default": "<p>Write or paste your HTML code here</p>"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:common.component.custom_html",
+      "category": "t:component.custom_html.presets.custom_html.category"
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "*"
+    ]
+  }
+}
+{% endschema %}

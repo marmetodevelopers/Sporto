@@ -1,0 +1,195 @@
+{% layout 'gift_card' %}
+
+<section data-component="gift-card" data-component-type="section" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="gift-card">
+  <section-wrapper>
+    <section-content>
+      <header class="gift-card__title">
+        <span class="h2">{{ shop.name }}</span>
+        <h1 class="gift-card__heading">{{ 'gift_cards.issued.subtext' | t }}</h1>
+        <div class="gift-card__price">
+          <p>
+            {% if settings.currency_code_enabled %}
+              {{ gift_card.initial_value | money_with_currency }}
+            {% else %}
+              {{ gift_card.initial_value | money }}
+            {% endif %}
+          </p>
+          {%- if gift_card.enabled == false or gift_card.expired -%}
+            <p class="gift-card__label gift-card__label--expired">{{ 'gift_cards.issued.expired' | t }}</p>
+          {%- endif -%}
+        </div>
+
+        {% if settings.currency_code_enabled %}
+          {%- assign gift_card_balance = gift_card.balance | money_with_currency -%}
+        {% else %}
+          {%- assign gift_card_balance = gift_card.balance | money -%}
+        {% endif %}
+        {%- if gift_card.balance != gift_card.initial_value -%}
+          <p class="gift-card__label gift-card__label--remaining">{{ 'gift_cards.issued.remaining_html' | t: balance: gift_card_balance }}</p>
+        {%- endif -%}
+      </header>
+
+      <div class="gift-card__content">
+        <div class="gift-card__image-wrapper">
+          <img src="{{ 'gift-card/card.svg' | shopify_asset_url }}" alt="" class="gift-card__image" height="{{ 570 | divided_by: 1.5 }}" width="570" loading="lazy">
+        </div>
+        <div class="gift-card__qr-code" data-identifier="{{ gift_card.qr_identifier }}"></div>
+        <div class="gift-card__information">
+          <input
+            type="text"
+            class="gift-card__number"
+            value="{{ gift_card.code | format_code }}"
+            aria-label="{{ 'gift_cards.issued.gift_card_code' | t }}"
+            readonly
+          >
+          <div class="gift-card__copy-code no-print">
+            {% assign text = 'gift_cards.issued.copy_code' | t %}
+            {% comment %}Component button:default begin{% endcomment %}
+            {% liquid
+              assign style_9b3fafa0 = style
+              assign style = 'primary'
+              assign size_9b3fafa0 = size
+              assign size = 'small'
+              assign attributes_9b3fafa0 = attributes
+              assign attributes = 'data-gift-card-copy-code-btn'
+            %}
+            {% comment %}
+              @param style [Required]
+                This is the style of the button: primary, secondary, tertiary, or text. Default primary.
+            
+              @param size [Required]
+                This defines the size of the button: small, medium, or large. Default medium.
+            
+              @param text [Required]
+                This is the text to be included in the button.
+            
+              @param attributes [Optional]
+                This will include any additional attributes that the button needs. For example, aria-controls.
+            {% endcomment %}
+            
+            <button
+              data-component="button"
+              data-component-type="component"
+              {% if tag != blank %}data-component-tag="{{ tag }}"
+              {% endif %}class="button button--{{ style }} button--{{ size }}{% if style == 'primary' or style == 'secondary' %} button--shadow{% endif %%}"
+              {{ attributes }}
+            >
+              {{ text }}
+            </button>
+            
+            {% liquid
+              assign style = style_9b3fafa0
+              assign style_9b3fafa0 = nil
+              assign size = size_9b3fafa0
+              assign size_9b3fafa0 = nil
+              assign attributes = attributes_9b3fafa0
+              assign attributes_9b3fafa0 = nil
+            %}
+            {% comment %}Component button:default end{% endcomment %}
+
+            <span class="gift-card__copy-success" role="status"></span>
+            <template data-gift-card-success-template>
+              {% comment %}Icon check:default begin{% endcomment %}
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path stroke="currentColor" stroke-width="1.5" d="m1.47 9.63 4.61 3.768 8.45-9.796"/></svg>
+              {% comment %}Icon check:default end{% endcomment %}{{ 'gift_cards.issued.copy_code_success' | t }}
+            </template>
+          </div>
+          {%- if gift_card.pass_url -%}
+            <a href="{{ gift_card.pass_url }}" class="gift_card__apple-wallet">
+              <img src="{{ 'gift-card/add-to-apple-wallet.svg' | shopify_asset_url }}" width="120" height="40" alt="{{ 'gift_cards.issued.add_to_apple_wallet' | t }}" loading="lazy">
+            </a>
+          {%- endif -%}
+          <div class="gift-card__buttons no-print">
+            <a
+              href="{{ shop.url }}"
+              class="button"
+              target="_blank"
+              rel="noopener"
+              aria-describedby="a11y-new-window-message"
+            >
+              {{ 'gift_cards.issued.shop_link' | t }}
+            </a>
+
+            {% assign text = 'gift_cards.issued.print_gift_card' | t %}
+            {% assign attributes = 'onclick="window.print();"' %}
+            {% comment %}Component button:default begin{% endcomment %}
+            {% liquid
+              assign style_9b3fafa0 = style
+              assign style = 'secondary'
+              assign size_9b3fafa0 = size
+              assign size = 'small'
+            %}
+            {% comment %}
+              @param style [Required]
+                This is the style of the button: primary, secondary, tertiary, or text. Default primary.
+            
+              @param size [Required]
+                This defines the size of the button: small, medium, or large. Default medium.
+            
+              @param text [Required]
+                This is the text to be included in the button.
+            
+              @param attributes [Optional]
+                This will include any additional attributes that the button needs. For example, aria-controls.
+            {% endcomment %}
+            
+            <button
+              data-component="button"
+              data-component-type="component"
+              {% if tag != blank %}data-component-tag="{{ tag }}"
+              {% endif %}class="button button--{{ style }} button--{{ size }}{% if style == 'primary' or style == 'secondary' %} button--shadow{% endif %%}"
+              {{ attributes }}
+            >
+              {{ text }}
+            </button>
+            
+            {% liquid
+              assign style = style_9b3fafa0
+              assign style_9b3fafa0 = nil
+              assign size = size_9b3fafa0
+              assign size_9b3fafa0 = nil
+            %}
+            {% comment %}Component button:default end{% endcomment %}
+          </div>
+        </div>
+      </div>
+
+      <div hidden>
+        <span id="a11y-new-window-message">{{ 'accessibility.link_messages.new_window' | t }}</span>
+      </div>
+
+      <script>
+        var string = { qrImageAlt: {{ 'gift_cards.issued.qr_image_alt' | t | json }} };
+        document.addEventListener('DOMContentLoaded', function() {
+        new QRCode( document.querySelector('.gift-card__qr-code'), {
+          text: document.querySelector('.gift-card__qr-code').dataset.identifier,
+          width: 120,
+          height: 120,
+          imageAltText: string.qrImageAlt
+          });
+        });
+
+        var template = document.querySelector('[data-gift-card-success-template]');
+        var clonedTemplate = template.content.cloneNode(true);
+
+        var isMessageDisplayed = false
+        document
+        .querySelector('[data-gift-card-copy-code-btn]')
+        .addEventListener('click', () => {
+          navigator.clipboard.writeText(document.querySelector('.gift-card__number').value).then(function () {
+            if (!isMessageDisplayed) {
+              document.querySelector('.gift-card__copy-success').appendChild(clonedTemplate);
+              isMessageDisplayed = true
+            }
+          });
+        });
+      </script>
+    </section-content>
+  </section-wrapper>
+</section>
+{% schema %}
+{
+  "name": "t:component.gift_card.name",
+  "settings": []
+}
+{% endschema %}

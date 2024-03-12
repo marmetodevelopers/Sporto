@@ -1,0 +1,60 @@
+<section data-component="page" data-component-type="section" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="page">
+  {% if section.settings.page.title != blank %}
+    <section-wrapper {% if section.settings.width == 'content' %}width="content"{% endif %}>
+      <section-header>
+        <h2 class="page__title">
+          {{ section.settings.page.title | escape }}
+        </h2>
+      </section-header>
+    </section-wrapper>
+  {% endif %}
+  <section-wrapper {% if section.settings.width == 'content' %}width="content"{% endif %}>
+    <section-content>
+      <div class="page__content">
+        {% if section.settings.page.content != blank %}
+          {{ section.settings.page.content }}
+        {% else %}
+          {{ 'page' | placeholder_svg_tag: 'placeholder-svg' }}
+        {% endif %}
+        </div>
+    </section-content>
+  </section-wrapper>
+</section>
+{% schema %}
+{
+  "name": "t:common.component.page",
+  "settings": [
+    {
+      "type": "select",
+      "id": "width",
+      "label": "t:component.page.width.label",
+      "options": [
+        {
+          "value": "content",
+          "label": "t:common.layout.centered"
+        },
+        {
+          "value": "site_width",
+          "label": "t:component.page.width.option_2"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "id": "page",
+      "label": "t:common.component.page"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:common.component.page",
+      "category": "t:component.page.presets.page.category"
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "*"
+    ]
+  }
+}
+{% endschema %}

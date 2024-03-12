@@ -1,0 +1,574 @@
+<section data-component="contact-form" data-component-type="section" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="contact-form">
+  <section-wrapper width="content">
+    <section-content>
+      <div class="contact-form__content">
+        {% if section.settings.contact_form_heading != blank %}
+          <h2 class="contact-form__heading">
+            {{ section.settings.contact_form_heading | escape }}
+          </h2>
+        {% endif %}
+        {% comment %}UUID contact_id begin{% endcomment %}
+        {% assign contact_id = 'ad3feb4e-06e1-4d71-8e66-3bcdb165fd76' %}
+        {% comment %}UUID contact_id end{% endcomment %}
+        {% assign contact_id = contact_id | append: '-' | append: section.id %}
+        {% form 'contact', id: contact_id, class: 'contact-form__form' %}
+          {% if form.posted_successfully? %}
+            {% capture form_success_content %}
+              <div
+                class="contact-form__notification"
+                tabindex="-1"
+                autofocus
+              >
+                {{ 'sections.contact_form.post_success' | t }}
+              </div>
+            {% endcapture %}
+            {% comment %}Component notification:default begin{% endcomment %}
+            {% liquid
+              assign content_eb73c84e = content
+              assign content = form_success_content
+              assign type_eb73c84e = type
+              assign type = 'success'
+            %}
+            {%- comment -%}
+              @param content [Required]
+                The content that goes in the notification banner
+            
+              @param type [Required]
+                The type of notification banner ('error' or 'success')
+            
+              @param hidden [Optional]
+                Whether the notification should be hidden
+            {%- endcomment -%}
+            
+            <div
+              data-component="notification"
+              data-component-type="component"
+              {% if tag != blank %}data-component-tag="{{ tag }}"
+              {% endif %}class="
+                notification
+                notification--{{ type }}
+              "
+              {% if type == 'error' %}
+                role="alert"
+              {% else %}
+                role="status"
+              {% endif %}
+              {% if hidden %}hidden{% endif %}
+            >
+              {{ content }}
+            </div>
+            
+            {% liquid
+              assign content = content_eb73c84e
+              assign content_eb73c84e = nil
+              assign type = type_eb73c84e
+              assign type_eb73c84e = nil
+            %}
+            {% comment %}Component notification:default end{% endcomment %}
+          {% elsif form.errors %}
+          {% capture form_error_content %}
+            <h2 class="contact-form__notification" tabindex="-1" autofocus>{{ 'sections.contact_form.error_heading' | t }}</h2>
+            <ul class="contact-form__error-list" role="list">
+              <li>
+                <a href="#contact-form-email">
+                  {{ form.errors.translated_fields['email'] | capitalize }} {{ form.errors.messages['email'] }}
+                </a>
+              </li>
+            </ul>
+          {% endcapture %}
+          {% comment %}Component notification:default begin{% endcomment %}
+          {% liquid
+            assign content_eb73c84e = content
+            assign content = form_error_content
+            assign type_eb73c84e = type
+            assign type = 'error'
+          %}
+          {%- comment -%}
+            @param content [Required]
+              The content that goes in the notification banner
+          
+            @param type [Required]
+              The type of notification banner ('error' or 'success')
+          
+            @param hidden [Optional]
+              Whether the notification should be hidden
+          {%- endcomment -%}
+          
+          <div
+            data-component="notification"
+            data-component-type="component"
+            {% if tag != blank %}data-component-tag="{{ tag }}"
+            {% endif %}class="
+              notification
+              notification--{{ type }}
+            "
+            {% if type == 'error' %}
+              role="alert"
+            {% else %}
+              role="status"
+            {% endif %}
+            {% if hidden %}hidden{% endif %}
+          >
+            {{ content }}
+          </div>
+          
+          {% liquid
+            assign content = content_eb73c84e
+            assign content_eb73c84e = nil
+            assign type = type_eb73c84e
+            assign type_eb73c84e = nil
+          %}
+          {% comment %}Component notification:default end{% endcomment %}
+          {% endif %}
+
+          {% liquid
+            assign name_label = 'sections.contact_form.name' | t
+            assign email_label = 'sections.contact_form.email' | t
+            assign phone_label = 'sections.contact_form.phone' | t
+            assign comment_label = 'sections.contact_form.comment' | t
+            assign button_label = 'sections.contact_form.send' | t
+
+            assign name_placeholder = 'sections.contact_form.name_placeholder' | t
+            assign email_placeholder = 'sections.contact_form.email_placeholder' | t
+            assign phone_placeholder = 'sections.contact_form.phone_placeholder' | t
+            assign comment_placeholder = 'sections.contact_form.comment_placeholder' | t
+          %}
+
+          {%- capture name_label_text -%}
+            {{ name_label }} <span aria-hidden="true">*</span>
+          {%- endcapture -%}
+
+          {%- capture email_label_text -%}
+            {{ email_label }} <span aria-hidden="true">*</span>
+          {%- endcapture -%}
+
+          {%- capture comment_label_text -%}
+            {{ comment_label }} <span aria-hidden="true">*</span>
+          {%- endcapture -%}
+
+          {% capture name_attributes %}
+            aria-required="true"
+            autocomplete="name"
+            required
+          {% endcapture %}
+
+          {% capture phone_attributes %}
+            autocomplete="tel"
+            pattern="[0-9\-]*"
+          {% endcapture %}
+
+          {% capture email_attributes %}
+            aria-required="true"
+            required
+            {% if form.errors contains 'email' %}
+              aria-describedby="contact-form-email-error"
+            {% endif %}
+          {% endcapture %}
+
+          {% capture comment_attributes %}
+            aria-required="true"
+            required
+          {% endcapture %}
+          <div class="contact-form__field-wrapper">
+            {% assign input_id = contact_id | append: '-name' %}
+            {% comment %}Component input-field:default begin{% endcomment %}
+            {% liquid
+              assign input_type_3ebc4a93 = input_type
+              assign input_type = 'text'
+              assign label_text_3ebc4a93 = label_text
+              assign label_text = name_label_text
+              assign form_namespace_3ebc4a93 = form_namespace
+              assign form_namespace = 'contact'
+              assign field_name_3ebc4a93 = field_name
+              assign field_name = 'name'
+              assign placeholder_3ebc4a93 = placeholder
+              assign placeholder = name_placeholder
+              assign attributes_3ebc4a93 = attributes
+              assign attributes = name_attributes
+            %}
+            {% comment %}
+              @param form [Required]
+                The form that the input lives in.
+            
+              @param form_namespace [Required]
+                The form's namespace that is used in "name" attribute as form_namespace[field_name].
+            
+              @param field_name [Required]
+                The field name for the form. Will be used for the "name" attribute.
+            
+              @param input_type [Required]
+                The type of field that is being rendered. Usually text, password, number, etc.
+            
+              @param input_id [Optional]
+                The type of field that is being rendered. Usually text, password, number, etc.
+            
+              @param label_text [Required]
+                The text for the label to be included.
+            
+              @param placeholder [Optional]
+                The placeholder for the input field.
+            
+              @param attributes [Optional]
+                Additional attributes to append to the input field.
+            {% endcomment %}
+            
+            {% if input_id == blank %}
+              {% comment %}UUID input_id begin{% endcomment %}
+              {% assign input_id = 'a0be4511-add4-47ce-a5fd-0542aa6a0724' %}
+              {% comment %}UUID input_id end{% endcomment %}
+            {% endif %}
+            
+            <div data-component="input-field" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="input-field">
+              <label for="{{ input_id }}">{{ label_text }}</label>
+              <input
+                id="{{ input_id }}"
+                type="{{ input_type }}"
+                name="{% if form_namespace %}{{ form_namespace }}[{{ field_name }}]{% else %}{{ field_name }}{% endif %}"
+                value="{{ form[field_name] }}"
+                placeholder="{{ placeholder }}"
+                {{ attributes }}
+              >
+            </div>
+            
+            {% liquid
+              assign input_type = input_type_3ebc4a93
+              assign input_type_3ebc4a93 = nil
+              assign label_text = label_text_3ebc4a93
+              assign label_text_3ebc4a93 = nil
+              assign form_namespace = form_namespace_3ebc4a93
+              assign form_namespace_3ebc4a93 = nil
+              assign field_name = field_name_3ebc4a93
+              assign field_name_3ebc4a93 = nil
+              assign placeholder = placeholder_3ebc4a93
+              assign placeholder_3ebc4a93 = nil
+              assign attributes = attributes_3ebc4a93
+              assign attributes_3ebc4a93 = nil
+            %}
+            {% comment %}Component input-field:default end{% endcomment %}
+            {% assign input_id = contact_id | append: '-email' %}
+            {% comment %}Component input-email:default begin{% endcomment %}
+            {% liquid
+              assign label_text_1e8cdd0b = label_text
+              assign label_text = email_label_text
+              assign form_namespace_1e8cdd0b = form_namespace
+              assign form_namespace = 'contact'
+              assign field_name_1e8cdd0b = field_name
+              assign field_name = 'email'
+              assign placeholder_1e8cdd0b = placeholder
+              assign placeholder = email_placeholder
+              assign attributes_1e8cdd0b = attributes
+              assign attributes = email_attributes
+            %}
+            {% comment %}
+              @param form [Required]
+                The form that the input lives in.
+            
+              @param label_text [Required]
+                The text for the label to be included.
+            
+              @param form_namespace [Required]
+                The form's namespace that is used in "name" attribute as form_namespace[field_name].
+            
+              @param field_name [Required]
+                The field name for the form. Will be used for the "name" attribute.
+            
+              @param input_class [Optional]
+                The class for the input field.
+            
+              @param input_id [Optional]
+                The type of field that is being rendered. Usually text, password, number, etc.
+            
+              @param placeholder [Optional]
+                The placeholder for the input field.
+            
+              @param attributes [Optional]
+                Additional attributes to append to the input field.
+            {% endcomment %}
+            
+            {% if input_id == blank %}
+              {% comment %}UUID input_id begin{% endcomment %}
+              {% assign input_id = 'de0b29df-ef1e-48f0-9a54-361eadb3fa3f' %}
+              {% comment %}UUID input_id end{% endcomment %}
+            {% endif %}
+            
+            <div data-component="input-email" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="input-field">
+              <label for="{{ input_id }}">{{ label_text }}</label>
+              <input
+                class="{{ input_class }}"
+                id="{{ input_id }}"
+                type="email"
+                name="{% if form_namespace %}{{ form_namespace }}[{{ field_name }}]{% else %}{{ field_name }}{% endif %}"
+                value="{{ form[field_name] }}"
+                placeholder="{{ placeholder }}"
+                autocapitalize="off"
+                autocorrect="off"
+                spellcheck="false"
+                {% if form.errors contains 'email' %}
+                  aria-invalid="true"
+                {% endif %}
+                {{ attributes }}
+              >
+            </div>
+            
+            {% liquid
+              assign label_text = label_text_1e8cdd0b
+              assign label_text_1e8cdd0b = nil
+              assign form_namespace = form_namespace_1e8cdd0b
+              assign form_namespace_1e8cdd0b = nil
+              assign field_name = field_name_1e8cdd0b
+              assign field_name_1e8cdd0b = nil
+              assign placeholder = placeholder_1e8cdd0b
+              assign placeholder_1e8cdd0b = nil
+              assign attributes = attributes_1e8cdd0b
+              assign attributes_1e8cdd0b = nil
+            %}
+            {% comment %}Component input-email:default end{% endcomment %}
+          </div>
+          {% assign input_id = contact_id | append: '-phone-number' %}
+          {% comment %}Component input-field:default begin{% endcomment %}
+          {% liquid
+            assign input_type_8c91695e = input_type
+            assign input_type = 'tel'
+            assign label_text_8c91695e = label_text
+            assign label_text = phone_label
+            assign form_namespace_8c91695e = form_namespace
+            assign form_namespace = 'contact'
+            assign field_name_8c91695e = field_name
+            assign field_name = 'Phone number'
+            assign placeholder_8c91695e = placeholder
+            assign placeholder = phone_placeholder
+            assign attributes_8c91695e = attributes
+            assign attributes = phone_attributes
+          %}
+          {% comment %}
+            @param form [Required]
+              The form that the input lives in.
+          
+            @param form_namespace [Required]
+              The form's namespace that is used in "name" attribute as form_namespace[field_name].
+          
+            @param field_name [Required]
+              The field name for the form. Will be used for the "name" attribute.
+          
+            @param input_type [Required]
+              The type of field that is being rendered. Usually text, password, number, etc.
+          
+            @param input_id [Optional]
+              The type of field that is being rendered. Usually text, password, number, etc.
+          
+            @param label_text [Required]
+              The text for the label to be included.
+          
+            @param placeholder [Optional]
+              The placeholder for the input field.
+          
+            @param attributes [Optional]
+              Additional attributes to append to the input field.
+          {% endcomment %}
+          
+          {% if input_id == blank %}
+            {% comment %}UUID input_id begin{% endcomment %}
+            {% assign input_id = '296bed99-013e-4b61-9f12-6229314f838e' %}
+            {% comment %}UUID input_id end{% endcomment %}
+          {% endif %}
+          
+          <div data-component="input-field" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="input-field">
+            <label for="{{ input_id }}">{{ label_text }}</label>
+            <input
+              id="{{ input_id }}"
+              type="{{ input_type }}"
+              name="{% if form_namespace %}{{ form_namespace }}[{{ field_name }}]{% else %}{{ field_name }}{% endif %}"
+              value="{{ form[field_name] }}"
+              placeholder="{{ placeholder }}"
+              {{ attributes }}
+            >
+          </div>
+          
+          {% liquid
+            assign input_type = input_type_8c91695e
+            assign input_type_8c91695e = nil
+            assign label_text = label_text_8c91695e
+            assign label_text_8c91695e = nil
+            assign form_namespace = form_namespace_8c91695e
+            assign form_namespace_8c91695e = nil
+            assign field_name = field_name_8c91695e
+            assign field_name_8c91695e = nil
+            assign placeholder = placeholder_8c91695e
+            assign placeholder_8c91695e = nil
+            assign attributes = attributes_8c91695e
+            assign attributes_8c91695e = nil
+          %}
+          {% comment %}Component input-field:default end{% endcomment %}
+          {% assign input_id = contact_id | append: '-comment' %}
+          {% comment %}Component input-textarea:default begin{% endcomment %}
+          {% liquid
+            assign label_text_e240c0c9 = label_text
+            assign label_text = comment_label_text
+            assign form_namespace_e240c0c9 = form_namespace
+            assign form_namespace = 'contact'
+            assign field_name_e240c0c9 = field_name
+            assign field_name = 'comment'
+            assign form_id_e240c0c9 = form_id
+            assign form_id = form.id
+            assign input_text_e240c0c9 = input_text
+            assign input_text = form.body
+            assign placeholder_e240c0c9 = placeholder
+            assign placeholder = comment_placeholder
+            assign attributes_e240c0c9 = attributes
+            assign attributes = comment_attributes
+            assign rows_e240c0c9 = rows
+            assign rows = 5
+          %}
+          {% comment %}
+            @param label_text [Required]
+              The text for the label to be included.
+          
+            @param form_namespace [Required]
+              The form's namespace that is used in "name" attribute as form_namespace[field_name].
+          
+            @param field_name [Required]
+              The field name for the form. Will be used for the "name" attribute.
+          
+            @param form_id [Optional]
+              The form that the input lives in.
+          
+            @param input_id [Optional]
+              The type of field that is being rendered. Usually text, password, number, etc.
+          
+            @param input_text [Optional]
+              The initial text to display within the textarea
+          
+            @param placeholder [Optional]
+              The placeholder for the input field.
+          
+            @param attributes [Optional]
+              Additional attributes to append to the input field.
+          
+            @param rows [Optional]
+              The number of rows for the textarea (height)
+          
+            @param columns [Optional]
+              The number of columns for the textarea (width)
+          
+            @param maxlength [Optional]
+              The maximum number of characters for the textarea
+          {% endcomment %}
+          
+          {% if input_id == blank %}
+            {% comment %}UUID input_id begin{% endcomment %}
+            {% assign input_id = '392cec13-99dd-4ca3-a862-0449bda5afb0' %}
+            {% comment %}UUID input_id end{% endcomment %}
+          {% endif %}
+          
+          <div data-component="input-textarea" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="textarea">
+            <label for="{{ input_id }}">{{ label_text }}</label>
+            <textarea
+              id="{{ input_id }}"
+              name="{% if form_namespace %}{{ form_namespace }}[{{ field_name }}]{% else %}{{ field_name }}{% endif %}"
+              {% if form_id %}
+                form="{{ form_id }}"
+              {% endif %}
+              {% if rows %}rows="{{ rows }}"{% endif %}
+              {% if columns %}cols="{{ columns }}"{% endif %}
+              {% if maxlength %}maxlength="{{ maxlength }}"{% endif %}
+              placeholder="{{ placeholder }}"
+              {{ attributes }}
+              data-input
+            >
+              {%- if input_text != blank -%}{{- input_text -}}{%- endif -%}
+            </textarea>
+          </div>
+          
+          {% liquid
+            assign label_text = label_text_e240c0c9
+            assign label_text_e240c0c9 = nil
+            assign form_namespace = form_namespace_e240c0c9
+            assign form_namespace_e240c0c9 = nil
+            assign field_name = field_name_e240c0c9
+            assign field_name_e240c0c9 = nil
+            assign form_id = form_id_e240c0c9
+            assign form_id_e240c0c9 = nil
+            assign input_text = input_text_e240c0c9
+            assign input_text_e240c0c9 = nil
+            assign placeholder = placeholder_e240c0c9
+            assign placeholder_e240c0c9 = nil
+            assign attributes = attributes_e240c0c9
+            assign attributes_e240c0c9 = nil
+            assign rows = rows_e240c0c9
+            assign rows_e240c0c9 = nil
+          %}
+          {% comment %}Component input-textarea:default end{% endcomment %}
+          {% comment %}Component button:default begin{% endcomment %}
+          {% liquid
+            assign style_e2ef3b8a = style
+            assign style = 'primary'
+            assign size_e2ef3b8a = size
+            assign size = 'medium'
+            assign text_e2ef3b8a = text
+            assign text = button_label
+          %}
+          {% comment %}
+            @param style [Required]
+              This is the style of the button: primary, secondary, tertiary, or text. Default primary.
+          
+            @param size [Required]
+              This defines the size of the button: small, medium, or large. Default medium.
+          
+            @param text [Required]
+              This is the text to be included in the button.
+          
+            @param attributes [Optional]
+              This will include any additional attributes that the button needs. For example, aria-controls.
+          {% endcomment %}
+          
+          <button
+            data-component="button"
+            data-component-type="component"
+            {% if tag != blank %}data-component-tag="{{ tag }}"
+            {% endif %}class="button button--{{ style }} button--{{ size }}{% if style == 'primary' or style == 'secondary' %} button--shadow{% endif %%}"
+            {{ attributes }}
+          >
+            {{ text }}
+          </button>
+          
+          {% liquid
+            assign style = style_e2ef3b8a
+            assign style_e2ef3b8a = nil
+            assign size = size_e2ef3b8a
+            assign size_e2ef3b8a = nil
+            assign text = text_e2ef3b8a
+            assign text_e2ef3b8a = nil
+          %}
+          {% comment %}Component button:default end{% endcomment %}
+        {% endform %}
+      </div>
+    </section-content>
+  </section-wrapper>
+</section>
+{% schema %}
+{
+  "name": "t:common.component.contact_form",
+  "settings": [
+    {
+      "type": "text",
+      "id": "contact_form_heading",
+      "default": "Contact form",
+      "label": "t:common.text.heading"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:common.component.contact_form",
+      "settings": {
+        "contact_form_heading": "Contact form"
+      },
+      "category": "t:component.contact_form.presets.contact_form.category"
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "*"
+    ]
+  }
+}
+{% endschema %}

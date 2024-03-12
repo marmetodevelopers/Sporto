@@ -1,0 +1,2517 @@
+{% assign product_blocks = section.blocks | where: "type", "hotspot" %}
+
+{% unless request.path contains '/async' %}
+<section data-component="shop-the-look" data-component-type="section" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="shop-the-look">
+  <script
+    type="application/json"
+    data-component-data
+  >
+    {
+      "locales": {
+        "unavailable": {{ 'shop_the_look.buy_button.unavailable' | t | json }},
+        "add_to_cart": {{ 'shop_the_look.buy_button.add_selected_to_cart' | t | json }},
+        "sold_out": {{ 'shop_the_look.buy_button.sold_out' | t | json }},
+        "select_variant": {{ 'shop_the_look.buy_button.select_variant' | t | json }}
+      }
+    }
+  </script>
+
+  <template data-add-the-look-template>
+    <h2 class="add-the-look__heading h3" data-add-the-look-heading>
+      {% if section.settings.view_in_list_cta_text == blank %}
+        {{ 'shop_the_look.heading.add_the_look' | t }}
+      {% else %}
+        {{ section.settings.view_in_list_cta_text }}
+      {% endif %}
+    </h2>
+
+    <h2 class="add-the-look__heading" data-add-the-look-quickshop-heading>
+      {{ 'shop_the_look.heading.quickshop' | t }}
+    </h2>
+
+    <div class="add-the-look__notification" data-add-the-look-notification>
+      <span data-add-the-look-notification-error></span>
+      <span data-add-the-look-notification-selected>{{ 'shop_the_look.notification.selected_items' | t: amount: '||amount||', total_items: '||total_items||' }}</span><br>
+      <span data-add-the-look-notification-requires-option-selection>{{ 'shop_the_look.notification.requires_option_selection' | t: amount: '||amount||', total_selected: '||total_selected||' }}</span>
+    </div>
+
+    <div class="add-the-look" data-add-the-look>
+      <div class="add-the-look__items">
+        {% for block in product_blocks %}
+          {% if block.settings.product != blank %}
+            <div
+              class="add-the-look_item-wrapper"
+              data-add-the-look-item-hotspot="{{ block.id }}"
+            >
+              {% comment %}Component add-the-look-item:default begin{% endcomment %}
+              {% liquid
+                assign product_7a81a116 = product
+                assign product = all_products[block.settings.product]
+                assign section_id_7a81a116 = section_id
+                assign section_id = section.id
+                assign form_id_7a81a116 = form_id
+                assign form_id = block.id
+              %}
+              {%- comment -%}
+                @param product [Required]
+              
+                @param section_id [Required]
+              
+                @param selected_variant [Optional]
+              
+                @param form_id [Optional]
+              {%- endcomment -%}
+              
+              {% assign old_selected_variant = selected_variant %}
+              {% assign selected_variant = selected_variant %}
+              {% if product.has_only_default_variant %}
+                {% assign selected_variant = product.variants[0] %}
+              {% endif %}
+              
+              <div data-component="add-the-look-item" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="add-the-look-item">
+                <script
+                  type="application/json"
+                  data-component-data
+                >
+                  {
+                    "product": {{ product | json }},
+                    "section_id": {{ section_id | json }},
+                    "product_url": {{ product.url | within: collection | json }}
+                  }
+                </script>
+              
+                <div class="add-the-look-item__contents">
+                  {% assign label_text = 'shop_the_look.items.select_item' | t %}
+                  {% comment %}Component input-checkbox:default begin{% endcomment %}
+                  {% liquid
+                    assign hide_label_bd955d56 = hide_label
+                    assign hide_label = true
+                    assign field_name_bd955d56 = field_name
+                    assign field_name = 'add_item'
+                    assign field_value_bd955d56 = field_value
+                    assign field_value = '1'
+                    assign checked_bd955d56 = checked
+                    assign checked = true
+                  %}
+                  {% comment %}
+                    @param label_text [Required]
+                      The text for the label to be included.
+                  
+                    @param form_namespace [Required]
+                      The form's namespace that is used in "name" attribute as form_namespace[field_name].
+                  
+                    @param field_name [Required]
+                      The field name for the form. Will be used for the "name" attribute.
+                  
+                    @param form_id [Optional]
+                  
+                    @param hide_label [Optional]
+                      Hide the label text as an aria-label
+                  
+                    @param field_value [Optional]
+                      The value for the checkbox.
+                  
+                    @param checked [Optional]
+                      Boolean. If true, the checkbox will appear checked.
+                  
+                    @param disabled [Optional]
+                      Boolean. If true, the checkbox will appear disabled.
+                  
+                    @param attributes [Optional]
+                      Additional attributes to append to the input field.
+                  {% endcomment %}
+                  
+                  <div
+                    data-component="input-checkbox"
+                    data-component-type="component"
+                    {% if tag != blank %}data-component-tag="{{ tag }}"
+                    {% endif %}class="
+                      input-checkbox
+                      {% if checked %}input-checkbox--checked{% endif %}
+                      {% if disabled %}input-checkbox--disabled{% endif %}
+                    "
+                  >
+                    {% unless hide_label %}
+                      <label class="input-checkbox__label">
+                        <input
+                          class="input-checkbox__checkbox"
+                          type="checkbox"
+                          name="{% if form_namespace %}{{ form_namespace }}[{{ field_name }}]{% else %}{{ field_name }}{% endif %}"
+                          {% if form_id %}form="{{ form_id }}"{% endif %}
+                          {% if field_value %}value="{{ field_value }}"{% endif %}
+                          {% if checked %}checked{% endif %}
+                          {% if disabled %}disabled{% endif %}
+                          {{ attributes }}
+                        >
+                        {{ label_text }}
+                      </label>
+                    {% else %}
+                      <input
+                        class="input-checkbox__checkbox"
+                        type="checkbox"
+                        name="{% if form_namespace %}{{ form_namespace }}[{{ field_name }}]{% else %}{{ field_name }}{% endif %}"
+                        {% if form_id %}form="{{ form_id }}"{% endif %}
+                        {% if field_value %}value="{{ field_value }}"{% endif %}
+                        {% if checked %}checked{% endif %}
+                        {% if disabled %}disabled{% endif %}
+                        aria-label="{{ label_text }}"
+                        {{ attributes }}
+                      >
+                    {% endunless %}
+                  </div>
+                  
+                  {% liquid
+                    assign hide_label = hide_label_bd955d56
+                    assign hide_label_bd955d56 = nil
+                    assign field_name = field_name_bd955d56
+                    assign field_name_bd955d56 = nil
+                    assign field_value = field_value_bd955d56
+                    assign field_value_bd955d56 = nil
+                    assign checked = checked_bd955d56
+                    assign checked_bd955d56 = nil
+                  %}
+                  {% comment %}Component input-checkbox:default end{% endcomment %}
+                  {% comment %}Component product-details:default begin{% endcomment %}
+                  {% comment %}
+                    @param product [Required]
+                      The product that this product item is for.
+                  
+                    @param selected_variant [Optional]
+                      The currently selected variant
+                  {% endcomment %}
+                  
+                  <div data-component="product-details" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="product-details">
+                    {% assign selected_image = selected_variant.featured_media.preview_image | default: product.featured_media.preview_image %}
+                    {% assign crop_focus = 'center' %}
+                    {% assign media_crop = 'fit' %}
+                  
+                    <div class="product-details__image">
+                      {% if selected_image != blank %}
+                        {% comment %}Component lazy-img:default begin{% endcomment %}
+                        {% render 'lazy-img', img: selected_image, size: 'x220', crop_focus: crop_focus, fill_mode: media_crop, lazy: true, canvas: true %}
+                        {% comment %}Component lazy-img:default end{% endcomment %}
+                      {% else %}
+                        {%- capture index -%}
+                          {%- cycle '1', '2', '3', '4', '5', '6' -%}
+                        {%- endcapture -%}
+                        {{ 'product-' | append: index | placeholder_svg_tag: 'placeholder-svg' }}
+                      {% endif %}
+                    </div>
+                  
+                    <div class="product-details__details">
+                      {% if product.vendor != blank %}
+                        <span class="product-details__vendor">{{ product.vendor }}</span>
+                      {% endif %}
+                  
+                      <div class="product-details__title">{{ product.title }}</div>
+                  
+                      {% if product.has_only_default_variant == false and selected_variant != blank %}
+                        <div class="product-details__subtitle">{{ selected_variant.title }}</div>
+                      {% endif %}
+                  
+                      <div class="product-details__price">
+                        {% comment %}Component price:default begin{% endcomment %}
+                        {% render 'price', product: product, selected_variant: selected_variant %}
+                        {% comment %}Component price:default end{% endcomment %}
+                      </div>
+                  
+                      {% if selected_variant != blank %}
+                        {%- form 'product', product, id: 'product-form-installment', class: 'product-details__price-installments' -%}
+                          <input type="hidden" name="id" value="{{ selected_variant.id }}">
+                          {{ form | payment_terms }}
+                        {%- endform -%}
+                      {% endif %}
+                  
+                      {% assign href = product.url | within: collection %}
+                      {% assign text = 'product.details.view_full_details' | t %}
+                      {% if selected_variant != blank %}
+                        {% assign href = selected_variant.url %}
+                      {% endif %}
+                      {% comment %}Component button-link:default begin{% endcomment %}
+                      {% liquid
+                        assign style_6807a222 = style
+                        assign style = 'text'
+                        assign size_6807a222 = size
+                        assign size = 'small'
+                      %}
+                      {% comment %}
+                        @param href [Required]
+                          This is the anchor tag for the link button.
+                      
+                        @param style [Required]
+                          This is the style of the button: primary, secondary, tertiary, or text.
+                      
+                        @param size [Required]
+                          This defines the size of the button: small, medium, or large.
+                      
+                        @param text [Required]
+                          This is the text to be included in the button.
+                      
+                        @param attributes [Optional]
+                          Any additional attributes to add to the button-link tag.
+                      {% endcomment %}
+                      
+                      <a
+                        data-component="button-link"
+                        data-component-type="component"
+                        {% if tag != blank %}data-component-tag="{{ tag }}"
+                        {% endif %}class="button-link button-link--{{ style }} button-link--{{ size }}{% if style == 'primary' or style == 'secondary' %} button-link--shadow{% endif %%}"
+                        {% if href != blank %}
+                          href="{{ href }}"
+                        {% endif %}
+                        {{ attributes }}
+                      >
+                        {{ text }}
+                      </a>
+                      
+                      {% liquid
+                        assign style = style_6807a222
+                        assign style_6807a222 = nil
+                        assign size = size_6807a222
+                        assign size_6807a222 = nil
+                      %}
+                      {% comment %}Component button-link:default end{% endcomment %}
+                    </div>
+                  </div>
+                  
+                  {% comment %}Component product-details:default end{% endcomment %}
+                  {% capture content %}
+                    {% form 'product', product, id: form_id, class: 'add-the-look-item__form', data-product-form: '' %}
+                      {% comment %}Component variant-selector:default begin{% endcomment %}
+                      {% liquid
+                        assign context_35fab84f = context
+                        assign context = block
+                      %}
+                      {% comment %}
+                        Display variant options for a product
+                      
+                        @param product
+                          The product object
+                      
+                        @param selected_variant
+                          The selected variant object
+                      
+                        @param form_id
+                          The associated form ID
+                      {% endcomment %}
+                      
+                      <div data-component="variant-selector" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="variant-selector">
+                        {% if product.has_only_default_variant %}
+                          <input
+                            class="variant-selector__variants variant-selector__variants--default"
+                            name="id"
+                            {% if form_id != blank %}form="{{ form_id }}"{% endif %}
+                            type="hidden"
+                            value="{{ product.variants.first.id }}"
+                            data-variants
+                          >
+                        {% else %}
+                          <label class="variant-selector__label">
+                            {{ 'product.variants.options' | t }}
+                      
+                            <select
+                              class="variant-selector__variants"
+                              name="id"
+                              {% if form_id != blank %}form="{{ form_id }}"{% endif %}
+                              data-variants
+                            >
+                              <option
+                                value=""
+                                disabled
+                                {% if selected_variant == blank %}selected{% endif %}
+                              >
+                                {{ 'product.variants.choose_variant' | t }}
+                              </option>
+                              {% for variant in product.variants %}
+                                <option
+                                  {% if selected_variant and selected_variant.id == variant.id %}selected{% endif %}
+                                  value="{{ variant.id }}"
+                                  {% unless variant.available %}disabled{% endunless %}
+                                >
+                                  {{ variant.title }} - {{ variant.price | money }}
+                                </option>
+                              {% endfor %}
+                            </select>
+                          </label>
+                        {% endif %}
+                      </div>
+                      
+                      {% liquid
+                        assign context = context_35fab84f
+                        assign context_35fab84f = nil
+                      %}
+                      {% comment %}Component variant-selector:default end{% endcomment %}
+                      {% comment %}Component options-selector:default begin{% endcomment %}
+                      {% liquid
+                        assign context_ea12a353 = context
+                        assign context = block
+                        assign product_option_style_ea12a353 = product_option_style
+                        assign product_option_style = section.settings.product_option_style
+                        assign sold_out_options_ea12a353 = sold_out_options
+                        assign sold_out_options = section.settings.sold_out_options
+                        assign swatches_enable_ea12a353 = swatches_enable
+                        assign swatches_enable = section.settings.swatches_enable
+                        assign swatches_option_style_ea12a353 = swatches_option_style
+                        assign swatches_option_style = section.settings.swatches_option_style
+                      %}
+                      {% comment %}
+                        Display variant options for a product
+                      
+                        @param product
+                          The product object
+                      
+                        @param product_option_style
+                      
+                        @param sold_out_options
+                      
+                        @param swatches_enable
+                      
+                        @param swatches_option_style
+                      
+                        @param selected_variant
+                          The selected variant object
+                      {% endcomment %}
+                      
+                      {% comment %}UUID options_selector_id begin{% endcomment %}
+                      {% assign options_selector_id = '16aad85b-dbca-4367-b016-509216f7cc73' %}
+                      {% comment %}UUID options_selector_id end{% endcomment %}
+                      {% liquid
+                        assign style = product_option_style
+                        assign sold_out_options = sold_out_options
+                        assign enable_swatches = swatches_enable
+                        assign show_variant_images = false
+                        if swatches_option_style == 'variant_image'
+                          assign show_variant_images = true
+                        endif
+                      %}
+                      
+                      <div
+                        data-component="options-selector"
+                        data-component-type="component"
+                        {% if tag != blank %}data-component-tag="{{ tag }}"
+                        {% endif %}class="options-selector"
+                        {% if sold_out_options == 'disabled' %}data-disable-unavailable{% endif %}
+                        {% if sold_out_options == 'hidden' %}data-remove-unavailable{% endif %}
+                        {% if product.has_only_default_variant %}hidden{% endif %}
+                      >
+                        <script
+                          type="application/json"
+                          data-component-data
+                        >
+                          {
+                            "disable_unavailable": {% if sold_out_options == 'disabled' %}true{% else %}false{% endif %},
+                            "remove_unavailable": {% if sold_out_options == 'hidden' %}true{% else %}false{% endif %}
+                          }
+                        </script>
+                      
+                        {% for option in product.options_with_values %}
+                          {% assign input_id = options_selector_id | append: '-' | append: forloop.index %}
+                          {% assign option_index = forloop.index0 %}
+                          {% assign show_swatches = false %}
+                          {% if enable_swatches and option.name == 'Color' %}
+                            {% assign show_swatches = true %}
+                          {% endif %}
+                      
+                          {% if style == 'select' and show_swatches == false %}
+                            {% comment %}Component option-dropdown:default begin{% endcomment %}
+                            {% comment %}
+                              Display option as a select
+                            
+                              @param option [Required]
+                                The option to display
+                            
+                              @param input_id [Required]
+                                The option id to apply to the label and input
+                            
+                              @param selected_variant [Optional]
+                                The selected variant to optionally default to
+                            {% endcomment %}
+                            
+                            <div data-component="option-dropdown" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="option-dropdown">
+                              <script
+                                type="application/json"
+                                data-component-data
+                              >
+                                {
+                                  "chosen_option": {{ option.name | json }},
+                                  "choose_option": {{ 'product.options.choose_option' | t: option: option.name | json }},
+                                  "position": {{ option.position | json }}
+                                }
+                              </script>
+                            
+                              {% capture options %}
+                                {% unless selected_variant %}
+                                  <option
+                                    value=""
+                                    disabled
+                                    selected
+                                  >
+                                    {{ 'product.options.choose_option' | t: option: option.name }}
+                                  </option>
+                                {% endunless %}
+                                {% for value in option.values %}
+                                  <option
+                                    value="{{ value | escape }}"
+                                    {% if selected_variant and option.selected_value == value %}selected{% endif %}
+                                  >
+                                    {{ value }}
+                                  </option>
+                                {% endfor %}
+                              {% endcapture %}
+                              {% liquid
+                                assign label_text = 'product.options.choose_option' | t: option: option.name
+                            
+                                if selected_variant
+                                  assign label_text = option.name
+                                endif
+                              %}
+                              {% comment %}Component input-select:default begin{% endcomment %}
+                              {% comment %}
+                                @param label_text [Required]
+                                  The text for the label to be included.
+                              
+                                @param options [Required]
+                                  The list of options to include in the select.
+                              
+                                @param form_id [Optional]
+                                  The form id to associate with
+                              
+                                @param input_id [Optional]
+                                  The option id to apply to the label and input
+                              
+                                @param field_name [Optional]
+                                  The field name for the form. Will be used for the "name" attribute.
+                              
+                                @param attributes [Optional]
+                                  Additional attributes to append to the input field.
+                              {% endcomment %}
+                              
+                              {% if input_id == blank %}
+                                {% comment %}UUID input_id begin{% endcomment %}
+                                {% assign input_id = 'a660b01b-9a8c-4c83-8aa2-1add14d5155b' %}
+                                {% comment %}UUID input_id end{% endcomment %}
+                              {% endif %}
+                              
+                              <div data-component="input-select" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="input-select">
+                                <label class="input-select__label" for="{{ input_id }}" data-label>{{ label_text }}</label>
+                                <div class="input-select__wrapper">
+                                  <select
+                                    id="{{ input_id }}"
+                                    class="input-select__select"
+                                    {% if form_id != blank %}form="{{ form_id }}"{% endif %}
+                                    {% if field_name != blank %}name="{{ field_name }}"{% endif %}
+                                    {{ attributes }}
+                                    data-input
+                                  >
+                                    {{ options }}
+                                  </select>
+                                </div>
+                              </div>
+                              
+                              {% comment %}Component input-select:default end{% endcomment %}
+                            </div>
+                            
+                            {% comment %}Component option-dropdown:default end{% endcomment %}
+                          {% else %}
+                            {% comment %}Component option-selectable-boxes:default begin{% endcomment %}
+                            {% comment %}
+                              Display option as a selectable boxes, optionally as swatches
+                            
+                              @param option [Required]
+                                The option to display
+                            
+                              @param product [Required]
+                                The product object
+                            
+                              @param input_id [Required]
+                                The option id to apply to the label and input
+                            
+                              @param selected_variant [Optional]
+                                The selected variant to optionally default to
+                            
+                              @param show_swatches [Optional]
+                                Whether to display fieldset as swatches instead of radios
+                            
+                              @param show_variant_images [Optional]
+                                Whether to display variant images inside of swatch
+                            {% endcomment %}
+                            <div
+                              data-component="option-selectable-boxes"
+                              data-component-type="component"
+                              {% if tag != blank %}data-component-tag="{{ tag }}"
+                              {% endif %}class="option-selectable-boxes"
+                            >
+                              <script
+                                type="application/json"
+                                data-component-data
+                              >
+                                {
+                                  "chosen_option": {{ 'product.options.chosen_option_html' | t: option: option.name, value: '|value|' | json }},
+                                  "choose_option": {{ 'product.options.choose_option' | t: option: option.name | json }},
+                                  "position": {{ option.position | json }}
+                                }
+                              </script>
+                            
+                              {% capture values %}
+                                {% liquid
+                                  assign group_name = option.name | append: section.id | url_encode
+                            
+                                  if show_swatches and show_variant_images
+                                    comment
+                                      The following builds out several variables that are used within this and other sub-components:
+                                        - option_value_array which contains the names of all of the option value variants for this product
+                                        - variant_indices_array which contains an the indices of the variants which are in the option_value_array
+                                    endcomment
+                            
+                                    assign option_key =  'option' | append: option.position
+                                    assign option_value_variants_added = '|'
+                                    assign variant_indices_string = ''
+                            
+                                    for next_variant in product.variants
+                                      assign search_string = '|' | append: next_variant[option_key] | append: '|'
+                                      unless option_value_variants_added contains search_string
+                                        if next_variant.featured_image != blank
+                                          assign option_value_variants_added = option_value_variants_added | append: next_variant[option_key] | append: '|'
+                                          assign variant_indices_string = variant_indices_string | append: '|' | append: forloop.index0
+                                        endif
+                                      endunless
+                                    endfor
+                            
+                                    assign option_value_array = option_value_variants_added | remove_first: '|' | split: '|'
+                                    assign variant_indices_array = variant_indices_string | remove_first: '|' | split: '|'
+                                  endif
+                                %}
+                            
+                                {% for value in option.values %}
+                                  {% liquid
+                                    assign value_input_id = input_id | append: '-' | append: forloop.index
+                                    assign checked = false
+                            
+                                    if selected_variant and option.selected_value == value
+                                      assign checked = true
+                                    endif
+                                  %}
+                            
+                                  {% if show_swatches %}
+                                    {% liquid
+                                      assign image = blank
+                                      if show_variant_images
+                                        for option_value in option_value_array
+                                          if option_value == value
+                                            assign variant_index = variant_indices_array[forloop.index0] | times: 1
+                                            assign image = product.variants[variant_index].featured_image
+                                            break
+                                          endif
+                                        endfor
+                                      endif
+                                    %}
+                                    {% comment %}Component input-swatch:default begin{% endcomment %}
+                                    {% liquid
+                                      assign label_text_8d3e1f5e = label_text
+                                      assign label_text = value
+                                      assign input_value_8d3e1f5e = input_value
+                                      assign input_value = value
+                                      assign input_id_8d3e1f5e = input_id
+                                      assign input_id = value_input_id
+                                    %}
+                                    {% comment %}
+                                      @param label_text [Required]
+                                        The text for the label to be included.
+                                    
+                                      @param group_name [Required]
+                                        The group name the radio belongs to.
+                                    
+                                      @param input_value [Required]
+                                        The input value.
+                                    
+                                      @param input_id [Optional]
+                                        The option id to apply to the label and input
+                                    
+                                      @param attributes [Optional]
+                                        Additional attributes to append to the input field.
+                                    
+                                      @param image [Optional]
+                                        Image to display as swatch
+                                    {% endcomment %}
+                                    
+                                    {% if input_id == blank %}
+                                      {% comment %}UUID input_id begin{% endcomment %}
+                                      {% assign input_id = '1651fcc1-4b97-4346-a459-83640a13df09' %}
+                                      {% comment %}UUID input_id end{% endcomment %}
+                                    {% endif %}
+                                    {% liquid
+                                      assign required = required | default: false
+                                      assign disabled = disabled | default: false
+                                      assign checked = checked | default: false
+                                      assign unavailable = unavailable | default: false
+                                    %}
+                                    
+                                    <div
+                                      data-component="input-swatch"
+                                      data-component-type="component"
+                                      {% if tag != blank %}data-component-tag="{{ tag }}"
+                                      {% endif %}class="
+                                        input-swatch
+                                        input-swatch__fill--{{ settings.swatch_shape }}
+                                      "
+                                      {% if disabled %}data-disabled{% endif %}
+                                      {% if checked %}data-checked{% endif %}
+                                      {% if unavailable %}data-unavailable{% endif %}
+                                    >
+                                      <input
+                                        id="{{ input_id }}"
+                                        class="input-swatch__input"
+                                        type="radio"
+                                        name="{{ group_name }}"
+                                        value="{{ input_value }}"
+                                        tabindex="0"
+                                        aria-label="{{ input_value | escape }}"
+                                        {% if required %}required{% endif %}
+                                        {% if disabled %}disabled{% endif %}
+                                        {% if checked %}checked{% endif %}
+                                        {{ attributes }}
+                                        data-input
+                                      >
+                                    
+                                      <label class="input-swatch__label visually-hidden" for="{{ input_id }}">{{ label_text }}</label>
+                                    
+                                      {% comment %}Component swatch:default begin{% endcomment %}
+                                      {% liquid
+                                        assign color_name_b3a58d6f = color_name
+                                        assign color_name = value
+                                        assign variant_image_b3a58d6f = variant_image
+                                        assign variant_image = image
+                                      %}
+                                      {% comment %}
+                                        @param color_name {String} [Required]
+                                          Color name for which to find a suitable background
+                                      
+                                        @param variant_image {Boolean} [Optional]
+                                          Will display a this variant image, instead of a swatch color.
+                                      
+                                        @param show_tooltip {Booleal} [Optional]
+                                          If true, will show tooltip on hover of the swatch.
+                                      {% endcomment %}
+                                      
+                                      {%- assign variant_image = variant_image | default: blank -%}
+                                      
+                                      {%- assign swatch_color = blank -%}
+                                      {%- assign swatch_image = blank -%}
+                                      {%- assign custom_colors = settings.swatches_custom_colors -%}
+                                      
+                                      {% comment %} First look for a defined custom color {% endcomment %}
+                                      {%- assign custom_colors = custom_colors | newline_to_br | strip_newlines | split: '<br />' -%}
+                                      {%- assign swatch_search_color = color_name | downcase -%}
+                                      {%- for custom_entry in custom_colors -%}
+                                        {%- assign custom_color = custom_entry | split: ':' -%}
+                                        {%- assign custom_color_name = custom_color[0] | strip | downcase -%}
+                                        {%- assign custom_color_value = custom_color[1] | strip -%}
+                                        {%- if swatch_search_color == custom_color_name -%}
+                                          {% assign swatch_color = custom_color_value %}
+                                          {%- break -%}
+                                        {%- endif -%}
+                                      {%- endfor -%}
+                                      
+                                      {% comment %} Otherwise default to the raw color name, which will either be a
+                                      valid named HTML color and displayed as such, or will be ignored by the browser. {% endcomment %}
+                                      {%- if swatch_color == blank -%}
+                                        {% assign swatch_color = color_name | replace: " ", "" | handleize %}
+                                      {%- endif -%}
+                                      
+                                      {% comment %} Use a variant image for the swatch if one exists. {% endcomment %}
+                                      {%- if variant_image != blank -%}
+                                        {% assign swatch_image = variant_image %}
+                                      {%- else -%}
+                                        {% comment %} If not using variant images, look for a image that matches the color name in the theme's files. {% endcomment %}
+                                        {% assign swatch_file_name = color_name | downcase | handleize | append: '.png' %}
+                                        {%- if images[swatch_file_name] != blank -%}
+                                          {%- assign swatch_image = images[swatch_file_name] -%}
+                                        {%- endif -%}
+                                      {%- endif -%}
+                                      
+                                      <div
+                                        data-component="swatch"
+                                        data-component-type="component"
+                                        {% if tag != blank %}data-component-tag="{{ tag }}"
+                                        {% endif %}class="swatch"
+                                        {% if swatch_image == blank %}
+                                          style="--swatch-color: {{ swatch_color }};"
+                                        {% endif %}
+                                      >
+                                        <span class="swatch__label {% unless show_tooltip %}visually-hidden{% endunless %}">{{ color_name }}</span>
+                                        <div
+                                          class="
+                                            swatch__fill
+                                            swatch__fill--{{ settings.swatch_shape }}
+                                          "
+                                        >
+                                          {% if swatch_image != blank %}
+                                            {% comment %}Component lazy-img:default begin{% endcomment %}
+                                            {% render 'lazy-img', img: swatch_image, size: '50x', crop_focus: 'center', lazy: true, canvas: true %}
+                                            {% comment %}Component lazy-img:default end{% endcomment %}
+                                          {% endif %}
+                                        </div>
+                                      </div>
+                                      
+                                      {% liquid
+                                        assign color_name = color_name_b3a58d6f
+                                        assign color_name_b3a58d6f = nil
+                                        assign variant_image = variant_image_b3a58d6f
+                                        assign variant_image_b3a58d6f = nil
+                                      %}
+                                      {% comment %}Component swatch:default end{% endcomment %}
+                                    </div>
+                                    
+                                    {% liquid
+                                      assign label_text = label_text_8d3e1f5e
+                                      assign label_text_8d3e1f5e = nil
+                                      assign input_value = input_value_8d3e1f5e
+                                      assign input_value_8d3e1f5e = nil
+                                      assign input_id = input_id_8d3e1f5e
+                                      assign input_id_8d3e1f5e = nil
+                                    %}
+                                    {% comment %}Component input-swatch:default end{% endcomment %}
+                                  {% else %}
+                                    {% comment %}Component input-radio:default begin{% endcomment %}
+                                    {% liquid
+                                      assign label_text_046a95fa = label_text
+                                      assign label_text = value
+                                      assign input_value_046a95fa = input_value
+                                      assign input_value = value
+                                      assign input_id_046a95fa = input_id
+                                      assign input_id = value_input_id
+                                    %}
+                                    {% comment %}
+                                      @param label_text [Required]
+                                        The text for the label to be included.
+                                    
+                                      @param group_name [Required]
+                                        The group name the radio belongs to.
+                                    
+                                      @param input_value [Required]
+                                        The input value.
+                                    
+                                      @param input_id [Optional]
+                                        The option id to apply to the label and input
+                                    
+                                      @param required [Optional]
+                                        Whether the input is required
+                                    
+                                      @param disabled [Optional]
+                                        Whether the input is disabled
+                                    
+                                      @param checked [Optional]
+                                        Whether the input is checked
+                                    
+                                      @param unavailable [Optional]
+                                        Whether the input is unavailable
+                                    
+                                      @param attributes [Optional]
+                                        Additional attributes to append to the input field.
+                                    {% endcomment %}
+                                    
+                                    {% if input_id == blank %}
+                                      {% comment %}UUID input_id begin{% endcomment %}
+                                      {% assign input_id = 'debd8a2a-d5d6-49d9-91b8-b1b50e6e8094' %}
+                                      {% comment %}UUID input_id end{% endcomment %}
+                                    {% endif %}
+                                    {% liquid
+                                      assign required = required | default: false
+                                      assign disabled = disabled | default: false
+                                      assign checked = checked | default: false
+                                      assign unavailable = unavailable | default: false
+                                    %}
+                                    
+                                    <div
+                                      data-component="input-radio"
+                                      data-component-type="component"
+                                      {% if tag != blank %}data-component-tag="{{ tag }}"
+                                      {% endif %}class="input-radio"
+                                      {% if disabled %}data-disabled{% endif %}
+                                      {% if checked %}data-checked{% endif %}
+                                      {% if unavailable %}data-unavailable{% endif %}
+                                    >
+                                      <input
+                                        class="input-radio__input"
+                                        id="{{ input_id }}"
+                                        type="radio"
+                                        name="{{ group_name }}"
+                                        value="{{ input_value | escape }}"
+                                        tabindex="0"
+                                        aria-label="{{ input_value | escape }}"
+                                        {% if required %}required{% endif %}
+                                        {% if disabled %}disabled{% endif %}
+                                        {% if checked %}checked{% endif %}
+                                        {{ attributes }}
+                                        data-input
+                                      >
+                                    
+                                      <label class="input-radio__label" for="{{ input_id }}">{{ label_text }}</label>
+                                    </div>
+                                    
+                                    {% liquid
+                                      assign label_text = label_text_046a95fa
+                                      assign label_text_046a95fa = nil
+                                      assign input_value = input_value_046a95fa
+                                      assign input_value_046a95fa = nil
+                                      assign input_id = input_id_046a95fa
+                                      assign input_id_046a95fa = nil
+                                    %}
+                                    {% comment %}Component input-radio:default end{% endcomment %}
+                                  {% endif %}
+                                {% endfor %}
+                              {% endcapture %}
+                              {% liquid
+                                assign label_text = 'product.options.choose_option' | t: option: option.name
+                                assign option_value_html = '<span>' | append: option.selected_value | append: '</span>'
+                            
+                                if selected_variant
+                                  assign label_text = 'product.options.chosen_option_html' | t: option: option.name, value: option_value_html
+                                endif
+                              %}
+                              {% comment %}Component input-fieldset:default begin{% endcomment %}
+                              {% comment %}
+                                @param label_text [Required]
+                                  The text for the label to be included.
+                              
+                                @param values [Required]
+                                  The list of values to include in the fieldset.
+                              
+                                @param form_id [Optional]
+                                  The form id to associate with
+                              
+                                @param field_name [Optional]
+                                  The field name for the form. Will be used for the "name" attribute.
+                              
+                                @param attributes [Optional]
+                                  Additional attributes to append to the input field.
+                              {% endcomment %}
+                              
+                              <fieldset
+                                data-component="input-fieldset"
+                                data-component-type="component"
+                                {% if tag != blank %}data-component-tag="{{ tag }}"
+                                {% endif %}class="input-fieldset"
+                                {% unless name == blank %}name="{{ field_name }}"{% endunless %}
+                                {% unless form_id == blank %}form="{{ form_id }}"{% endunless %}
+                                {{ attributes }}
+                              >
+                                <legend class="input-fieldset__legend" data-label>{{ label_text }}</legend>
+                              
+                                <div class="input-fieldset__values">
+                                  {{ values }}
+                                </div>
+                              </fieldset>
+                              
+                              {% comment %}Component input-fieldset:default end{% endcomment %}
+                            </div>
+                            
+                            {% comment %}Component option-selectable-boxes:default end{% endcomment %}
+                          {% endif %}
+                        {% endfor %}
+                      </div>
+                      
+                      {% liquid
+                        assign context = context_ea12a353
+                        assign context_ea12a353 = nil
+                        assign product_option_style = product_option_style_ea12a353
+                        assign product_option_style_ea12a353 = nil
+                        assign sold_out_options = sold_out_options_ea12a353
+                        assign sold_out_options_ea12a353 = nil
+                        assign swatches_enable = swatches_enable_ea12a353
+                        assign swatches_enable_ea12a353 = nil
+                        assign swatches_option_style = swatches_option_style_ea12a353
+                        assign swatches_option_style_ea12a353 = nil
+                      %}
+                      {% comment %}Component options-selector:default end{% endcomment %}
+              
+                      <span class="add-the-look-item__quantity-label">{{- 'product.quantity.label' | t -}}</span>
+                      <div class="add-the-look-item__quantity-quantity">
+                        {% comment %}Component quantity-selector:default begin{% endcomment %}
+                        {% liquid
+                          assign name_60c28467 = name
+                          assign name = 'quantity'
+                          assign quantity_60c28467 = quantity
+                          assign quantity = 1
+                          assign min_60c28467 = min
+                          assign min = 1
+                          assign title_60c28467 = title
+                          assign title = product.title
+                        %}
+                        {% comment %}
+                          @param quantity [Required]
+                            The default quantity to be set.
+                        
+                          @param title [Required]
+                            The title of the quantity selectors product
+                          @param name
+                          @param [form_id]
+                          @param [min]
+                        {% endcomment %}
+                        
+                        {% liquid
+                          unless min
+                            assign min = 0
+                          endunless
+                        %}
+                        
+                        <div data-component="quantity-selector" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="quantity-selector">
+                          <button
+                            class="quantity-selector__button quantity-selector__button--minus"
+                            name="minus"
+                            type="button"
+                            data-quantity-minus
+                          >
+                            <span class="visually-hidden">{{ 'general.components.quantity_selector.decrease' | t: title: title | escape }}</span>
+                          </button>
+                          <input
+                            class="quantity-selector__input"
+                            type="number"
+                            name="{{ name }}"
+                            {% if form_id != blank %}form="{{ form_id }}"{% endif %}
+                            value="{{ quantity }}"
+                            min="{{ min }}"
+                            aria-label="{{ 'general.components.quantity_selector.input_label' | t: title: title | escape }}"
+                            data-quantity-input
+                          >
+                          <button
+                            class="quantity-selector__button quantity-selector__button--plus"
+                            name="plus"
+                            type="button"
+                            data-quantity-plus
+                          >
+                            <span class="visually-hidden">{{ 'general.components.quantity_selector.increase' | t: title: title | escape }}</span>
+                          </button>
+                        </div>
+                        
+                        {% liquid
+                          assign name = name_60c28467
+                          assign name_60c28467 = nil
+                          assign quantity = quantity_60c28467
+                          assign quantity_60c28467 = nil
+                          assign min = min_60c28467
+                          assign min_60c28467 = nil
+                          assign title = title_60c28467
+                          assign title_60c28467 = nil
+                        %}
+                        {% comment %}Component quantity-selector:default end{% endcomment %}
+                      </div>
+                    {% endform %}
+                  {% endcapture %}
+                  {% assign heading = 'shop_the_look.items.options' | t %}
+                  {% comment %}Component collapsible-tab:default begin{% endcomment %}
+                  {% liquid
+                    assign show_tab_as_open_adcf2448 = show_tab_as_open
+                    assign show_tab_as_open = false
+                    assign is_sibling_adcf2448 = is_sibling
+                    assign is_sibling = false
+                  %}
+                  {% comment %}
+                    Display content as a collapsible tab
+                  
+                    @param heading
+                      The tab heading
+                  
+                    @param content
+                      The tab content
+                  
+                    @param show_tab_as_open [optional]
+                  
+                    @param is_sibling [optional]
+                  {% endcomment %}
+                  
+                  <details data-component="collapsible-tab" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="collapsible-tab{% if is_sibling %} collapsible-tab--sibling{% endif %}"{% if show_tab_as_open %} open{% endif %}>
+                    <summary class="collapsible-tab__label"><h2 class="h5">{{ heading }}</h2>{% comment %}Icon chevron-small:default begin{% endcomment %}
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path stroke="currentColor" stroke-width="1.75" d="m1 5 7 7 7-7"/></svg>
+{% comment %}Icon chevron-small:default end{% endcomment %}</summary>
+                    <div class="collapsible-tab__panel">{{ content }}</div>
+                  </details>
+                  
+                  {% liquid
+                    assign show_tab_as_open = show_tab_as_open_adcf2448
+                    assign show_tab_as_open_adcf2448 = nil
+                    assign is_sibling = is_sibling_adcf2448
+                    assign is_sibling_adcf2448 = nil
+                  %}
+                  {% comment %}Component collapsible-tab:default end{% endcomment %}
+                </div>
+              </div>
+              
+              {% assign selected_variant = old_selected_variant %}
+              {% assign old_selected_variant = nil %}
+              
+              {% liquid
+                assign product = product_7a81a116
+                assign product_7a81a116 = nil
+                assign section_id = section_id_7a81a116
+                assign section_id_7a81a116 = nil
+                assign form_id = form_id_7a81a116
+                assign form_id_7a81a116 = nil
+              %}
+              {% comment %}Component add-the-look-item:default end{% endcomment %}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="add-the-look__footer" data-add-the-look-footer>
+      <div class="add-the-look__atc" data-add-the-look-atc>
+        {% assign text = 'product.buy_buttons.add_selected_to_cart' | t %}
+        {% comment %}Component button-action:default begin{% endcomment %}
+        {% liquid
+          assign style_d376d955 = style
+          assign style = 'primary'
+          assign size_d376d955 = size
+          assign size = 'medium'
+        %}
+        {% comment %}
+          @param style [Required]
+            This is the style of the button: primary, secondary, or tertiary. Default primary.
+        
+          @param size [Required]
+            This defines the size of the button: small, medium, or large. Default medium.
+        
+          @param text [Required]
+            This is the text to be included in the button.
+        
+          @param attributes [Optional]
+            This will include any additional attributes that the button needs. For example, aria-controls.
+        {% endcomment %}
+        
+        <button
+          data-component="button-action"
+          data-component-type="component"
+          {% if tag != blank %}data-component-tag="{{ tag }}"
+          {% endif %}class="button-action button-action--{{ style }} button-action--{{ size }}{% if style == 'primary' or style == 'secondary' %} button-action--shadow{% endif %%}"
+          aria-busy="false"
+          aria-live="polite"
+          {{ attributes }}
+        >
+          {{ text }}
+        </button>
+        
+        {% liquid
+          assign style = style_d376d955
+          assign style_d376d955 = nil
+          assign size = size_d376d955
+          assign size_d376d955 = nil
+        %}
+        {% comment %}Component button-action:default end{% endcomment %}
+      </div>
+
+      <div class="add-the-look__navigation">
+        <button
+          class="add-the-look__navigation-previous"
+          aria-label="{{ 'general.accessibility.previous_slide' | t }}"
+          data-add-the-look-navigation-previous
+        >
+          {% comment %}Icon chevron-small:default begin{% endcomment %}
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path stroke="currentColor" stroke-width="1.75" d="m1 5 7 7 7-7"/></svg>
+          {% comment %}Icon chevron-small:default end{% endcomment %}
+        </button>
+
+        <span
+          class="add-the-look__navigation-pages"
+          data-add-the-look-navigation-pages
+        >
+          {{ 'shop_the_look.navigation.pagination_html' | t: current_page: '||current_page||', total_pages: '||total_pages||' }}
+        </span>
+
+        <button
+          class="add-the-look__navigation-next"
+          aria-label="{{ 'general.accessibility.next_slide' | t }}"
+          data-add-the-look-navigation-next
+        >
+          {% comment %}Icon chevron-small:default begin{% endcomment %}
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path stroke="currentColor" stroke-width="1.75" d="m1 5 7 7 7-7"/></svg>
+          {% comment %}Icon chevron-small:default end{% endcomment %}
+        </button>
+      </div>
+    </div>
+  </template>
+
+  {% if section.settings.heading != blank %}
+    <section-wrapper>
+      <section-header>
+        <h2>{{ section.settings.heading | escape }}</h2>
+      </section-header>
+    </section-wrapper>
+  {% endif %}
+
+  <section-wrapper {% if section.settings.wide %}width="wide"{% endif %}>
+    <section-content>
+      <div class="shop-the-look__image-wrapper" data-image-wrapper>
+        {% unless section.settings.desktop_image or section.settings.mobile_image %}
+          <div class="shop-the-look__image shop-the-look__image--placeholder">
+            {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+          </div>
+        {% endunless %}
+
+        {% if section.settings.desktop_image %}
+          <div class="shop-the-look__image {% if section.settings.mobile_image %}shop-the-look__image--desktop{% endif %}">
+            {% comment %}Component lazy-img:default begin{% endcomment %}
+            {% render 'lazy-img', img: section.settings.desktop_image, lazy: true, canvas: true, focal_point: section.settings.desktop_image.presentation.focal_point %}
+            {% comment %}Component lazy-img:default end{% endcomment %}
+          </div>
+        {% endif %}
+
+        {% if section.settings.mobile_image %}
+          <div class="shop-the-look__image {% if section.settings.desktop_image %}shop-the-look__image--mobile{% endif %}">
+            {% comment %}Component lazy-img:default begin{% endcomment %}
+            {% render 'lazy-img', img: section.settings.mobile_image, lazy: true, canvas: true, focal_point: section.settings.mobile_image.presentation.focal_point %}
+            {% comment %}Component lazy-img:default end{% endcomment %}
+          </div>
+        {% endif %}
+
+        {%- assign hotspot_page = 0 -%}
+        {%- for block in product_blocks -%}
+          {%- if block.settings.product != blank -%}
+            {%- assign hotspot_page = hotspot_page | plus: 1 -%}
+          {%- endif -%}
+
+          <details
+            class="shop-the-look__hotspot"
+            style="
+              --color-main: {{ block.settings.color_main }};
+              --color-contrast: {{ block.settings.color_contrast }};
+              --color-main-alpha: {{ block.settings.color_main | hex_to_rgba: 0.6 }};
+              --color-contrast-alpha: {{ block.settings.color_contrast | hex_to_rgba: 0.6 }};
+              --x-axis: {{ block.settings.x_axis | divided_by: 100.00 }};
+              --y-axis: {{ block.settings.y_axis | divided_by: 100.00 }};
+            "
+            data-hotspot="{{ block.id }}"
+            {% if block.settings.product != blank %}data-hotspot-url="{{- block.settings.product.url | within: collection -}}"{% endif %}
+            {% if block.settings.product != blank %}data-hotspot-page="{{ hotspot_page }}"{% endif %}
+            {{ block.shopify_attributes }}
+          >
+            <summary class="shop-the-look__hotspot-toggle" data-hotspot-toggle></summary>
+
+            <div class="shop-the-look__hotspot-modal shop-the-look__hotspot-modal--right" data-hotspot-modal>
+              {% comment %}Component product-details:default begin{% endcomment %}
+              {% liquid
+                assign product_0241f3ea = product
+                assign product = all_products[block.settings.product]
+              %}
+              {% comment %}
+                @param product [Required]
+                  The product that this product item is for.
+              
+                @param selected_variant [Optional]
+                  The currently selected variant
+              {% endcomment %}
+              
+              <div data-component="product-details" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="product-details">
+                {% assign selected_image = selected_variant.featured_media.preview_image | default: product.featured_media.preview_image %}
+                {% assign crop_focus = 'center' %}
+                {% assign media_crop = 'fit' %}
+              
+                <div class="product-details__image">
+                  {% if selected_image != blank %}
+                    {% comment %}Component lazy-img:default begin{% endcomment %}
+                    {% render 'lazy-img', img: selected_image, size: 'x220', crop_focus: crop_focus, fill_mode: media_crop, lazy: true, canvas: true %}
+                    {% comment %}Component lazy-img:default end{% endcomment %}
+                  {% else %}
+                    {%- capture index -%}
+                      {%- cycle '1', '2', '3', '4', '5', '6' -%}
+                    {%- endcapture -%}
+                    {{ 'product-' | append: index | placeholder_svg_tag: 'placeholder-svg' }}
+                  {% endif %}
+                </div>
+              
+                <div class="product-details__details">
+                  {% if product.vendor != blank %}
+                    <span class="product-details__vendor">{{ product.vendor }}</span>
+                  {% endif %}
+              
+                  <div class="product-details__title">{{ product.title }}</div>
+              
+                  {% if product.has_only_default_variant == false and selected_variant != blank %}
+                    <div class="product-details__subtitle">{{ selected_variant.title }}</div>
+                  {% endif %}
+              
+                  <div class="product-details__price">
+                    {% comment %}Component price:default begin{% endcomment %}
+                    {% render 'price', product: product, selected_variant: selected_variant %}
+                    {% comment %}Component price:default end{% endcomment %}
+                  </div>
+              
+                  {% if selected_variant != blank %}
+                    {%- form 'product', product, id: 'product-form-installment', class: 'product-details__price-installments' -%}
+                      <input type="hidden" name="id" value="{{ selected_variant.id }}">
+                      {{ form | payment_terms }}
+                    {%- endform -%}
+                  {% endif %}
+              
+                  {% assign href = product.url | within: collection %}
+                  {% assign text = 'product.details.view_full_details' | t %}
+                  {% if selected_variant != blank %}
+                    {% assign href = selected_variant.url %}
+                  {% endif %}
+                  {% comment %}Component button-link:default begin{% endcomment %}
+                  {% liquid
+                    assign style_8b879f06 = style
+                    assign style = 'text'
+                    assign size_8b879f06 = size
+                    assign size = 'small'
+                  %}
+                  {% comment %}
+                    @param href [Required]
+                      This is the anchor tag for the link button.
+                  
+                    @param style [Required]
+                      This is the style of the button: primary, secondary, tertiary, or text.
+                  
+                    @param size [Required]
+                      This defines the size of the button: small, medium, or large.
+                  
+                    @param text [Required]
+                      This is the text to be included in the button.
+                  
+                    @param attributes [Optional]
+                      Any additional attributes to add to the button-link tag.
+                  {% endcomment %}
+                  
+                  <a
+                    data-component="button-link"
+                    data-component-type="component"
+                    {% if tag != blank %}data-component-tag="{{ tag }}"
+                    {% endif %}class="button-link button-link--{{ style }} button-link--{{ size }}{% if style == 'primary' or style == 'secondary' %} button-link--shadow{% endif %%}"
+                    {% if href != blank %}
+                      href="{{ href }}"
+                    {% endif %}
+                    {{ attributes }}
+                  >
+                    {{ text }}
+                  </a>
+                  
+                  {% liquid
+                    assign style = style_8b879f06
+                    assign style_8b879f06 = nil
+                    assign size = size_8b879f06
+                    assign size_8b879f06 = nil
+                  %}
+                  {% comment %}Component button-link:default end{% endcomment %}
+                </div>
+              </div>
+              
+              {% liquid
+                assign product = product_0241f3ea
+                assign product_0241f3ea = nil
+              %}
+              {% comment %}Component product-details:default end{% endcomment %}
+            </div>
+          </details>
+        {%- endfor -%}
+
+        <button class="shop-the-look__hotspot-viewinlist" data-hotspot-viewinlist>
+          {% comment %}Icon bag:default begin{% endcomment %}
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.75 4.5a2.25 2.25 0 0 1 4.5 0V5h1.5v-.5a3.75 3.75 0 1 0-7.5 0V5h1.5v-.5ZM3.706 5a1.75 1.75 0 0 0-1.75 1.75v10.5c0 .966.783 1.75 1.75 1.75h12.588a1.75 1.75 0 0 0 1.75-1.75V6.75A1.75 1.75 0 0 0 16.294 5H3.706Zm-.25 1.75a.25.25 0 0 1 .25-.25h12.588a.25.25 0 0 1 .25.25v10.5a.25.25 0 0 1-.25.25H3.706a.25.25 0 0 1-.25-.25V6.75Z" fill="currentColor"/></svg>
+          {% comment %}Icon bag:default end{% endcomment %}
+          {% if section.settings.view_in_list_cta_text != blank %}
+            <span>{{ section.settings.view_in_list_cta_text }}</span>
+          {% endif %}
+        </button>
+      </div>
+    </section-content>
+  </section-wrapper>
+</section>
+{% else %}
+  {% for block in product_blocks %}
+    {% if all_products[block.settings.product] == product %}
+      {% comment %}Component add-the-look-item:default begin{% endcomment %}
+      {% liquid
+        assign section_id_33a1a905 = section_id
+        assign section_id = section.id
+        assign selected_variant_33a1a905 = selected_variant
+        assign selected_variant = product.selected_variant
+        assign form_id_33a1a905 = form_id
+        assign form_id = block.id
+        assign show_tab_as_open_33a1a905 = show_tab_as_open
+        assign show_tab_as_open = true
+      %}
+      {%- comment -%}
+        @param product [Required]
+      
+        @param section_id [Required]
+      
+        @param selected_variant [Optional]
+      
+        @param form_id [Optional]
+      {%- endcomment -%}
+      
+      {% assign old_selected_variant = selected_variant %}
+      {% assign selected_variant = selected_variant %}
+      {% if product.has_only_default_variant %}
+        {% assign selected_variant = product.variants[0] %}
+      {% endif %}
+      
+      <div data-component="add-the-look-item" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="add-the-look-item">
+        <script
+          type="application/json"
+          data-component-data
+        >
+          {
+            "product": {{ product | json }},
+            "section_id": {{ section_id | json }},
+            "product_url": {{ product.url | within: collection | json }}
+          }
+        </script>
+      
+        <div class="add-the-look-item__contents">
+          {% assign label_text = 'shop_the_look.items.select_item' | t %}
+          {% comment %}Component input-checkbox:default begin{% endcomment %}
+          {% liquid
+            assign hide_label_da6c2ff9 = hide_label
+            assign hide_label = true
+            assign field_name_da6c2ff9 = field_name
+            assign field_name = 'add_item'
+            assign field_value_da6c2ff9 = field_value
+            assign field_value = '1'
+            assign checked_da6c2ff9 = checked
+            assign checked = true
+          %}
+          {% comment %}
+            @param label_text [Required]
+              The text for the label to be included.
+          
+            @param form_namespace [Required]
+              The form's namespace that is used in "name" attribute as form_namespace[field_name].
+          
+            @param field_name [Required]
+              The field name for the form. Will be used for the "name" attribute.
+          
+            @param form_id [Optional]
+          
+            @param hide_label [Optional]
+              Hide the label text as an aria-label
+          
+            @param field_value [Optional]
+              The value for the checkbox.
+          
+            @param checked [Optional]
+              Boolean. If true, the checkbox will appear checked.
+          
+            @param disabled [Optional]
+              Boolean. If true, the checkbox will appear disabled.
+          
+            @param attributes [Optional]
+              Additional attributes to append to the input field.
+          {% endcomment %}
+          
+          <div
+            data-component="input-checkbox"
+            data-component-type="component"
+            {% if tag != blank %}data-component-tag="{{ tag }}"
+            {% endif %}class="
+              input-checkbox
+              {% if checked %}input-checkbox--checked{% endif %}
+              {% if disabled %}input-checkbox--disabled{% endif %}
+            "
+          >
+            {% unless hide_label %}
+              <label class="input-checkbox__label">
+                <input
+                  class="input-checkbox__checkbox"
+                  type="checkbox"
+                  name="{% if form_namespace %}{{ form_namespace }}[{{ field_name }}]{% else %}{{ field_name }}{% endif %}"
+                  {% if form_id %}form="{{ form_id }}"{% endif %}
+                  {% if field_value %}value="{{ field_value }}"{% endif %}
+                  {% if checked %}checked{% endif %}
+                  {% if disabled %}disabled{% endif %}
+                  {{ attributes }}
+                >
+                {{ label_text }}
+              </label>
+            {% else %}
+              <input
+                class="input-checkbox__checkbox"
+                type="checkbox"
+                name="{% if form_namespace %}{{ form_namespace }}[{{ field_name }}]{% else %}{{ field_name }}{% endif %}"
+                {% if form_id %}form="{{ form_id }}"{% endif %}
+                {% if field_value %}value="{{ field_value }}"{% endif %}
+                {% if checked %}checked{% endif %}
+                {% if disabled %}disabled{% endif %}
+                aria-label="{{ label_text }}"
+                {{ attributes }}
+              >
+            {% endunless %}
+          </div>
+          
+          {% liquid
+            assign hide_label = hide_label_da6c2ff9
+            assign hide_label_da6c2ff9 = nil
+            assign field_name = field_name_da6c2ff9
+            assign field_name_da6c2ff9 = nil
+            assign field_value = field_value_da6c2ff9
+            assign field_value_da6c2ff9 = nil
+            assign checked = checked_da6c2ff9
+            assign checked_da6c2ff9 = nil
+          %}
+          {% comment %}Component input-checkbox:default end{% endcomment %}
+          {% comment %}Component product-details:default begin{% endcomment %}
+          {% comment %}
+            @param product [Required]
+              The product that this product item is for.
+          
+            @param selected_variant [Optional]
+              The currently selected variant
+          {% endcomment %}
+          
+          <div data-component="product-details" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="product-details">
+            {% assign selected_image = selected_variant.featured_media.preview_image | default: product.featured_media.preview_image %}
+            {% assign crop_focus = 'center' %}
+            {% assign media_crop = 'fit' %}
+          
+            <div class="product-details__image">
+              {% if selected_image != blank %}
+                {% comment %}Component lazy-img:default begin{% endcomment %}
+                {% render 'lazy-img', img: selected_image, size: 'x220', crop_focus: crop_focus, fill_mode: media_crop, lazy: true, canvas: true %}
+                {% comment %}Component lazy-img:default end{% endcomment %}
+              {% else %}
+                {%- capture index -%}
+                  {%- cycle '1', '2', '3', '4', '5', '6' -%}
+                {%- endcapture -%}
+                {{ 'product-' | append: index | placeholder_svg_tag: 'placeholder-svg' }}
+              {% endif %}
+            </div>
+          
+            <div class="product-details__details">
+              {% if product.vendor != blank %}
+                <span class="product-details__vendor">{{ product.vendor }}</span>
+              {% endif %}
+          
+              <div class="product-details__title">{{ product.title }}</div>
+          
+              {% if product.has_only_default_variant == false and selected_variant != blank %}
+                <div class="product-details__subtitle">{{ selected_variant.title }}</div>
+              {% endif %}
+          
+              <div class="product-details__price">
+                {% comment %}Component price:default begin{% endcomment %}
+                {% render 'price', product: product, selected_variant: selected_variant %}
+                {% comment %}Component price:default end{% endcomment %}
+              </div>
+          
+              {% if selected_variant != blank %}
+                {%- form 'product', product, id: 'product-form-installment', class: 'product-details__price-installments' -%}
+                  <input type="hidden" name="id" value="{{ selected_variant.id }}">
+                  {{ form | payment_terms }}
+                {%- endform -%}
+              {% endif %}
+          
+              {% assign href = product.url | within: collection %}
+              {% assign text = 'product.details.view_full_details' | t %}
+              {% if selected_variant != blank %}
+                {% assign href = selected_variant.url %}
+              {% endif %}
+              {% comment %}Component button-link:default begin{% endcomment %}
+              {% liquid
+                assign style_8b879f06 = style
+                assign style = 'text'
+                assign size_8b879f06 = size
+                assign size = 'small'
+              %}
+              {% comment %}
+                @param href [Required]
+                  This is the anchor tag for the link button.
+              
+                @param style [Required]
+                  This is the style of the button: primary, secondary, tertiary, or text.
+              
+                @param size [Required]
+                  This defines the size of the button: small, medium, or large.
+              
+                @param text [Required]
+                  This is the text to be included in the button.
+              
+                @param attributes [Optional]
+                  Any additional attributes to add to the button-link tag.
+              {% endcomment %}
+              
+              <a
+                data-component="button-link"
+                data-component-type="component"
+                {% if tag != blank %}data-component-tag="{{ tag }}"
+                {% endif %}class="button-link button-link--{{ style }} button-link--{{ size }}{% if style == 'primary' or style == 'secondary' %} button-link--shadow{% endif %%}"
+                {% if href != blank %}
+                  href="{{ href }}"
+                {% endif %}
+                {{ attributes }}
+              >
+                {{ text }}
+              </a>
+              
+              {% liquid
+                assign style = style_8b879f06
+                assign style_8b879f06 = nil
+                assign size = size_8b879f06
+                assign size_8b879f06 = nil
+              %}
+              {% comment %}Component button-link:default end{% endcomment %}
+            </div>
+          </div>
+          
+          {% comment %}Component product-details:default end{% endcomment %}
+          {% capture content %}
+            {% form 'product', product, id: form_id, class: 'add-the-look-item__form', data-product-form: '' %}
+              {% comment %}Component variant-selector:default begin{% endcomment %}
+              {% liquid
+                assign context_b41ba6c5 = context
+                assign context = block
+              %}
+              {% comment %}
+                Display variant options for a product
+              
+                @param product
+                  The product object
+              
+                @param selected_variant
+                  The selected variant object
+              
+                @param form_id
+                  The associated form ID
+              {% endcomment %}
+              
+              <div data-component="variant-selector" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="variant-selector">
+                {% if product.has_only_default_variant %}
+                  <input
+                    class="variant-selector__variants variant-selector__variants--default"
+                    name="id"
+                    {% if form_id != blank %}form="{{ form_id }}"{% endif %}
+                    type="hidden"
+                    value="{{ product.variants.first.id }}"
+                    data-variants
+                  >
+                {% else %}
+                  <label class="variant-selector__label">
+                    {{ 'product.variants.options' | t }}
+              
+                    <select
+                      class="variant-selector__variants"
+                      name="id"
+                      {% if form_id != blank %}form="{{ form_id }}"{% endif %}
+                      data-variants
+                    >
+                      <option
+                        value=""
+                        disabled
+                        {% if selected_variant == blank %}selected{% endif %}
+                      >
+                        {{ 'product.variants.choose_variant' | t }}
+                      </option>
+                      {% for variant in product.variants %}
+                        <option
+                          {% if selected_variant and selected_variant.id == variant.id %}selected{% endif %}
+                          value="{{ variant.id }}"
+                          {% unless variant.available %}disabled{% endunless %}
+                        >
+                          {{ variant.title }} - {{ variant.price | money }}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </label>
+                {% endif %}
+              </div>
+              
+              {% liquid
+                assign context = context_b41ba6c5
+                assign context_b41ba6c5 = nil
+              %}
+              {% comment %}Component variant-selector:default end{% endcomment %}
+              {% comment %}Component options-selector:default begin{% endcomment %}
+              {% liquid
+                assign context_27b04a4f = context
+                assign context = block
+                assign product_option_style_27b04a4f = product_option_style
+                assign product_option_style = section.settings.product_option_style
+                assign sold_out_options_27b04a4f = sold_out_options
+                assign sold_out_options = section.settings.sold_out_options
+                assign swatches_enable_27b04a4f = swatches_enable
+                assign swatches_enable = section.settings.swatches_enable
+                assign swatches_option_style_27b04a4f = swatches_option_style
+                assign swatches_option_style = section.settings.swatches_option_style
+              %}
+              {% comment %}
+                Display variant options for a product
+              
+                @param product
+                  The product object
+              
+                @param product_option_style
+              
+                @param sold_out_options
+              
+                @param swatches_enable
+              
+                @param swatches_option_style
+              
+                @param selected_variant
+                  The selected variant object
+              {% endcomment %}
+              
+              {% comment %}UUID options_selector_id begin{% endcomment %}
+              {% assign options_selector_id = 'c0fae60f-d272-4ed2-b46f-b5a0942bfc40' %}
+              {% comment %}UUID options_selector_id end{% endcomment %}
+              {% liquid
+                assign style = product_option_style
+                assign sold_out_options = sold_out_options
+                assign enable_swatches = swatches_enable
+                assign show_variant_images = false
+                if swatches_option_style == 'variant_image'
+                  assign show_variant_images = true
+                endif
+              %}
+              
+              <div
+                data-component="options-selector"
+                data-component-type="component"
+                {% if tag != blank %}data-component-tag="{{ tag }}"
+                {% endif %}class="options-selector"
+                {% if sold_out_options == 'disabled' %}data-disable-unavailable{% endif %}
+                {% if sold_out_options == 'hidden' %}data-remove-unavailable{% endif %}
+                {% if product.has_only_default_variant %}hidden{% endif %}
+              >
+                <script
+                  type="application/json"
+                  data-component-data
+                >
+                  {
+                    "disable_unavailable": {% if sold_out_options == 'disabled' %}true{% else %}false{% endif %},
+                    "remove_unavailable": {% if sold_out_options == 'hidden' %}true{% else %}false{% endif %}
+                  }
+                </script>
+              
+                {% for option in product.options_with_values %}
+                  {% assign input_id = options_selector_id | append: '-' | append: forloop.index %}
+                  {% assign option_index = forloop.index0 %}
+                  {% assign show_swatches = false %}
+                  {% if enable_swatches and option.name == 'Color' %}
+                    {% assign show_swatches = true %}
+                  {% endif %}
+              
+                  {% if style == 'select' and show_swatches == false %}
+                    {% comment %}Component option-dropdown:default begin{% endcomment %}
+                    {% comment %}
+                      Display option as a select
+                    
+                      @param option [Required]
+                        The option to display
+                    
+                      @param input_id [Required]
+                        The option id to apply to the label and input
+                    
+                      @param selected_variant [Optional]
+                        The selected variant to optionally default to
+                    {% endcomment %}
+                    
+                    <div data-component="option-dropdown" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="option-dropdown">
+                      <script
+                        type="application/json"
+                        data-component-data
+                      >
+                        {
+                          "chosen_option": {{ option.name | json }},
+                          "choose_option": {{ 'product.options.choose_option' | t: option: option.name | json }},
+                          "position": {{ option.position | json }}
+                        }
+                      </script>
+                    
+                      {% capture options %}
+                        {% unless selected_variant %}
+                          <option
+                            value=""
+                            disabled
+                            selected
+                          >
+                            {{ 'product.options.choose_option' | t: option: option.name }}
+                          </option>
+                        {% endunless %}
+                        {% for value in option.values %}
+                          <option
+                            value="{{ value | escape }}"
+                            {% if selected_variant and option.selected_value == value %}selected{% endif %}
+                          >
+                            {{ value }}
+                          </option>
+                        {% endfor %}
+                      {% endcapture %}
+                      {% liquid
+                        assign label_text = 'product.options.choose_option' | t: option: option.name
+                    
+                        if selected_variant
+                          assign label_text = option.name
+                        endif
+                      %}
+                      {% comment %}Component input-select:default begin{% endcomment %}
+                      {% comment %}
+                        @param label_text [Required]
+                          The text for the label to be included.
+                      
+                        @param options [Required]
+                          The list of options to include in the select.
+                      
+                        @param form_id [Optional]
+                          The form id to associate with
+                      
+                        @param input_id [Optional]
+                          The option id to apply to the label and input
+                      
+                        @param field_name [Optional]
+                          The field name for the form. Will be used for the "name" attribute.
+                      
+                        @param attributes [Optional]
+                          Additional attributes to append to the input field.
+                      {% endcomment %}
+                      
+                      {% if input_id == blank %}
+                        {% comment %}UUID input_id begin{% endcomment %}
+                        {% assign input_id = '06885bd7-2e0b-4e38-910b-fd6c40def556' %}
+                        {% comment %}UUID input_id end{% endcomment %}
+                      {% endif %}
+                      
+                      <div data-component="input-select" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="input-select">
+                        <label class="input-select__label" for="{{ input_id }}" data-label>{{ label_text }}</label>
+                        <div class="input-select__wrapper">
+                          <select
+                            id="{{ input_id }}"
+                            class="input-select__select"
+                            {% if form_id != blank %}form="{{ form_id }}"{% endif %}
+                            {% if field_name != blank %}name="{{ field_name }}"{% endif %}
+                            {{ attributes }}
+                            data-input
+                          >
+                            {{ options }}
+                          </select>
+                        </div>
+                      </div>
+                      
+                      {% comment %}Component input-select:default end{% endcomment %}
+                    </div>
+                    
+                    {% comment %}Component option-dropdown:default end{% endcomment %}
+                  {% else %}
+                    {% comment %}Component option-selectable-boxes:default begin{% endcomment %}
+                    {% comment %}
+                      Display option as a selectable boxes, optionally as swatches
+                    
+                      @param option [Required]
+                        The option to display
+                    
+                      @param product [Required]
+                        The product object
+                    
+                      @param input_id [Required]
+                        The option id to apply to the label and input
+                    
+                      @param selected_variant [Optional]
+                        The selected variant to optionally default to
+                    
+                      @param show_swatches [Optional]
+                        Whether to display fieldset as swatches instead of radios
+                    
+                      @param show_variant_images [Optional]
+                        Whether to display variant images inside of swatch
+                    {% endcomment %}
+                    <div
+                      data-component="option-selectable-boxes"
+                      data-component-type="component"
+                      {% if tag != blank %}data-component-tag="{{ tag }}"
+                      {% endif %}class="option-selectable-boxes"
+                    >
+                      <script
+                        type="application/json"
+                        data-component-data
+                      >
+                        {
+                          "chosen_option": {{ 'product.options.chosen_option_html' | t: option: option.name, value: '|value|' | json }},
+                          "choose_option": {{ 'product.options.choose_option' | t: option: option.name | json }},
+                          "position": {{ option.position | json }}
+                        }
+                      </script>
+                    
+                      {% capture values %}
+                        {% liquid
+                          assign group_name = option.name | append: section.id | url_encode
+                    
+                          if show_swatches and show_variant_images
+                            comment
+                              The following builds out several variables that are used within this and other sub-components:
+                                - option_value_array which contains the names of all of the option value variants for this product
+                                - variant_indices_array which contains an the indices of the variants which are in the option_value_array
+                            endcomment
+                    
+                            assign option_key =  'option' | append: option.position
+                            assign option_value_variants_added = '|'
+                            assign variant_indices_string = ''
+                    
+                            for next_variant in product.variants
+                              assign search_string = '|' | append: next_variant[option_key] | append: '|'
+                              unless option_value_variants_added contains search_string
+                                if next_variant.featured_image != blank
+                                  assign option_value_variants_added = option_value_variants_added | append: next_variant[option_key] | append: '|'
+                                  assign variant_indices_string = variant_indices_string | append: '|' | append: forloop.index0
+                                endif
+                              endunless
+                            endfor
+                    
+                            assign option_value_array = option_value_variants_added | remove_first: '|' | split: '|'
+                            assign variant_indices_array = variant_indices_string | remove_first: '|' | split: '|'
+                          endif
+                        %}
+                    
+                        {% for value in option.values %}
+                          {% liquid
+                            assign value_input_id = input_id | append: '-' | append: forloop.index
+                            assign checked = false
+                    
+                            if selected_variant and option.selected_value == value
+                              assign checked = true
+                            endif
+                          %}
+                    
+                          {% if show_swatches %}
+                            {% liquid
+                              assign image = blank
+                              if show_variant_images
+                                for option_value in option_value_array
+                                  if option_value == value
+                                    assign variant_index = variant_indices_array[forloop.index0] | times: 1
+                                    assign image = product.variants[variant_index].featured_image
+                                    break
+                                  endif
+                                endfor
+                              endif
+                            %}
+                            {% comment %}Component input-swatch:default begin{% endcomment %}
+                            {% liquid
+                              assign label_text_5de1dd50 = label_text
+                              assign label_text = value
+                              assign input_value_5de1dd50 = input_value
+                              assign input_value = value
+                              assign input_id_5de1dd50 = input_id
+                              assign input_id = value_input_id
+                            %}
+                            {% comment %}
+                              @param label_text [Required]
+                                The text for the label to be included.
+                            
+                              @param group_name [Required]
+                                The group name the radio belongs to.
+                            
+                              @param input_value [Required]
+                                The input value.
+                            
+                              @param input_id [Optional]
+                                The option id to apply to the label and input
+                            
+                              @param attributes [Optional]
+                                Additional attributes to append to the input field.
+                            
+                              @param image [Optional]
+                                Image to display as swatch
+                            {% endcomment %}
+                            
+                            {% if input_id == blank %}
+                              {% comment %}UUID input_id begin{% endcomment %}
+                              {% assign input_id = '6489769a-8f26-44dd-a271-e37c8d91610a' %}
+                              {% comment %}UUID input_id end{% endcomment %}
+                            {% endif %}
+                            {% liquid
+                              assign required = required | default: false
+                              assign disabled = disabled | default: false
+                              assign checked = checked | default: false
+                              assign unavailable = unavailable | default: false
+                            %}
+                            
+                            <div
+                              data-component="input-swatch"
+                              data-component-type="component"
+                              {% if tag != blank %}data-component-tag="{{ tag }}"
+                              {% endif %}class="
+                                input-swatch
+                                input-swatch__fill--{{ settings.swatch_shape }}
+                              "
+                              {% if disabled %}data-disabled{% endif %}
+                              {% if checked %}data-checked{% endif %}
+                              {% if unavailable %}data-unavailable{% endif %}
+                            >
+                              <input
+                                id="{{ input_id }}"
+                                class="input-swatch__input"
+                                type="radio"
+                                name="{{ group_name }}"
+                                value="{{ input_value }}"
+                                tabindex="0"
+                                aria-label="{{ input_value | escape }}"
+                                {% if required %}required{% endif %}
+                                {% if disabled %}disabled{% endif %}
+                                {% if checked %}checked{% endif %}
+                                {{ attributes }}
+                                data-input
+                              >
+                            
+                              <label class="input-swatch__label visually-hidden" for="{{ input_id }}">{{ label_text }}</label>
+                            
+                              {% comment %}Component swatch:default begin{% endcomment %}
+                              {% liquid
+                                assign color_name_ae68a436 = color_name
+                                assign color_name = value
+                                assign variant_image_ae68a436 = variant_image
+                                assign variant_image = image
+                              %}
+                              {% comment %}
+                                @param color_name {String} [Required]
+                                  Color name for which to find a suitable background
+                              
+                                @param variant_image {Boolean} [Optional]
+                                  Will display a this variant image, instead of a swatch color.
+                              
+                                @param show_tooltip {Booleal} [Optional]
+                                  If true, will show tooltip on hover of the swatch.
+                              {% endcomment %}
+                              
+                              {%- assign variant_image = variant_image | default: blank -%}
+                              
+                              {%- assign swatch_color = blank -%}
+                              {%- assign swatch_image = blank -%}
+                              {%- assign custom_colors = settings.swatches_custom_colors -%}
+                              
+                              {% comment %} First look for a defined custom color {% endcomment %}
+                              {%- assign custom_colors = custom_colors | newline_to_br | strip_newlines | split: '<br />' -%}
+                              {%- assign swatch_search_color = color_name | downcase -%}
+                              {%- for custom_entry in custom_colors -%}
+                                {%- assign custom_color = custom_entry | split: ':' -%}
+                                {%- assign custom_color_name = custom_color[0] | strip | downcase -%}
+                                {%- assign custom_color_value = custom_color[1] | strip -%}
+                                {%- if swatch_search_color == custom_color_name -%}
+                                  {% assign swatch_color = custom_color_value %}
+                                  {%- break -%}
+                                {%- endif -%}
+                              {%- endfor -%}
+                              
+                              {% comment %} Otherwise default to the raw color name, which will either be a
+                              valid named HTML color and displayed as such, or will be ignored by the browser. {% endcomment %}
+                              {%- if swatch_color == blank -%}
+                                {% assign swatch_color = color_name | replace: " ", "" | handleize %}
+                              {%- endif -%}
+                              
+                              {% comment %} Use a variant image for the swatch if one exists. {% endcomment %}
+                              {%- if variant_image != blank -%}
+                                {% assign swatch_image = variant_image %}
+                              {%- else -%}
+                                {% comment %} If not using variant images, look for a image that matches the color name in the theme's files. {% endcomment %}
+                                {% assign swatch_file_name = color_name | downcase | handleize | append: '.png' %}
+                                {%- if images[swatch_file_name] != blank -%}
+                                  {%- assign swatch_image = images[swatch_file_name] -%}
+                                {%- endif -%}
+                              {%- endif -%}
+                              
+                              <div
+                                data-component="swatch"
+                                data-component-type="component"
+                                {% if tag != blank %}data-component-tag="{{ tag }}"
+                                {% endif %}class="swatch"
+                                {% if swatch_image == blank %}
+                                  style="--swatch-color: {{ swatch_color }};"
+                                {% endif %}
+                              >
+                                <span class="swatch__label {% unless show_tooltip %}visually-hidden{% endunless %}">{{ color_name }}</span>
+                                <div
+                                  class="
+                                    swatch__fill
+                                    swatch__fill--{{ settings.swatch_shape }}
+                                  "
+                                >
+                                  {% if swatch_image != blank %}
+                                    {% comment %}Component lazy-img:default begin{% endcomment %}
+                                    {% render 'lazy-img', img: swatch_image, size: '50x', crop_focus: 'center', lazy: true, canvas: true %}
+                                    {% comment %}Component lazy-img:default end{% endcomment %}
+                                  {% endif %}
+                                </div>
+                              </div>
+                              
+                              {% liquid
+                                assign color_name = color_name_ae68a436
+                                assign color_name_ae68a436 = nil
+                                assign variant_image = variant_image_ae68a436
+                                assign variant_image_ae68a436 = nil
+                              %}
+                              {% comment %}Component swatch:default end{% endcomment %}
+                            </div>
+                            
+                            {% liquid
+                              assign label_text = label_text_5de1dd50
+                              assign label_text_5de1dd50 = nil
+                              assign input_value = input_value_5de1dd50
+                              assign input_value_5de1dd50 = nil
+                              assign input_id = input_id_5de1dd50
+                              assign input_id_5de1dd50 = nil
+                            %}
+                            {% comment %}Component input-swatch:default end{% endcomment %}
+                          {% else %}
+                            {% comment %}Component input-radio:default begin{% endcomment %}
+                            {% liquid
+                              assign label_text_dc2057a5 = label_text
+                              assign label_text = value
+                              assign input_value_dc2057a5 = input_value
+                              assign input_value = value
+                              assign input_id_dc2057a5 = input_id
+                              assign input_id = value_input_id
+                            %}
+                            {% comment %}
+                              @param label_text [Required]
+                                The text for the label to be included.
+                            
+                              @param group_name [Required]
+                                The group name the radio belongs to.
+                            
+                              @param input_value [Required]
+                                The input value.
+                            
+                              @param input_id [Optional]
+                                The option id to apply to the label and input
+                            
+                              @param required [Optional]
+                                Whether the input is required
+                            
+                              @param disabled [Optional]
+                                Whether the input is disabled
+                            
+                              @param checked [Optional]
+                                Whether the input is checked
+                            
+                              @param unavailable [Optional]
+                                Whether the input is unavailable
+                            
+                              @param attributes [Optional]
+                                Additional attributes to append to the input field.
+                            {% endcomment %}
+                            
+                            {% if input_id == blank %}
+                              {% comment %}UUID input_id begin{% endcomment %}
+                              {% assign input_id = '0a2a8ba8-60a5-4c96-a4c4-e69bb58f84ac' %}
+                              {% comment %}UUID input_id end{% endcomment %}
+                            {% endif %}
+                            {% liquid
+                              assign required = required | default: false
+                              assign disabled = disabled | default: false
+                              assign checked = checked | default: false
+                              assign unavailable = unavailable | default: false
+                            %}
+                            
+                            <div
+                              data-component="input-radio"
+                              data-component-type="component"
+                              {% if tag != blank %}data-component-tag="{{ tag }}"
+                              {% endif %}class="input-radio"
+                              {% if disabled %}data-disabled{% endif %}
+                              {% if checked %}data-checked{% endif %}
+                              {% if unavailable %}data-unavailable{% endif %}
+                            >
+                              <input
+                                class="input-radio__input"
+                                id="{{ input_id }}"
+                                type="radio"
+                                name="{{ group_name }}"
+                                value="{{ input_value | escape }}"
+                                tabindex="0"
+                                aria-label="{{ input_value | escape }}"
+                                {% if required %}required{% endif %}
+                                {% if disabled %}disabled{% endif %}
+                                {% if checked %}checked{% endif %}
+                                {{ attributes }}
+                                data-input
+                              >
+                            
+                              <label class="input-radio__label" for="{{ input_id }}">{{ label_text }}</label>
+                            </div>
+                            
+                            {% liquid
+                              assign label_text = label_text_dc2057a5
+                              assign label_text_dc2057a5 = nil
+                              assign input_value = input_value_dc2057a5
+                              assign input_value_dc2057a5 = nil
+                              assign input_id = input_id_dc2057a5
+                              assign input_id_dc2057a5 = nil
+                            %}
+                            {% comment %}Component input-radio:default end{% endcomment %}
+                          {% endif %}
+                        {% endfor %}
+                      {% endcapture %}
+                      {% liquid
+                        assign label_text = 'product.options.choose_option' | t: option: option.name
+                        assign option_value_html = '<span>' | append: option.selected_value | append: '</span>'
+                    
+                        if selected_variant
+                          assign label_text = 'product.options.chosen_option_html' | t: option: option.name, value: option_value_html
+                        endif
+                      %}
+                      {% comment %}Component input-fieldset:default begin{% endcomment %}
+                      {% comment %}
+                        @param label_text [Required]
+                          The text for the label to be included.
+                      
+                        @param values [Required]
+                          The list of values to include in the fieldset.
+                      
+                        @param form_id [Optional]
+                          The form id to associate with
+                      
+                        @param field_name [Optional]
+                          The field name for the form. Will be used for the "name" attribute.
+                      
+                        @param attributes [Optional]
+                          Additional attributes to append to the input field.
+                      {% endcomment %}
+                      
+                      <fieldset
+                        data-component="input-fieldset"
+                        data-component-type="component"
+                        {% if tag != blank %}data-component-tag="{{ tag }}"
+                        {% endif %}class="input-fieldset"
+                        {% unless name == blank %}name="{{ field_name }}"{% endunless %}
+                        {% unless form_id == blank %}form="{{ form_id }}"{% endunless %}
+                        {{ attributes }}
+                      >
+                        <legend class="input-fieldset__legend" data-label>{{ label_text }}</legend>
+                      
+                        <div class="input-fieldset__values">
+                          {{ values }}
+                        </div>
+                      </fieldset>
+                      
+                      {% comment %}Component input-fieldset:default end{% endcomment %}
+                    </div>
+                    
+                    {% comment %}Component option-selectable-boxes:default end{% endcomment %}
+                  {% endif %}
+                {% endfor %}
+              </div>
+              
+              {% liquid
+                assign context = context_27b04a4f
+                assign context_27b04a4f = nil
+                assign product_option_style = product_option_style_27b04a4f
+                assign product_option_style_27b04a4f = nil
+                assign sold_out_options = sold_out_options_27b04a4f
+                assign sold_out_options_27b04a4f = nil
+                assign swatches_enable = swatches_enable_27b04a4f
+                assign swatches_enable_27b04a4f = nil
+                assign swatches_option_style = swatches_option_style_27b04a4f
+                assign swatches_option_style_27b04a4f = nil
+              %}
+              {% comment %}Component options-selector:default end{% endcomment %}
+      
+              <span class="add-the-look-item__quantity-label">{{- 'product.quantity.label' | t -}}</span>
+              <div class="add-the-look-item__quantity-quantity">
+                {% comment %}Component quantity-selector:default begin{% endcomment %}
+                {% liquid
+                  assign name_edc446b4 = name
+                  assign name = 'quantity'
+                  assign quantity_edc446b4 = quantity
+                  assign quantity = 1
+                  assign min_edc446b4 = min
+                  assign min = 1
+                  assign title_edc446b4 = title
+                  assign title = product.title
+                %}
+                {% comment %}
+                  @param quantity [Required]
+                    The default quantity to be set.
+                
+                  @param title [Required]
+                    The title of the quantity selectors product
+                  @param name
+                  @param [form_id]
+                  @param [min]
+                {% endcomment %}
+                
+                {% liquid
+                  unless min
+                    assign min = 0
+                  endunless
+                %}
+                
+                <div data-component="quantity-selector" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="quantity-selector">
+                  <button
+                    class="quantity-selector__button quantity-selector__button--minus"
+                    name="minus"
+                    type="button"
+                    data-quantity-minus
+                  >
+                    <span class="visually-hidden">{{ 'general.components.quantity_selector.decrease' | t: title: title | escape }}</span>
+                  </button>
+                  <input
+                    class="quantity-selector__input"
+                    type="number"
+                    name="{{ name }}"
+                    {% if form_id != blank %}form="{{ form_id }}"{% endif %}
+                    value="{{ quantity }}"
+                    min="{{ min }}"
+                    aria-label="{{ 'general.components.quantity_selector.input_label' | t: title: title | escape }}"
+                    data-quantity-input
+                  >
+                  <button
+                    class="quantity-selector__button quantity-selector__button--plus"
+                    name="plus"
+                    type="button"
+                    data-quantity-plus
+                  >
+                    <span class="visually-hidden">{{ 'general.components.quantity_selector.increase' | t: title: title | escape }}</span>
+                  </button>
+                </div>
+                
+                {% liquid
+                  assign name = name_edc446b4
+                  assign name_edc446b4 = nil
+                  assign quantity = quantity_edc446b4
+                  assign quantity_edc446b4 = nil
+                  assign min = min_edc446b4
+                  assign min_edc446b4 = nil
+                  assign title = title_edc446b4
+                  assign title_edc446b4 = nil
+                %}
+                {% comment %}Component quantity-selector:default end{% endcomment %}
+              </div>
+            {% endform %}
+          {% endcapture %}
+          {% assign heading = 'shop_the_look.items.options' | t %}
+          {% comment %}Component collapsible-tab:default begin{% endcomment %}
+          {% liquid
+            assign show_tab_as_open_4ede0494 = show_tab_as_open
+            assign show_tab_as_open = false
+            assign is_sibling_4ede0494 = is_sibling
+            assign is_sibling = false
+          %}
+          {% comment %}
+            Display content as a collapsible tab
+          
+            @param heading
+              The tab heading
+          
+            @param content
+              The tab content
+          
+            @param show_tab_as_open [optional]
+          
+            @param is_sibling [optional]
+          {% endcomment %}
+          
+          <details data-component="collapsible-tab" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="collapsible-tab{% if is_sibling %} collapsible-tab--sibling{% endif %}"{% if show_tab_as_open %} open{% endif %}>
+            <summary class="collapsible-tab__label"><h2 class="h5">{{ heading }}</h2>{% comment %}Icon chevron-small:default begin{% endcomment %}
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path stroke="currentColor" stroke-width="1.75" d="m1 5 7 7 7-7"/></svg>
+{% comment %}Icon chevron-small:default end{% endcomment %}</summary>
+            <div class="collapsible-tab__panel">{{ content }}</div>
+          </details>
+          
+          {% liquid
+            assign show_tab_as_open = show_tab_as_open_4ede0494
+            assign show_tab_as_open_4ede0494 = nil
+            assign is_sibling = is_sibling_4ede0494
+            assign is_sibling_4ede0494 = nil
+          %}
+          {% comment %}Component collapsible-tab:default end{% endcomment %}
+        </div>
+      </div>
+      
+      {% assign selected_variant = old_selected_variant %}
+      {% assign old_selected_variant = nil %}
+      
+      {% liquid
+        assign section_id = section_id_33a1a905
+        assign section_id_33a1a905 = nil
+        assign selected_variant = selected_variant_33a1a905
+        assign selected_variant_33a1a905 = nil
+        assign form_id = form_id_33a1a905
+        assign form_id_33a1a905 = nil
+        assign show_tab_as_open = show_tab_as_open_33a1a905
+        assign show_tab_as_open_33a1a905 = nil
+      %}
+      {% comment %}Component add-the-look-item:default end{% endcomment %}
+    {% endif %}
+  {% endfor %}
+{% endunless %}
+{% schema %}
+{
+  "name": "t:common.product.shop_the_look",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:component.shop_the_look.paragraph_1.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "wide",
+      "label": "t:common.size.wide_display",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:common.text.heading",
+      "default": "Shop the look"
+    },
+    {
+      "type": "image_picker",
+      "id": "desktop_image",
+      "label": "t:component.shop_the_look.desktop_image.label"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "t:common.image.mobile_image"
+    },
+    {
+      "type": "header",
+      "content": "t:common.product.view_in_list"
+    },
+    {
+      "type": "text",
+      "id": "view_in_list_cta_text",
+      "label": "t:component.shop_the_look.view_in_list_cta_text.label",
+      "default": "Shop the look"
+    },
+    {
+      "id": "product_option_style",
+      "type": "select",
+      "label": "t:component.add_the_look_item.product_option_style.label",
+      "options": [
+        {
+          "value": "select",
+          "label": "t:component.add_the_look_item.product_option_style.option_1"
+        },
+        {
+          "value": "radio",
+          "label": "t:component.add_the_look_item.product_option_style.option_2"
+        }
+      ],
+      "default": "select"
+    },
+    {
+      "id": "sold_out_options",
+      "type": "select",
+      "label": "t:component.add_the_look_item.sold_out_options.label",
+      "options": [
+        {
+          "value": "selectable",
+          "label": "t:component.add_the_look_item.sold_out_options.option_1"
+        },
+        {
+          "value": "disabled",
+          "label": "t:component.add_the_look_item.sold_out_options.option_2"
+        },
+        {
+          "value": "hidden",
+          "label": "t:common.product.hidden"
+        }
+      ],
+      "default": "selectable",
+      "info": "t:component.add_the_look_item.sold_out_options.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "swatches_enable",
+      "label": "t:component.add_the_look_item.swatches_enable.label",
+      "info": "t:component.add_the_look_item.swatches_enable.info",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "swatches_option_style",
+      "label": "t:component.add_the_look_item.swatches_option_style.label",
+      "options": [
+        {
+          "value": "color_swatch",
+          "label": "t:component.add_the_look_item.swatches_option_style.option_1"
+        },
+        {
+          "value": "variant_image",
+          "label": "t:component.add_the_look_item.swatches_option_style.option_2"
+        }
+      ],
+      "default": "color_swatch"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "hotspot",
+      "name": "t:common.product.product",
+      "limit": 10,
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "t:common.product.product"
+        },
+        {
+          "type": "color",
+          "id": "color_main",
+          "label": "t:common.style.main_color",
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "color_contrast",
+          "label": "t:common.style.contrast_color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "range",
+          "id": "x_axis",
+          "label": "t:component.shop_the_look.blocks.product.x_axis.label",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "t:common.unit.percent",
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "y_axis",
+          "label": "t:component.shop_the_look.blocks.product.y_axis.label",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "t:common.unit.percent",
+          "default": 50
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:common.product.shop_the_look",
+      "blocks": [
+        {
+          "type": "hotspot",
+          "settings": {
+            "x_axis": 12,
+            "y_axis": 50
+          }
+        },
+        {
+          "type": "hotspot",
+          "settings": {
+            "x_axis": 40,
+            "y_axis": 77
+          }
+        },
+        {
+          "type": "hotspot",
+          "settings": {
+            "x_axis": 63,
+            "y_axis": 50
+          }
+        }
+      ],
+      "category": "t:component.shop_the_look.presets.shop_the_look.category"
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "*"
+    ]
+  }
+}
+{% endschema %}

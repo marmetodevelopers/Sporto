@@ -1,0 +1,1559 @@
+<footer
+  data-component="footer"
+  data-component-type="section"
+  {% if tag != blank %}data-component-tag="{{ tag }}"
+  {% endif %}class="footer"
+  style="
+  --color-footer-background: {{ settings.color_footer_background }};
+  --block-text-color: {{ settings.color_footer_text }};
+  "
+>
+  <section-wrapper>
+    <section-content>
+      <div class="footer__wrapper">
+        <div class="footer-top">
+          {% for block in section.blocks %}
+            {%- comment -%}
+              Between 720px and 1024px, the width of the column changes based on these rules:
+              1. Between 15% and 33% = 1 column
+              2. Between 34% and 66% = 2 columns
+              3. 67% and up = 3 columns
+            {%- endcomment -%}
+            {% liquid
+              assign block_width = 'one-column'
+              if block.settings.column_width > 33
+                if block.settings.column_width > 66
+                  assign block_width = 'three-column'
+                else
+                  assign block_width = 'two-column'
+                endif
+              endif
+            %}
+            <div
+              class="
+                footer-block
+                footer-block--size-{{ block_width }}
+              "
+              style="--column-width: {{ block.settings.column_width }}%;"
+            >
+              {% case block.type %}
+                {% when 'footer_email_form' %}
+                  {% comment %}Component block-footer-newsletter-form:default begin{% endcomment %}
+                  <div data-component="block-footer-newsletter-form" data-component-type="block" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="block-footer-newsletter-form" {{ block.shopify_attributes }}>
+                    {% if block.settings.heading != blank %}
+                      <h2 class="block-footer-newsletter-form__heading">
+                        {{ block.settings.heading | escape }}
+                      </h2>
+                    {% endif %}
+                  
+                    {% if block.settings.content != blank %}
+                      <div class="block-footer-newsletter-form__content">
+                        {{ block.settings.content }}
+                      </div>
+                    {% endif %}
+                  
+                    {% liquid
+                      assign label_text = 'navigation.footer.newsletter_form.label' | t
+                      assign button_text = 'navigation.footer.newsletter_form.button_label' | t
+                      assign placeholder_text = 'navigation.footer.newsletter_form.label' | t
+                    %}
+                  
+                    {%- capture input_attributes -%}
+                      required
+                      autocorrect="off"
+                      autocapitalize="off"
+                      autocomplete="email"
+                      aria-required="true"
+                      {% if form.errors %}
+                        autofocus
+                        aria-invalid="true"
+                        aria-describedby="newsletter-error--{{ section.id }}"
+                      {% elsif form.posted_successfully? %}
+                        aria-describedby="newsletter-success--{{ section.id }}"
+                      {% endif %}
+                    {%- endcapture -%}
+                  
+                    {%- capture button_attributes -%}
+                      aria-label="{{ button_label }}"
+                      data-newsletter-submit
+                    {%- endcapture -%}
+                    {% comment %}UUID newsletter_id begin{% endcomment %}
+                    {% assign newsletter_id = '7fe34ffa-deb3-4627-9284-f72afee8066e' %}
+                    {% comment %}UUID newsletter_id end{% endcomment %}
+                    {% assign newsletter_id = newsletter_id | append: '-' | append: block.id %}
+                    {% form 'customer', id: newsletter_id, class: 'footer-newsletter-form', data-newsletter: '' %}
+                      {% if form.errors %}
+                        {% capture form_error_content %}
+                          <p
+                            id="newsletter-error--{{ section.id }}"
+                            tabindex="-1"
+                            autofocus
+                          >
+                            {{ form.errors.translated_fields['email'] | capitalize }} {{ form.errors.messages['email'] }}
+                          </p>
+                        {% endcapture %}
+                  
+                        {% comment %}Component notification:default begin{% endcomment %}
+                        {% liquid
+                          assign content_60186656 = content
+                          assign content = form_error_content
+                          assign type_60186656 = type
+                          assign type = 'error'
+                        %}
+                        {%- comment -%}
+                          @param content [Required]
+                            The content that goes in the notification banner
+                        
+                          @param type [Required]
+                            The type of notification banner ('error' or 'success')
+                        
+                          @param hidden [Optional]
+                            Whether the notification should be hidden
+                        {%- endcomment -%}
+                        
+                        <div
+                          data-component="notification"
+                          data-component-type="component"
+                          {% if tag != blank %}data-component-tag="{{ tag }}"
+                          {% endif %}class="
+                            notification
+                            notification--{{ type }}
+                          "
+                          {% if type == 'error' %}
+                            role="alert"
+                          {% else %}
+                            role="status"
+                          {% endif %}
+                          {% if hidden %}hidden{% endif %}
+                        >
+                          {{ content }}
+                        </div>
+                        
+                        {% liquid
+                          assign content = content_60186656
+                          assign content_60186656 = nil
+                          assign type = type_60186656
+                          assign type_60186656 = nil
+                        %}
+                        {% comment %}Component notification:default end{% endcomment %}
+                      {% endif %}
+                      {%- if form.posted_successfully? -%}
+                        {% capture form_success_content %}
+                          <h3
+                            id="newsletter-success--{{ section.id }}"
+                            tabindex="-1"
+                            autofocus
+                          >
+                            {{ 'general.components.newsletter_form.success' | t }}
+                          </h3>
+                        {% endcapture %}
+                        {% comment %}Component notification:default begin{% endcomment %}
+                        {% liquid
+                          assign content_60186656 = content
+                          assign content = form_success_content
+                          assign type_60186656 = type
+                          assign type = 'success'
+                        %}
+                        {%- comment -%}
+                          @param content [Required]
+                            The content that goes in the notification banner
+                        
+                          @param type [Required]
+                            The type of notification banner ('error' or 'success')
+                        
+                          @param hidden [Optional]
+                            Whether the notification should be hidden
+                        {%- endcomment -%}
+                        
+                        <div
+                          data-component="notification"
+                          data-component-type="component"
+                          {% if tag != blank %}data-component-tag="{{ tag }}"
+                          {% endif %}class="
+                            notification
+                            notification--{{ type }}
+                          "
+                          {% if type == 'error' %}
+                            role="alert"
+                          {% else %}
+                            role="status"
+                          {% endif %}
+                          {% if hidden %}hidden{% endif %}
+                        >
+                          {{ content }}
+                        </div>
+                        
+                        {% liquid
+                          assign content = content_60186656
+                          assign content_60186656 = nil
+                          assign type = type_60186656
+                          assign type_60186656 = nil
+                        %}
+                        {% comment %}Component notification:default end{% endcomment %}
+                      {%- endif -%}
+                      <div class="block-footer-newsletter-form__form-content">
+                        <input type="hidden" name="contact[tags]" value="newsletter">
+                        {% assign input_id = section.id | append: '-' | append: block.id | append: '-newsletter' %}
+                        {% comment %}Component input-field:default begin{% endcomment %}
+                        {% liquid
+                          assign input_type_87b57e3a = input_type
+                          assign input_type = 'email'
+                          assign placeholder_87b57e3a = placeholder
+                          assign placeholder = placeholder_text
+                          assign form_namespace_87b57e3a = form_namespace
+                          assign form_namespace = 'contact'
+                          assign field_name_87b57e3a = field_name
+                          assign field_name = 'email'
+                          assign attributes_87b57e3a = attributes
+                          assign attributes = input_attributes
+                        %}
+                        {% comment %}
+                          @param form [Required]
+                            The form that the input lives in.
+                        
+                          @param form_namespace [Required]
+                            The form's namespace that is used in "name" attribute as form_namespace[field_name].
+                        
+                          @param field_name [Required]
+                            The field name for the form. Will be used for the "name" attribute.
+                        
+                          @param input_type [Required]
+                            The type of field that is being rendered. Usually text, password, number, etc.
+                        
+                          @param input_id [Optional]
+                            The type of field that is being rendered. Usually text, password, number, etc.
+                        
+                          @param label_text [Required]
+                            The text for the label to be included.
+                        
+                          @param placeholder [Optional]
+                            The placeholder for the input field.
+                        
+                          @param attributes [Optional]
+                            Additional attributes to append to the input field.
+                        {% endcomment %}
+                        
+                        {% if input_id == blank %}
+                          {% comment %}UUID input_id begin{% endcomment %}
+                          {% assign input_id = '641070bc-4748-4cab-a6e1-376b9f3ac3e8' %}
+                          {% comment %}UUID input_id end{% endcomment %}
+                        {% endif %}
+                        
+                        <div data-component="input-field" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="input-field">
+                          <label for="{{ input_id }}">{{ label_text }}</label>
+                          <input
+                            id="{{ input_id }}"
+                            type="{{ input_type }}"
+                            name="{% if form_namespace %}{{ form_namespace }}[{{ field_name }}]{% else %}{{ field_name }}{% endif %}"
+                            value="{{ form[field_name] }}"
+                            placeholder="{{ placeholder }}"
+                            {{ attributes }}
+                          >
+                        </div>
+                        
+                        {% liquid
+                          assign input_type = input_type_87b57e3a
+                          assign input_type_87b57e3a = nil
+                          assign placeholder = placeholder_87b57e3a
+                          assign placeholder_87b57e3a = nil
+                          assign form_namespace = form_namespace_87b57e3a
+                          assign form_namespace_87b57e3a = nil
+                          assign field_name = field_name_87b57e3a
+                          assign field_name_87b57e3a = nil
+                          assign attributes = attributes_87b57e3a
+                          assign attributes_87b57e3a = nil
+                        %}
+                        {% comment %}Component input-field:default end{% endcomment %}
+                        {% comment %}Component button:default begin{% endcomment %}
+                        {% liquid
+                          assign style_a44a8a9e = style
+                          assign style = 'primary'
+                          assign size_a44a8a9e = size
+                          assign size = 'small'
+                          assign text_a44a8a9e = text
+                          assign text = button_text
+                          assign attributes_a44a8a9e = attributes
+                          assign attributes = button_attributes
+                        %}
+                        {% comment %}
+                          @param style [Required]
+                            This is the style of the button: primary, secondary, tertiary, or text. Default primary.
+                        
+                          @param size [Required]
+                            This defines the size of the button: small, medium, or large. Default medium.
+                        
+                          @param text [Required]
+                            This is the text to be included in the button.
+                        
+                          @param attributes [Optional]
+                            This will include any additional attributes that the button needs. For example, aria-controls.
+                        {% endcomment %}
+                        
+                        <button
+                          data-component="button"
+                          data-component-type="component"
+                          {% if tag != blank %}data-component-tag="{{ tag }}"
+                          {% endif %}class="button button--{{ style }} button--{{ size }}{% if style == 'primary' or style == 'secondary' %} button--shadow{% endif %%}"
+                          {{ attributes }}
+                        >
+                          {{ text }}
+                        </button>
+                        
+                        {% liquid
+                          assign style = style_a44a8a9e
+                          assign style_a44a8a9e = nil
+                          assign size = size_a44a8a9e
+                          assign size_a44a8a9e = nil
+                          assign text = text_a44a8a9e
+                          assign text_a44a8a9e = nil
+                          assign attributes = attributes_a44a8a9e
+                          assign attributes_a44a8a9e = nil
+                        %}
+                        {% comment %}Component button:default end{% endcomment %}
+                      </div>
+                    {% endform %}
+                  </div>
+                  
+                  {% comment %}Component block-footer-newsletter-form:default end{% endcomment %}
+                {% when 'menu' %}
+                  {% comment %}Component block-footer-menu:default begin{% endcomment %}
+                  <div data-component="block-footer-menu" data-component-type="block" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="block-footer-menu" {{ block.shopify_attributes }}>
+                    {% if block.settings.heading != blank %}
+                      <h2 class="block-footer-menu__heading">
+                        {{ block.settings.heading | escape }}
+                      </h2>
+                    {% endif %}
+                    {% if block.settings.linklist != blank %}
+                      <div class="block-footer-menu__content">
+                        <ul class="block-footer-menu__menu">
+                          {% for link in linklists[block.settings.linklist].links %}
+                            <li class="block-footer-menu__list-item">
+                              <a class="block-footer-menu__link" href="{{ link.url }}">
+                                {{ link.title | escape }}
+                              </a>
+                            </li>
+                          {% endfor %}
+                        </ul>
+                      </div>
+                    {% endif %}
+                  </div>
+                  
+                  {% comment %}Component block-footer-menu:default end{% endcomment %}
+                {% when 'about' %}
+                  {% comment %}Component block-footer-about:default begin{% endcomment %}
+                  <div data-component="block-footer-about" data-component-type="block" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="block-footer-about" {{ block.shopify_attributes }}>
+                    {% if block.settings.heading != blank %}
+                      <h2 class="block-footer-about__heading">
+                        {{ block.settings.heading | escape }}
+                      </h2>
+                    {% endif %}
+                  
+                    {% if block.settings.content != blank %}
+                      <div class="block-footer-about__content">
+                        {{ block.settings.content }}
+                      </div>
+                    {% endif %}
+                    {% if block.settings.show_social_icons %}
+                      {% comment %}Component social-media-links:default begin{% endcomment %}
+                      {% comment %}
+                        @param use_mobile_spacing {Boolean}} [Optional]
+                          Changes the spacing to allow for bigger touch targets on mobile if true.
+                      {% endcomment %}
+                      
+                      {% assign use_mobile_spacing = use_mobile_spacing | default: false %}
+                      
+                      <ul
+                        data-component="social-media-links"
+                        data-component-type="component"
+                        {% if tag != blank %}data-component-tag="{{ tag }}"
+                        {% endif %}class="
+                          social-media-links
+                          {% if use_mobile_spacing %}
+                            social-media-links--mobile-spacing
+                          {% endif %}
+                        "
+                      >
+                        {% if settings.social_behance_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="{{ settings.social_behance_link }}"
+                              aria-label="{{ shop.name }} on Behance"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon behance:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.805 4.789V3.89h-3.608v.898h3.608ZM6.762 7.68c.26-.122.491-.296.681-.51.291-.376.438-.844.415-1.319.013-.489-.13-.97-.41-1.371-.458-.623-1.234-.943-2.328-.96H.8v8.96h4.035c.425.003.85-.038 1.266-.122A2.465 2.465 0 0 0 7.746 11.2c.267-.426.405-.92.398-1.424a2.366 2.366 0 0 0-.35-1.314 1.98 1.98 0 0 0-1.032-.782ZM2.866 5.075h1.668c.36-.01.72.037 1.066.141.32.133.48.41.48.827 0 .376-.122.64-.365.787a1.79 1.79 0 0 1-.947.223H2.866V5.075Zm2.801 5.691c-.287.12-.597.174-.907.16H2.866v-2.39h1.92c.306-.011.61.04.896.152.38.173.57.494.57.96.004.552-.193.923-.585 1.118Zm9.475-2.576a3.152 3.152 0 0 0-.512-1.328 2.583 2.583 0 0 0-1.107-.942 3.665 3.665 0 0 0-1.509-.3c-.94 0-1.706.296-2.296.89-.59.595-.884 1.448-.883 2.56 0 1.188.326 2.045.978 2.572.637.52 1.438.8 2.26.788 1.036 0 1.841-.312 2.415-.936.371-.393.578-.779.622-1.16h-1.713a1.3 1.3 0 0 1-1.28.735 1.69 1.69 0 0 1-.917-.25c-.427-.259-.65-.71-.672-1.355H15.2a8.238 8.238 0 0 0-.058-1.274Zm-1.684.16H10.56c.04-.37.2-.717.453-.99a1.335 1.335 0 0 1 1.001-.368c.363-.011.717.112.994.347a1.402 1.402 0 0 1 .45 1.015V8.35Z" fill="currentColor"/></svg>
+                              {% comment %}Icon behance:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      
+                        {% if settings.social_clubhouse_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="{{ settings.social_clubhouse_link }}"
+                              aria-label="{{ shop.name }} on Clubhouse"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon clubhouse:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M3.937 6.224c.212.706.468 1.368.746 2.007.48 1.144.802 1.749 1.249 2.5l.05.08c.532.877 1.128 1.856 2.09 2.497a4.482 4.482 0 0 0 2.451.729 4.27 4.27 0 0 0 2.876-1.144c.646-.605 1.483-1.772 1.483-4.047 0-.74.307-1.38.556-1.902l.045-.093c0-.012.011-.034.034-.079.1-.224.223-.515.223-.806 0-.213-.056-.46-.201-.673-.223-.38-.624-.515-.992-.515-.858 0-1.45.605-1.75 1.222l-.1.202c-.123-.18-.246-.37-.346-.538-.312-.549-.49-.919-.646-1.39a9.525 9.525 0 0 1-.29-1.144c-.189-1.1-.5-1.458-1.014-1.592a1.478 1.478 0 0 0-1.149.19C9.031 1.224 8.652 1 8.15 1c-.713 0-1.36.47-1.36 1.267 0 .085.008.17.017.268l.005.057a1.207 1.207 0 0 0-.29-.034c-.768 0-1.337.538-1.337 1.268 0 .168.022.358.078.582-.067-.011-.134-.011-.2-.011-.38.022-.725.168-.971.47-.244.292-.344.74-.155 1.357Zm.635-.201c-.1-.325-.09-.572.033-.729a.655.655 0 0 1 .49-.224c.346-.011.48.235.68.874.122.403.368.987.512 1.312.19.392.457.919.58 1.1.1.156.189.2.29.2.177 0 .311-.1.311-.28 0-.09-.081-.235-.138-.337l-.018-.032-.072-.136c-.11-.206-.269-.5-.385-.76a20.77 20.77 0 0 1-.479-1.212c-.089-.235-.189-.57-.29-.907-.155-.515-.233-.83-.233-1.065 0-.359.267-.594.668-.594.29 0 .48.145.602.672.1.482.278 1.267.534 1.883.168.404.413.942.557 1.211.03.052.06.1.087.145.057.092.103.165.103.203 0 .05-.059.118-.133.204-.042.049-.09.104-.135.165-.078.101-.11.168-.11.247 0 .067.044.134.11.224.067.09.134.18.212.18.056 0 .09-.023.123-.068.345-.437.724-.74 1.16-.987.511-.291 1.036-.437 1.448-.527.2-.044.256-.09.256-.201 0-.135-.1-.213-.234-.224a1.37 1.37 0 0 0-.266.005l-.079.006c-.111.011-.167-.045-.234-.19-.03-.067-.067-.14-.106-.22-.212-.434-.52-1.067-.718-1.843-.1-.392-.19-.807-.245-1.346-.034-.246.011-.336.134-.448.156-.134.434-.19.646-.134.256.067.39.269.523 1.054.067.37.178.84.312 1.245.167.515.379.942.702 1.513.178.314.4.639.635.954-.045.134-.123.224-.379.437-.256.212-.512.436-.746.851a1.932 1.932 0 0 0-.245.863c0 .213.044.257.178.257.234 0 .423-.044.434-.145.056-.404.123-.661.346-.965.133-.168.367-.38.557-.549.356-.291.479-.46.601-.874.056-.19.123-.37.212-.538.211-.392.59-.84 1.182-.84.189 0 .345.056.445.213.056.09.078.213.078.303 0 .192-.131.455-.201.596l-.01.02-.039.082c-.246.527-.608 1.3-.608 2.182 0 2.03-.713 3.038-1.27 3.554a3.571 3.571 0 0 1-2.419.964 3.84 3.84 0 0 1-2.084-.616c-.84-.56-1.371-1.432-1.906-2.31l-.033-.055c-.434-.728-.735-1.3-1.204-2.41a23.08 23.08 0 0 1-.722-1.953Zm3.578-4.35c-.323 0-.713.168-.713.594 0 .28.078.695.156 1.03.097.236.135.407.212.752l.11.481c.101.416.224.774.346 1.088.145.382.312.707.546 1.144.111.213.167.213.434.067a5.82 5.82 0 0 1 .758-.325c-.401-.874-.735-1.603-.903-2.22a19.41 19.41 0 0 1-.245-1.21 5.5 5.5 0 0 0-.144-.874c-.09-.359-.212-.527-.557-.527Z" fill="currentColor"/><path d="M3.447 9.772c-.236.147-1.487.806-1.77.91-.2.076-.42.057-.548-.325-.158-.474.064-.586.38-.71.28-.108 1.439-.53 1.708-.603.19-.051.321.013.412.242.1.252.032.352-.182.486Zm-1.031-2.67c-.336.01-1.733-.05-2.052-.082-.277-.028-.39-.151-.36-.555.033-.434.201-.46.474-.434.316.03 1.779.27 2.012.342.24.075.274.185.245.397-.038.275-.161.327-.319.332Zm.174-2.844c-.386-.122-1.528-.818-1.826-.997-.27-.163-.303-.31-.116-.667.166-.316.35-.37.624-.228.317.166 1.436 1.042 1.65 1.215.206.167.178.254.07.469-.11.215-.21.27-.403.208Z" fill="currentColor"/></svg>
+                              {% comment %}Icon clubhouse:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      
+                        {% if settings.social_discord_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="{{ settings.social_discord_link }}"
+                              aria-label="{{ shop.name }} on Discord"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon discord:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#a)"><path d="M13.545 3.007A13.235 13.235 0 0 0 10.288 2a.05.05 0 0 0-.052.024 9.12 9.12 0 0 0-.406.83 12.23 12.23 0 0 0-3.658 0 8.315 8.315 0 0 0-.412-.83A.051.051 0 0 0 5.708 2a13.23 13.23 0 0 0-3.257 1.006.046.046 0 0 0-.021.018C.356 6.111-.213 9.121.066 12.095c.001.014.01.028.02.036a13.316 13.316 0 0 0 3.996 2.012.052.052 0 0 0 .056-.019 9.44 9.44 0 0 0 .818-1.324.05.05 0 0 0-.028-.07 8.755 8.755 0 0 1-1.248-.592.051.051 0 0 1-.005-.085 6.9 6.9 0 0 0 .248-.193.05.05 0 0 1 .051-.007c2.619 1.19 5.454 1.19 8.041 0a.05.05 0 0 1 .053.006c.08.066.164.131.248.194a.051.051 0 0 1-.004.085 8.21 8.21 0 0 1-1.249.591.05.05 0 0 0-.027.071c.24.464.514.905.817 1.324a.05.05 0 0 0 .056.019 13.244 13.244 0 0 0 4.001-2.012.051.051 0 0 0 .021-.036c.334-3.437-.559-6.423-2.365-9.07a.04.04 0 0 0-.021-.018Zm-8.198 7.277c-.789 0-1.438-.72-1.438-1.606 0-.885.637-1.606 1.438-1.606.807 0 1.45.727 1.438 1.606 0 .885-.637 1.606-1.438 1.606Zm5.316 0c-.788 0-1.438-.72-1.438-1.606 0-.885.637-1.606 1.438-1.606.807 0 1.45.727 1.438 1.606 0 .885-.63 1.606-1.438 1.606Z" fill="currentColor"/></g><defs><clipPath id="a"><path fill="#fff" d="M0 0h16v16H0z"/></clipPath></defs></svg>
+                              {% comment %}Icon discord:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      
+                        {% if settings.social_dribbble_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="{{ settings.social_dribbble_link }}"
+                              aria-label="{{ shop.name }} on Dribbble"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon dribbble:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M8 0C3.584 0 0 3.584 0 8s3.584 8 8 8c4.408 0 8-3.584 8-8s-3.592-8-8-8Zm5.284 3.688a6.802 6.802 0 0 1 1.545 4.251c-.226-.043-2.482-.503-4.755-.217-.052-.112-.096-.234-.148-.355a20.35 20.35 0 0 0-.45-.99c2.515-1.023 3.66-2.498 3.808-2.69ZM8 1.18c1.735 0 3.323.65 4.53 1.718-.122.174-1.155 1.553-3.584 2.464-1.12-2.056-2.36-3.74-2.551-4A6.949 6.949 0 0 1 8 1.18Zm-2.907.642A43.12 43.12 0 0 1 7.627 5.77c-3.193.85-6.013.833-6.317.833a6.865 6.865 0 0 1 3.783-4.78ZM1.163 8.01V7.8c.295.01 3.61.053 7.02-.971.199.381.381.772.555 1.162l-.27.078c-3.522 1.137-5.396 4.243-5.553 4.504a6.817 6.817 0 0 1-1.752-4.564ZM8 14.837a6.786 6.786 0 0 1-4.19-1.44c.12-.252 1.509-2.924 5.361-4.269.018-.009.026-.009.044-.017a28.243 28.243 0 0 1 1.457 5.18A6.72 6.72 0 0 1 8 14.837Zm3.81-1.171c-.07-.417-.435-2.412-1.328-4.868 2.143-.338 4.017.217 4.251.295a6.775 6.775 0 0 1-2.924 4.573Z" fill="currentColor"/></svg>
+                              {% comment %}Icon dribbble:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      
+                        {% if settings.social_email_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="mailto:{{ settings.social_email_link }}"
+                              aria-label="Email {{ shop.name }}"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon email:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.531 10.52a.57.57 0 0 1-.422.168.571.571 0 0 1-.399-.17L0 2.808v11.33h16V2.835L8.531 10.52Z" fill="currentColor"/><path d="M15.217 2H.807l7.307 7.309L15.217 2Z" fill="currentColor"/></svg>
+                              {% comment %}Icon email:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      
+                        {% if settings.social_facebook_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="{{ settings.social_facebook_link }}"
+                              aria-label="{{ shop.name }} on Facebook"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon facebook:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.591.077a7.981 7.981 0 0 0-5.247 2.329A7.925 7.925 0 0 0 .392 5.573a8 8 0 0 0 .248 5.604c.072.17.254.543.347.71.243.44.542.876.862 1.258a7.984 7.984 0 0 0 4.886 2.78l.016.002v-5.576H4.719V8.04H6.75L6.753 7c.003-1.107.002-1.082.04-1.341.138-.952.594-1.67 1.327-2.084.336-.19.758-.319 1.211-.369.46-.05 1.219-.012 2.02.102l.212.03c.002 0 .003.441.003.982v.983l-.598.003c-.64.003-.669.005-.838.044-.437.101-.728.384-.832.806-.041.17-.042.185-.042 1.07v.814h1.106c.999 0 1.107.002 1.107.012 0 .013-.343 2.244-.35 2.279l-.004.02H9.256v5.573l.04-.005a7.9 7.9 0 0 0 2.286-.738 8.013 8.013 0 0 0 3.837-4.142c.33-.813.517-1.647.572-2.561.012-.186.012-.679 0-.864a7.95 7.95 0 0 0-.497-2.37A8.02 8.02 0 0 0 10.9.607 8.088 8.088 0 0 0 8.532.084a16.32 16.32 0 0 0-.941-.007Z" fill="currentColor"/></svg>
+                              {% comment %}Icon facebook:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      
+                        {% if settings.social_flickr_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="{{ settings.social_flickr_link }}"
+                              aria-label="{{ shop.name }} on Flickr"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon flickr:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.226 4.574a3.426 3.426 0 1 0-.004 6.852 3.426 3.426 0 0 0 .004-6.852Zm7.548 0a3.426 3.426 0 1 0 0 6.852 3.426 3.426 0 0 0 0-6.852Z" fill="currentColor"/></svg>
+                              {% comment %}Icon flickr:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      
+                        {% if settings.social_houzz_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="{{ settings.social_houzz_link }}"
+                              aria-label="{{ shop.name }} on Houzz"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon houzz:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 16V0h3.692v3.692L15.564 6.77V16h-5.128v-5.333H6.333V16H1Z" fill="currentColor"/></svg>
+                              {% comment %}Icon houzz:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      
+                        {% if settings.social_instagram_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="{{ settings.social_instagram_link }}"
+                              aria-label="{{ shop.name }} on Instagram"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon instagram:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M5.121.005c-.523.02-1.155.082-1.478.144C1.775.507.505 1.777.148 3.644.012 4.356 0 4.704 0 8.001s.012 3.644.148 4.356c.357 1.867 1.628 3.138 3.495 3.495.712.136 1.06.148 4.357.148 3.298 0 3.645-.012 4.357-.148 1.867-.357 3.138-1.628 3.495-3.495.136-.712.148-1.059.148-4.356 0-3.298-.012-3.645-.148-4.357C15.493 1.77 14.214.497 12.34.147 11.655.02 11.387.01 8.334.002a281.625 281.625 0 0 0-3.213.003Zm6.505 1.503c.652.085 1.14.23 1.517.452.238.14.758.66.898.898.232.395.373.882.454 1.564.06.504.06 6.653 0 7.157-.08.682-.222 1.17-.454 1.564-.14.239-.66.758-.898.898-.395.232-.882.373-1.565.454-.503.06-6.653.06-7.157 0-.682-.08-1.169-.222-1.564-.454-.238-.14-.758-.66-.898-.898-.232-.395-.373-.882-.454-1.564-.06-.504-.06-6.653 0-7.157.058-.491.122-.783.242-1.103.137-.366.275-.59.54-.875.591-.636 1.265-.892 2.532-.963.692-.039 6.48-.015 6.807.027Zm.334 1.298c-.238.082-.526.38-.602.626a.968.968 0 0 0 1.211 1.21c.264-.081.547-.364.63-.629a.997.997 0 0 0-.048-.701 1.217 1.217 0 0 0-.496-.48 1.157 1.157 0 0 0-.695-.026Zm-4.342 1.09A4.14 4.14 0 0 0 5.09 5.091a4.113 4.113 0 0 0 1.661 6.833 4.147 4.147 0 0 0 2.498 0 4.138 4.138 0 0 0 2.675-2.675 4.147 4.147 0 0 0 0-2.497 4.138 4.138 0 0 0-2.675-2.675 4.387 4.387 0 0 0-1.63-.18Zm1.018 1.516c.29.07.806.327 1.043.522.294.24.532.545.707.906.21.437.265.673.265 1.16 0 .488-.054.725-.265 1.162a2.51 2.51 0 0 1-1.225 1.223c-.436.212-.673.266-1.161.266s-.725-.054-1.161-.265a2.51 2.51 0 0 1-1.225-1.224 3.556 3.556 0 0 1-.21-.541c-.075-.304-.075-.937 0-1.24.078-.309.333-.82.529-1.06a2.773 2.773 0 0 1 1.69-.96 3.472 3.472 0 0 1 1.013.05Z" fill="currentColor"/></svg>
+                              {% comment %}Icon instagram:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      
+                        {% if settings.social_kickstarter_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="{{ settings.social_kickstarter_link }}"
+                              aria-label="{{ shop.name }} on Kickstarter"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon kickstarter:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="m12.138 8.003 1.273-1.264a3.35 3.35 0 0 0 0-4.753 3.405 3.405 0 0 0-4.785 0l-.464.46A3.381 3.381 0 0 0 5.382 1C3.515 1 2 2.504 2 4.359v7.282C2 13.496 3.514 15 5.382 15c1.155 0 2.167-.57 2.78-1.446l.464.46a3.405 3.405 0 0 0 4.785 0 3.35 3.35 0 0 0 0-4.753l-1.273-1.258Z" fill="currentColor"/></svg>
+                              {% comment %}Icon kickstarter:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      
+                        {% if settings.social_linkedin_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="{{ settings.social_linkedin_link }}"
+                              aria-label="{{ shop.name }} on LinkedIn"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon linkedin:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.864 6.912c.41-.64 1.142-1.534 2.782-1.534 2.03 0 3.554 1.326 3.554 4.179v5.323h-3.086V9.92c0-1.248-.447-2.1-1.564-2.1-.852 0-1.36.574-1.584 1.129a2.106 2.106 0 0 0-.102.752v5.179H5.776s.042-8.413 0-9.28h3.088v1.312ZM2.547 1.12C1.491 1.12.8 1.813.8 2.72c0 .907.67 1.6 1.706 1.6h.02c1.077 0 1.748-.714 1.748-1.6 0-.886-.67-1.6-1.727-1.6ZM.984 14.88H4.07V5.6H.984v9.28Z" fill="currentColor"/></svg>
+                              {% comment %}Icon linkedin:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      
+                        {% if settings.social_medium_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="{{ settings.social_medium_link }}"
+                              aria-label="{{ shop.name }} on Medium"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon medium:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.025 7.572c0 2.524-2.02 4.57-4.512 4.57C2.02 12.143 0 10.097 0 7.573 0 5.047 2.02 3 4.513 3c2.492 0 4.512 2.047 4.512 4.572Zm4.95 0c0 2.376-1.01 4.303-2.256 4.303-1.246 0-2.256-1.927-2.256-4.303 0-2.377 1.01-4.304 2.256-4.304 1.246 0 2.256 1.926 2.256 4.304m2.025 0c0 2.128-.355 3.855-.793 3.855-.439 0-.794-1.726-.794-3.855 0-2.13.355-3.856.793-3.856.439 0 .794 1.726.794 3.856Z" fill="currentColor"/></svg>
+                              {% comment %}Icon medium:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      
+                        {% if settings.social_messenger_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="{{ settings.social_messenger_link }}"
+                              aria-label="{{ shop.name }} on Messenger"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon messenger:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.001 0C3.495 0 0 3.301 0 7.76c0 2.334.956 4.348 2.512 5.74a.64.64 0 0 1 .215.456l.044 1.424a.64.64 0 0 0 .897.564l1.589-.7a.648.648 0 0 1 .426-.032c.73.2 1.507.309 2.316.309 4.506 0 8.001-3.3 8.001-7.76S12.506 0 8.001 0Zm4.201 6.063L10.2 9.24a1.024 1.024 0 0 1-1.48.274L7.125 8.319a.41.41 0 0 0-.491 0l-2.15 1.633c-.286.217-.663-.126-.472-.43l2.004-3.177a1.024 1.024 0 0 1 1.48-.273l1.593 1.194a.41.41 0 0 0 .492 0l2.15-1.632c.289-.221.666.123.471.429Z" fill="currentColor"/></svg>
+                              {% comment %}Icon messenger:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      
+                        {% if settings.social_opensea_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="{{ settings.social_opensea_link }}"
+                              aria-label="{{ shop.name }} on OpenSea"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon opensea:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0Zm-12.053.269.034-.054 2.081-3.256a.071.071 0 0 1 .125.009c.348.78.648 1.748.508 2.351-.06.249-.225.585-.41.896-.024.045-.05.09-.078.132a.07.07 0 0 1-.059.031h-2.14a.071.071 0 0 1-.061-.11Zm9.276 1.12v-.515a.072.072 0 0 0-.091-.07l-2.434.704a.069.069 0 0 0-.034.02c-.26.289-.482.482-.54.533l-.005.004a.824.824 0 0 1-.535.198h-.881v-.899h.7a.074.074 0 0 0 .048-.018l.09-.083c.04-.035.085-.078.14-.133l.015-.014c.029-.029.06-.06.09-.093.036-.036.071-.075.104-.114a5.352 5.352 0 0 0 .43-.533l.043-.06c.026-.039.052-.08.075-.12.069-.107.127-.221.176-.336.023-.049.041-.1.059-.15a1.326 1.326 0 0 0 .078-.6.74.74 0 0 0-.017-.125v-.007a2.09 2.09 0 0 0-.153-.485 2.259 2.259 0 0 0-.235-.433 1.842 1.842 0 0 0-.04-.06l-.031-.047a3.29 3.29 0 0 0-.127-.176 2.969 2.969 0 0 0-.11-.139l-.047-.056a6.778 6.778 0 0 0-.668-.69 6.71 6.71 0 0 0-.297-.257l-.07-.057-.04-.034-.067-.05a5.547 5.547 0 0 0-.031-.024.075.075 0 0 0-.022-.01l-.093-.027v-.776a.46.46 0 0 0-.133-.323.446.446 0 0 0-.32-.134.454.454 0 0 0-.452.457v.523l-.046-.013-.128-.037-.116-.032h-.005l-.88-.239a.046.046 0 0 0-.052.067l.14.26.03.06.02.04.068.144.062.13.03.066c.036.082.075.167.113.26a7.965 7.965 0 0 1 .355 1.033l.017.063.01.04c.026.104.049.208.065.312.013.072.026.14.032.209.01.078.02.156.023.234a2.315 2.315 0 0 1-.045.742l-.007.027c-.011.04-.022.083-.036.123-.012.043-.028.086-.044.13a5.925 5.925 0 0 0-.017.049l-.004.009c-.012.032-.024.065-.04.098a5.1 5.1 0 0 1-.286.573 8.288 8.288 0 0 1-.455.721.073.073 0 0 0 .059.115h1.137v.899h-1.15a.818.818 0 0 1-.733-.456.793.793 0 0 1-.083-.446c.004-.045-.03-.088-.076-.088H3.43a.072.072 0 0 0-.071.072v.047a2.68 2.68 0 0 0 2.675 2.685h4.17c.782 0 1.225-.712 1.662-1.412.121-.196.242-.39.37-.567.23-.32.78-.572.942-.641a.074.074 0 0 0 .044-.068Z" fill="currentColor"/></svg>
+                              {% comment %}Icon opensea:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      
+                        {% if settings.social_pinterest_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="{{ settings.social_pinterest_link }}"
+                              aria-label="{{ shop.name }} on Pinterest"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon pinterest:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 .587a7.485 7.485 0 0 1 5.244 2.178 7.484 7.484 0 0 1 1.182 8.96A7.36 7.36 0 0 1 8 15.422a7.558 7.558 0 0 1-2.107-.284c.373-.604.622-1.147.756-1.6l.524-2.036c.125.25.364.463.711.65a2.41 2.41 0 0 0 1.102.275c.774 0 1.467-.222 2.08-.667a4.329 4.329 0 0 0 1.423-1.822 6.49 6.49 0 0 0 .497-2.604c0-1.156-.444-2.143-1.324-2.987a4.684 4.684 0 0 0-3.378-1.271c-.827 0-1.6.142-2.293.426a4.649 4.649 0 0 0-2.996 4.214c0 .666.125 1.253.382 1.76.25.498.623.853 1.13 1.066.088.036.168.036.23 0 .063-.026.107-.088.134-.177l.16-.605c.044-.133.018-.266-.098-.4a2.089 2.089 0 0 1-.507-1.449 3.52 3.52 0 0 1 3.68-3.573c.97 0 1.725.267 2.258.791.542.533.818 1.218.818 2.062a6.28 6.28 0 0 1-.293 1.965 3.528 3.528 0 0 1-.827 1.44c-.356.355-.773.533-1.244.533-.383 0-.694-.133-.943-.418a1.098 1.098 0 0 1-.23-1.004c.135-.475.274-.95.417-1.422l.16-.65c.053-.23.08-.417.08-.577 0-.32-.089-.587-.249-.791-.178-.205-.418-.311-.738-.311-.4 0-.738.178-1.004.55-.267.365-.41.828-.41 1.388.005.346.06.69.16 1.022l.054.133c-.533 2.293-.844 3.645-.96 4.036-.106.488-.142 1.066-.115 1.724a7.467 7.467 0 0 1-4.445-6.8c0-2.044.72-3.804 2.17-5.244A7.147 7.147 0 0 1 8 .578v.009Z" fill="currentColor"/></svg>
+                              {% comment %}Icon pinterest:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      
+                        {% if settings.social_reddit_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="{{ settings.social_reddit_link }}"
+                              aria-label="{{ shop.name }} on Reddit"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon reddit:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.166 8a.835.835 0 0 0-.833.833c0 .458.375.832.833.832A.835.835 0 0 0 7 8.833.835.835 0 0 0 6.166 8Zm1.844 3.64c.317 0 1.403-.038 1.974-.608a.24.24 0 0 0 .018-.31.22.22 0 0 0-.308 0c-.365.356-1.123.487-1.675.487s-1.32-.13-1.675-.486a.22.22 0 0 0-.309 0 .22.22 0 0 0 0 .309c.561.561 1.656.608 1.974.608Zm.991-2.807c0 .458.374.832.833.832a.835.835 0 0 0 .833-.832A.835.835 0 0 0 9.834 8 .835.835 0 0 0 9 8.833Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0Zm-3.836-1.17c.645 0 1.17.524 1.17 1.17 0 .477-.29.889-.674 1.076.018.112.028.225.028.346 0 1.797-2.087 3.247-4.67 3.247-2.582 0-4.668-1.45-4.668-3.247 0-.121.01-.243.028-.355a1.17 1.17 0 0 1 .477-2.236c.309 0 .599.13.805.327.804-.59 1.918-.954 3.162-.992l.59-2.788a.228.228 0 0 1 .093-.131.233.233 0 0 1 .16-.028l1.936.411a.81.81 0 0 1 .74-.467c.458 0 .832.374.832.832a.834.834 0 0 1-1.665.037l-1.731-.364-.534 2.498c1.217.047 2.32.421 3.116.992.206-.206.487-.328.805-.328Z" fill="currentColor"/></svg>
+                              {% comment %}Icon reddit:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      
+                        {% if settings.social_rss_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="{{ settings.social_rss_link }}"
+                              aria-label="{{ shop.name }} on RSS"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon rss:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.075 10.838c-1.144 0-2.075.93-2.075 2.076a2.077 2.077 0 0 0 4.15 0 2.077 2.077 0 0 0-2.075-2.076Z" fill="currentColor"/><path d="M1.216 5.57A.217.217 0 0 0 1 5.785V8.42c0 .119.097.216.216.216a6.144 6.144 0 0 1 6.136 6.136c0 .118.096.216.216.216h2.644c.12 0 .217-.098.217-.216l-.01-.068C10.38 9.661 6.266 5.57 1.216 5.57Z" fill="currentColor"/><path d="M14.988 14.704C14.95 7.14 8.786 1 1.216 1A.216.216 0 0 0 1 1.217v2.71c0 .12.097.216.216.216 5.86 0 10.629 4.77 10.629 10.63 0 .117.096.215.214.215h2.723a.219.219 0 0 0 .218-.216l-.012-.068Z" fill="currentColor"/></svg>
+                              {% comment %}Icon rss:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      
+                        {% if settings.social_snapchat_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="{{ settings.social_snapchat_link }}"
+                              aria-label="{{ shop.name }} on Snapchat"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon snapchat:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.945 11.241a.982.982 0 0 0-.493-.534l-.107-.058-.193-.098a4.203 4.203 0 0 1-1.527-1.329 3.013 3.013 0 0 1-.261-.472c-.029-.087-.029-.138-.008-.181a.26.26 0 0 1 .086-.091c.21-.144.42-.286.633-.425.237-.158.433-.37.572-.621a1.236 1.236 0 0 0-.032-1.229 1.21 1.21 0 0 0-.458-.434 1.187 1.187 0 0 0-.611-.142c-.143 0-.284.02-.422.058.004-.327 0-.675-.032-1.013a3.855 3.855 0 0 0-.56-1.797 3.781 3.781 0 0 0-1.34-1.304A4.31 4.31 0 0 0 7.998 1c-.804 0-1.537.192-2.192.57a3.766 3.766 0 0 0-1.342 1.303 3.84 3.84 0 0 0-.56 1.798c-.029.341-.036.69-.029 1.013a1.579 1.579 0 0 0-.429-.058 1.19 1.19 0 0 0-.61.144 1.213 1.213 0 0 0-.456.434 1.238 1.238 0 0 0-.035 1.227c.14.252.337.466.575.624l.326.218.297.196a.303.303 0 0 1 .092.099c.026.047.026.098-.007.192a2.95 2.95 0 0 1-.26.465c-.385.55-.892.997-1.481 1.307-.34.182-.69.302-.837.708-.11.309-.036.661.247.955.103.11.221.204.357.276.276.153.569.273.873.356a.57.57 0 0 1 .179.08c.103.091.086.229.225.436.072.102.157.193.257.265.29.204.616.218.959.229.311.01.661.025 1.066.16.168.054.34.163.54.29.66.465 1.443.713 2.245.712 1.102 0 1.767-.414 2.253-.715.167-.115.346-.212.533-.287.4-.135.751-.146 1.066-.16.343-.015.668-.025.958-.229a.985.985 0 0 0 .293-.327c.1-.17.097-.29.19-.374a.485.485 0 0 1 .164-.076 3.86 3.86 0 0 0 .887-.36 1.42 1.42 0 0 0 .38-.297l.003-.004c.268-.29.336-.632.225-.93h-.004Zm-.98.534c-.6.334-.997.302-1.305.501-.264.175-.107.545-.3.676-.232.167-.93-.011-1.824.29-.736.247-1.208.963-2.539.963-1.326 0-1.788-.712-2.539-.966-.894-.298-1.587-.124-1.824-.29-.189-.132-.035-.502-.296-.673-.311-.203-.708-.167-1.306-.5-.382-.215-.164-.346-.039-.408 2.167-1.067 2.514-2.712 2.528-2.832.018-.15.04-.265-.121-.418-.154-.145-.84-.574-1.034-.712-.314-.221-.45-.446-.35-.719.071-.192.247-.261.429-.261.057 0 .114.007.172.018.346.076.683.254.876.301l.071.008c.108 0 .143-.051.136-.171-.025-.385-.079-1.137-.018-1.838a2.93 2.93 0 0 1 .751-1.863A3.35 3.35 0 0 1 6.6 2.058a3.306 3.306 0 0 1 1.397-.259c1.567 0 2.389.875 2.564 1.079.461.51.728 1.17.751 1.863.061.7.007 1.452-.018 1.834-.007.127.032.174.136.174.022 0 .047 0 .072-.01.193-.048.529-.222.876-.299a.67.67 0 0 1 .172-.018c.182 0 .357.073.429.262.1.272-.036.497-.354.719-.19.134-.877.566-1.03.712-.161.152-.143.268-.122.414.014.127.358 1.772 2.528 2.832.13.066.344.2-.035.414Z" fill="currentColor" stroke="currentColor" stroke-width=".5"/></svg>
+                              {% comment %}Icon snapchat:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      
+                        {% if settings.social_spotify_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="{{ settings.social_spotify_link }}"
+                              aria-label="{{ shop.name }} on Spotify"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon spotify:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M12.732 7.092C10.153 5.561 5.9 5.42 3.438 6.167a.748.748 0 1 1-.434-1.432c2.826-.858 7.523-.692 10.492 1.07a.748.748 0 0 1-.764 1.287Zm-.084 2.268a.624.624 0 0 1-.858.206C9.64 8.244 6.362 7.86 3.818 8.634a.625.625 0 0 1-.362-1.194c2.905-.882 6.517-.455 8.987 1.063.293.18.385.565.205.857Zm-.98 2.179a.498.498 0 0 1-.685.166c-1.878-1.148-4.243-1.408-7.028-.772a.498.498 0 0 1-.222-.972c3.048-.696 5.662-.396 7.77.892.236.144.31.45.166.686ZM8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0Z" fill="currentColor"/></svg>
+                              {% comment %}Icon spotify:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      
+                        {% if settings.social_tiktok_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="{{ settings.social_tiktok_link }}"
+                              aria-label="{{ shop.name }} on TikTok"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon tiktok:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.423 0h2.738s-.156 3.51 3.796 3.768v2.711s-2.114.129-3.796-1.158l.028 5.606a5.073 5.073 0 1 1-5.064-5.073h.708V8.64a2.298 2.298 0 1 0 1.617 2.205L8.423 0Z" fill="currentColor"/></svg>
+                              {% comment %}Icon tiktok:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      
+                        {% if settings.social_tumblr_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="{{ settings.social_tumblr_link }}"
+                              aria-label="{{ shop.name }} on Tumblr"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon tumblr:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.062 16c-2.66 0-4.656-1.235-4.656-4.198V7.06H3V4.49C5.66 3.867 6.77 1.788 6.902 0h2.761v4.068h3.215V7.06H9.663v4.128c0 1.235.687 1.667 1.785 1.667H13V16h-2.938Z" fill="currentColor"/></svg>
+                              {% comment %}Icon tumblr:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      
+                        {% if settings.social_twitch_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="{{ settings.social_twitch_link }}"
+                              aria-label="{{ shop.name }} on Twitch"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon twitch:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.826 0 1 2.857v10.286h3.391V16l2.826-2.857h2.261L14.565 8V0H3.826Zm9.609 7.429-2.261 2.285H8.913l-1.978 2v-2H4.39V1.143h9.044v6.286Z" fill="currentColor"/><path d="M11.74 3.143h-1.131V6.57h1.13V3.143Zm-3.11 0H7.5V6.57h1.13V3.143Z" fill="currentColor"/></svg>
+                              {% comment %}Icon twitch:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      
+                        {% if settings.social_x_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="{{ settings.social_x_link }}"
+                              aria-label="{{ shop.name }} on X"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon x:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.522 6.771 15.48 0h-1.412L8.895 5.88 4.765 0H0l6.247 8.89L0 15.993h1.412l5.461-6.21 4.363 6.21H16l-6.478-9.22ZM7.59 8.97l-.633-.885L1.92 1.039h2.168l4.064 5.685.633.886L14.068 15H11.9L7.589 8.97Z" fill="currentColor"/></svg>
+                              {% comment %}Icon x:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      
+                        {% if settings.social_vimeo_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="{{ settings.social_vimeo_link }}"
+                              aria-label="{{ shop.name }} on Vimeo"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon vimeo:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M15.994 4.236c-.08 1.568-1.167 3.717-3.262 6.465C10.556 13.56 8.716 15 7.197 15c-.927 0-1.71-.873-2.35-2.618L3.55 7.598C3.07 5.852 2.559 4.98 2.015 4.98c-.128 0-.544.258-1.263.76L0 4.77l2.335-2.102c1.056-.937 1.84-1.422 2.367-1.454 1.248-.146 2.016.71 2.304 2.553.32 1.988.527 3.233.64 3.718.367 1.648.751 2.472 1.183 2.472.336 0 .848-.533 1.52-1.616a6.368 6.368 0 0 0 1.071-2.424c.096-.937-.272-1.406-1.072-1.406a2.93 2.93 0 0 0-1.183.275c.783-2.603 2.287-3.863 4.494-3.782 1.648.048 2.415 1.131 2.335 3.232Z" fill="currentColor"/></svg>
+                              {% comment %}Icon vimeo:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      
+                        {% if settings.social_whatsapp_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="{{ settings.social_whatsapp_link }}"
+                              aria-label="{{ shop.name }} on WhatsApp"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon whatsapp:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.034 0C3.642 0 .069 3.442.067 7.672a7.438 7.438 0 0 0 1.063 3.836L0 15.484l4.223-1.067a8.2 8.2 0 0 0 3.807.934h.004c4.39 0 7.964-3.442 7.966-7.673.001-2.049-.827-3.977-2.331-5.427C12.165.8 10.165 0 8.034 0Zm0 14.055H8.03a6.8 6.8 0 0 1-3.37-.889l-.243-.138-2.505.633.669-2.354-.158-.24a6.185 6.185 0 0 1-1.012-3.395c.001-3.516 2.972-6.376 6.624-6.376 1.768 0 3.43.665 4.681 1.87s1.939 2.808 1.938 4.512c-.002 3.516-2.972 6.377-6.622 6.377Zm3.631-4.777c-.199-.095-1.177-.559-1.36-.624-.182-.063-.315-.096-.447.096-.133.192-.515.624-.63.751-.117.128-.233.144-.432.048-.2-.096-.84-.298-1.6-.951A5.79 5.79 0 0 1 6.087 7.27c-.116-.192-.013-.296.087-.391.09-.085.2-.224.298-.336.1-.112.132-.192.2-.32.066-.127.033-.24-.018-.335-.05-.097-.447-1.04-.614-1.423-.16-.374-.325-.324-.447-.33a8.887 8.887 0 0 0-.382-.007.746.746 0 0 0-.53.24c-.183.192-.697.655-.697 1.599s.713 1.855.812 1.983c.1.128 1.404 2.065 3.401 2.896.475.197.846.315 1.135.403a2.82 2.82 0 0 0 1.254.076c.382-.055 1.178-.463 1.343-.91.166-.448.166-.832.117-.912-.05-.08-.182-.128-.382-.225Z" fill="currentColor"/></svg>
+                              {% comment %}Icon whatsapp:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      
+                        {% if settings.social_youtube_link != '' %}
+                          <li class="social-media-links__item">
+                            <a
+                              class="social-media-links__link"
+                              href="{{ settings.social_youtube_link }}"
+                              aria-label="{{ shop.name }} on YouTube"
+                              rel="me"
+                              target="_blank"
+                            >
+                              {% comment %}Icon youtube:default begin{% endcomment %}
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.68 4.729C16 5.939 16 8.5 16 8.5s0 2.561-.32 3.771c-.09.341-.27.652-.523.901a2.01 2.01 0 0 1-.917.514C13.008 14 8 14 8 14s-5.008 0-6.24-.314a2.01 2.01 0 0 1-.917-.514 1.956 1.956 0 0 1-.523-.9C0 11.061 0 8.5 0 8.5s0-2.561.32-3.771a2.027 2.027 0 0 1 1.44-1.415C2.992 3 8 3 8 3s5.008 0 6.24.314a2.027 2.027 0 0 1 1.44 1.415ZM6.4 10.857 10.56 8.5 6.4 6.143v4.714Z" fill="currentColor"/></svg>
+                              {% comment %}Icon youtube:default end{% endcomment %}
+                            </a>
+                          </li>
+                        {% endif %}
+                      </ul>
+                      
+                      {% comment %}Component social-media-links:default end{% endcomment %}
+                    {% endif %}
+                  </div>
+                  
+                  {% comment %}Component block-footer-about:default end{% endcomment %}
+                {% when 'logo' %}
+                  {% comment %}Component block-footer-logo:default begin{% endcomment %}
+                  <div data-component="block-footer-logo" data-component-type="block" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="block-footer-logo" {{ block.shopify_attributes }}>
+                    {% liquid
+                      assign image_size = '50x'
+                  
+                      case section.settings.size
+                        when 'medium'
+                          assign image_size = '200x'
+                        when 'large'
+                          assign image_size = '300x'
+                      endcase
+                    %}
+                  
+                    <div
+                      class="
+                        block-footer-logo__image
+                        block-footer-logo__image--size-{{ block.settings.size }}
+                        block-footer-logo__image--alignment-{{ block.settings.alignment }}
+                      "
+                    >
+                      <a class="block-footer-logo__location" href="{{ shop.url }}" aria-label="{{ shop.name }}">
+                        {% if block.settings.image != blank %}
+                          {% comment %}Component lazy-img:default begin{% endcomment %}
+                          {% render 'lazy-img', img: block.settings.image, size: image_size, lazy: true, canvas: true, focal_point: block.settings.image.presentation.focal_point %}
+                          {% comment %}Component lazy-img:default end{% endcomment %}
+                        {% else %}
+                          {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+                        {% endif %}
+                      </a>
+                    </div>
+                  </div>
+                  
+                  {% comment %}Component block-footer-logo:default end{% endcomment %}
+              {% endcase %}
+            </div>
+          {% endfor %}
+        </div>
+        <div
+          class="
+            footer-bottom
+            {% if section.settings.show_payment_icons %}footer-bottom--payment-icons-enabled{% endif %}
+            {% if shop.features.follow_on_shop? and section.settings.enable_follow_on_shop %}footer-bottom--fos-enabled{% endif %}
+          "
+        >
+          <div class="footer-bottom__wrapper">
+            <div class="footer-bottom__top">
+              {%- if shop.features.follow_on_shop? and section.settings.enable_follow_on_shop -%}
+                <div class="footer-bottom__follow-on-shop">
+                  {{ shop | login_button: action: 'follow' }}
+                </div>
+              {%- endif -%}
+              {% assign cross_border_language_enabled = false %}
+              {% if section.settings.enable_language_selector and localization.available_languages.size > 1 %}
+                {% assign cross_border_language_enabled = true %}
+              {% endif %}
+
+              {% if cross_border_language_enabled or section.settings.enable_country_selector %}
+                {% comment %}Component cross-border:default begin{% endcomment %}
+                <div data-component="cross-border" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="cross-border">
+                  {% if section.settings.enable_language_selector and localization.available_languages.size > 1 %}
+                    {%- form 'localization', data-cross-border-form: '' -%}
+                      {% capture current_name %}
+                        {{ form.current_locale.endonym_name | capitalize }}
+                      {% endcapture %}
+                
+                      {% assign heading = 'general.components.cross_border.language_dropdown_label' | t %}
+                      {% assign button_label = 'general.components.cross_border.language_submit_button_label' | t %}
+                      {% comment %}Component disclosure:default begin{% endcomment %}
+                      {% liquid
+                        assign namespace_e1cae4e4 = namespace
+                        assign namespace = 'lang'
+                        assign value_list_e1cae4e4 = value_list
+                        assign value_list = form.available_locales
+                        assign value_key_e1cae4e4 = value_key
+                        assign value_key = 'iso_code'
+                        assign name_key_e1cae4e4 = name_key
+                        assign name_key = 'endonym_name'
+                        assign current_value_e1cae4e4 = current_value
+                        assign current_value = form.current_locale.iso_code
+                        assign input_name_e1cae4e4 = input_name
+                        assign input_name = 'locale_code'
+                      %}
+                      {%- comment -%}
+                        @param namespace [Required]
+                          The namespace that is used for aria-attributes.
+                      
+                        @param heading [Required]
+                          The heading/text that is shown when opening the disclosure on mobile. Also used by screen readers to describe the contents of the disclosure.
+                      
+                        @param button_label [Optional]
+                          Label for the no-js button.
+                      
+                        @param current_value [Required]
+                          The currently selected value.
+                      
+                        @param value_list [Required]
+                          The object that contains the list items to be rendered.
+                      
+                        @param value_key [Required]
+                          The key that is used while looping over value_list to access the value of the item.
+                      
+                        @param name_key [Required - unless using is_country_selector]
+                          The key that is used while looping over value_list to access the display name of the item.
+                      
+                        @param is_country_selector [Optional]
+                          If true, this disclosure uses the fields for country localization (instead of making an entirely new component just for currency)
+                      
+                        @param input_name [Optional]
+                          Used to specify the "name" attribute for the <input> element.
+                      
+                        @param fill_container [Optional]
+                          If true, the disclocure toggle button will fill its parent container.
+                      
+                        @param always_show_heading [Optional]
+                          If true, will always show the heading inside the button, instead of the selected value.
+                      {%- endcomment -%}
+                      
+                      {% liquid
+                        assign is_country_selector = is_country_selector | default: false
+                        assign always_show_heading = always_show_heading | default: false
+                      
+                        assign current_name = blank
+                        if is_country_selector
+                          assign current_name = localization.country.name | append: ' (' | append: localization.country.currency.iso_code | append: ' ' | append: localization.country.currency.symbol | append: ')'
+                        else
+                          for value_item in value_list
+                            if value_item[value_key] == current_value
+                              assign current_name = value_item[name_key]
+                            endif
+                          endfor
+                        endif
+                      %}
+                      
+                      <div data-component="disclosure" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="disclosure{% if fill_container %} disclosure--fill{% endif %}">
+                        <script
+                          type="application/json"
+                          data-component-data
+                        >
+                          {
+                            "inputName": "{{ input_name }}",
+                            "inputValue": "{{ current_value }}",
+                            "alwaysShowHeading": {{ always_show_heading }}
+                          }
+                        </script>
+                        <noscript>
+                          <div class="disclosure__select-list">
+                            <label class="visually-hidden" for="{{ namespace }}-select-{{ unique_id }}">
+                              {{ heading | escape }}
+                            </label>
+                            <select
+                              class="disclosure__select"
+                              id="{{ namespace }}-select-{{ unique_id }}"
+                              name="{{ input_name }}"
+                            >
+                              {% for value_item in value_list %}
+                                <option
+                                  class="disclosure__option"
+                                  value="{{ value_item[value_key] }}"
+                                  {% if value_item[value_key] == current_value %}
+                                    selected
+                                  {% endif %}
+                                >
+                                  {% if is_country_selector %}
+                                    {{ value_item.name }} ({{ value_item.currency.iso_code }} {{ value_item.currency.symbol }})
+                                  {% else %}
+                                    {{ value_item[name_key] }}
+                                  {% endif %}
+                                </option>
+                              {% endfor %}
+                            </select>
+                            {% comment %}Component button:default begin{% endcomment %}
+                            {% liquid
+                              assign style_da78a0e5 = style
+                              assign style = 'primary'
+                              assign size_da78a0e5 = size
+                              assign size = 'small'
+                              assign text_da78a0e5 = text
+                              assign text = button_label
+                            %}
+                            {% comment %}
+                              @param style [Required]
+                                This is the style of the button: primary, secondary, tertiary, or text. Default primary.
+                            
+                              @param size [Required]
+                                This defines the size of the button: small, medium, or large. Default medium.
+                            
+                              @param text [Required]
+                                This is the text to be included in the button.
+                            
+                              @param attributes [Optional]
+                                This will include any additional attributes that the button needs. For example, aria-controls.
+                            {% endcomment %}
+                            
+                            <button
+                              data-component="button"
+                              data-component-type="component"
+                              {% if tag != blank %}data-component-tag="{{ tag }}"
+                              {% endif %}class="button button--{{ style }} button--{{ size }}{% if style == 'primary' or style == 'secondary' %} button--shadow{% endif %%}"
+                              {{ attributes }}
+                            >
+                              {{ text }}
+                            </button>
+                            
+                            {% liquid
+                              assign style = style_da78a0e5
+                              assign style_da78a0e5 = nil
+                              assign size = size_da78a0e5
+                              assign size_da78a0e5 = nil
+                              assign text = text_da78a0e5
+                              assign text_da78a0e5 = nil
+                            %}
+                            {% comment %}Component button:default end{% endcomment %}
+                          </div>
+                        </noscript>
+                      
+                        <div class="disclosure__wrapper disclosure--no-js-hidden">
+                          {% assign unique_id = "now" | date: "%N" | modulo: 1000 %}
+                          <h2 class="visually-hidden" id="{{ namespace }}-heading-{{ unique_id }}">
+                            {{ heading | escape }}
+                          </h2>
+                          <button
+                            class="disclosure__toggle"
+                            type="button"
+                            aria-expanded="false"
+                            aria-controls="{{ namespace }}-list-{{ unique_id }}"
+                            aria-describedby="{{ namespace }}-heading-{{ unique_id }}"
+                            data-disclosure-toggle
+                          >
+                            {% if always_show_heading %}
+                              {{ heading }}
+                            {% else %}
+                              {{ current_name }}
+                            {% endif %}
+                          </button>
+                          <div
+                            class="disclosure__modal"
+                            id="{{ namespace }}-list-{{ unique_id }}"
+                            data-disclosure-modal
+                          >
+                            <h2 class="disclosure__heading">{{ heading }}</h2>
+                            <button
+                              class="disclosure__close"
+                              data-disclosure-close
+                            >
+                              <span class="visually-hidden">{{ 'general.close' | t }}</span>
+                            </button>
+                            <ul class="disclosure__list">
+                              {% for value_item in value_list %}
+                                <li class="disclosure__list-item">
+                                  <a
+                                    class="
+                                      disclosure__link
+                                      {% if value_item[value_key] == current_value %}disclosure__link--selected{% endif %}
+                                    "
+                                    href="#"
+                                    data-value="{{ value_item[value_key] }}"
+                                    {% if value_item[value_key] == current_value %}
+                                      aria-current="true"
+                                    {% endif %}
+                                    data-disclosure-option
+                                  >
+                                    {% if is_country_selector %}
+                                      {{ value_item.name }} ({{ value_item.currency.iso_code }} {{ value_item.currency.symbol }})
+                                    {% else %}
+                                      {{ value_item[name_key] }}
+                                    {% endif %}
+                                  </a>
+                                </li>
+                              {% endfor %}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {% liquid
+                        assign namespace = namespace_e1cae4e4
+                        assign namespace_e1cae4e4 = nil
+                        assign value_list = value_list_e1cae4e4
+                        assign value_list_e1cae4e4 = nil
+                        assign value_key = value_key_e1cae4e4
+                        assign value_key_e1cae4e4 = nil
+                        assign name_key = name_key_e1cae4e4
+                        assign name_key_e1cae4e4 = nil
+                        assign current_value = current_value_e1cae4e4
+                        assign current_value_e1cae4e4 = nil
+                        assign input_name = input_name_e1cae4e4
+                        assign input_name_e1cae4e4 = nil
+                      %}
+                      {% comment %}Component disclosure:default end{% endcomment %}
+                    {%- endform -%}
+                  {% endif %}
+                
+                  {% if section.settings.enable_country_selector and localization.available_countries.size > 1 %}
+                    {%- form 'localization', data-cross-border-form: '' -%}
+                      {% capture current_name %}
+                        {{ localization.country.name }} ({{ localization.country.currency.iso_code }} {{ localization.country.currency.symbol }})
+                      {% endcapture %}
+                      {% assign heading = 'general.components.cross_border.currency_dropdown_label' | t %}
+                      {% assign button_label = 'general.components.cross_border.currency_submit_button_label' | t %}
+                      {% comment %}Component disclosure:default begin{% endcomment %}
+                      {% liquid
+                        assign namespace_e1cae4e4 = namespace
+                        assign namespace = 'currency'
+                        assign value_list_e1cae4e4 = value_list
+                        assign value_list = localization.available_countries
+                        assign value_key_e1cae4e4 = value_key
+                        assign value_key = 'iso_code'
+                        assign is_country_selector_e1cae4e4 = is_country_selector
+                        assign is_country_selector = true
+                        assign current_value_e1cae4e4 = current_value
+                        assign current_value = localization.country.iso_code
+                        assign input_name_e1cae4e4 = input_name
+                        assign input_name = 'country_code'
+                      %}
+                      {%- comment -%}
+                        @param namespace [Required]
+                          The namespace that is used for aria-attributes.
+                      
+                        @param heading [Required]
+                          The heading/text that is shown when opening the disclosure on mobile. Also used by screen readers to describe the contents of the disclosure.
+                      
+                        @param button_label [Optional]
+                          Label for the no-js button.
+                      
+                        @param current_value [Required]
+                          The currently selected value.
+                      
+                        @param value_list [Required]
+                          The object that contains the list items to be rendered.
+                      
+                        @param value_key [Required]
+                          The key that is used while looping over value_list to access the value of the item.
+                      
+                        @param name_key [Required - unless using is_country_selector]
+                          The key that is used while looping over value_list to access the display name of the item.
+                      
+                        @param is_country_selector [Optional]
+                          If true, this disclosure uses the fields for country localization (instead of making an entirely new component just for currency)
+                      
+                        @param input_name [Optional]
+                          Used to specify the "name" attribute for the <input> element.
+                      
+                        @param fill_container [Optional]
+                          If true, the disclocure toggle button will fill its parent container.
+                      
+                        @param always_show_heading [Optional]
+                          If true, will always show the heading inside the button, instead of the selected value.
+                      {%- endcomment -%}
+                      
+                      {% liquid
+                        assign is_country_selector = is_country_selector | default: false
+                        assign always_show_heading = always_show_heading | default: false
+                      
+                        assign current_name = blank
+                        if is_country_selector
+                          assign current_name = localization.country.name | append: ' (' | append: localization.country.currency.iso_code | append: ' ' | append: localization.country.currency.symbol | append: ')'
+                        else
+                          for value_item in value_list
+                            if value_item[value_key] == current_value
+                              assign current_name = value_item[name_key]
+                            endif
+                          endfor
+                        endif
+                      %}
+                      
+                      <div data-component="disclosure" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="disclosure{% if fill_container %} disclosure--fill{% endif %}">
+                        <script
+                          type="application/json"
+                          data-component-data
+                        >
+                          {
+                            "inputName": "{{ input_name }}",
+                            "inputValue": "{{ current_value }}",
+                            "alwaysShowHeading": {{ always_show_heading }}
+                          }
+                        </script>
+                        <noscript>
+                          <div class="disclosure__select-list">
+                            <label class="visually-hidden" for="{{ namespace }}-select-{{ unique_id }}">
+                              {{ heading | escape }}
+                            </label>
+                            <select
+                              class="disclosure__select"
+                              id="{{ namespace }}-select-{{ unique_id }}"
+                              name="{{ input_name }}"
+                            >
+                              {% for value_item in value_list %}
+                                <option
+                                  class="disclosure__option"
+                                  value="{{ value_item[value_key] }}"
+                                  {% if value_item[value_key] == current_value %}
+                                    selected
+                                  {% endif %}
+                                >
+                                  {% if is_country_selector %}
+                                    {{ value_item.name }} ({{ value_item.currency.iso_code }} {{ value_item.currency.symbol }})
+                                  {% else %}
+                                    {{ value_item[name_key] }}
+                                  {% endif %}
+                                </option>
+                              {% endfor %}
+                            </select>
+                            {% comment %}Component button:default begin{% endcomment %}
+                            {% liquid
+                              assign style_da78a0e5 = style
+                              assign style = 'primary'
+                              assign size_da78a0e5 = size
+                              assign size = 'small'
+                              assign text_da78a0e5 = text
+                              assign text = button_label
+                            %}
+                            {% comment %}
+                              @param style [Required]
+                                This is the style of the button: primary, secondary, tertiary, or text. Default primary.
+                            
+                              @param size [Required]
+                                This defines the size of the button: small, medium, or large. Default medium.
+                            
+                              @param text [Required]
+                                This is the text to be included in the button.
+                            
+                              @param attributes [Optional]
+                                This will include any additional attributes that the button needs. For example, aria-controls.
+                            {% endcomment %}
+                            
+                            <button
+                              data-component="button"
+                              data-component-type="component"
+                              {% if tag != blank %}data-component-tag="{{ tag }}"
+                              {% endif %}class="button button--{{ style }} button--{{ size }}{% if style == 'primary' or style == 'secondary' %} button--shadow{% endif %%}"
+                              {{ attributes }}
+                            >
+                              {{ text }}
+                            </button>
+                            
+                            {% liquid
+                              assign style = style_da78a0e5
+                              assign style_da78a0e5 = nil
+                              assign size = size_da78a0e5
+                              assign size_da78a0e5 = nil
+                              assign text = text_da78a0e5
+                              assign text_da78a0e5 = nil
+                            %}
+                            {% comment %}Component button:default end{% endcomment %}
+                          </div>
+                        </noscript>
+                      
+                        <div class="disclosure__wrapper disclosure--no-js-hidden">
+                          {% assign unique_id = "now" | date: "%N" | modulo: 1000 %}
+                          <h2 class="visually-hidden" id="{{ namespace }}-heading-{{ unique_id }}">
+                            {{ heading | escape }}
+                          </h2>
+                          <button
+                            class="disclosure__toggle"
+                            type="button"
+                            aria-expanded="false"
+                            aria-controls="{{ namespace }}-list-{{ unique_id }}"
+                            aria-describedby="{{ namespace }}-heading-{{ unique_id }}"
+                            data-disclosure-toggle
+                          >
+                            {% if always_show_heading %}
+                              {{ heading }}
+                            {% else %}
+                              {{ current_name }}
+                            {% endif %}
+                          </button>
+                          <div
+                            class="disclosure__modal"
+                            id="{{ namespace }}-list-{{ unique_id }}"
+                            data-disclosure-modal
+                          >
+                            <h2 class="disclosure__heading">{{ heading }}</h2>
+                            <button
+                              class="disclosure__close"
+                              data-disclosure-close
+                            >
+                              <span class="visually-hidden">{{ 'general.close' | t }}</span>
+                            </button>
+                            <ul class="disclosure__list">
+                              {% for value_item in value_list %}
+                                <li class="disclosure__list-item">
+                                  <a
+                                    class="
+                                      disclosure__link
+                                      {% if value_item[value_key] == current_value %}disclosure__link--selected{% endif %}
+                                    "
+                                    href="#"
+                                    data-value="{{ value_item[value_key] }}"
+                                    {% if value_item[value_key] == current_value %}
+                                      aria-current="true"
+                                    {% endif %}
+                                    data-disclosure-option
+                                  >
+                                    {% if is_country_selector %}
+                                      {{ value_item.name }} ({{ value_item.currency.iso_code }} {{ value_item.currency.symbol }})
+                                    {% else %}
+                                      {{ value_item[name_key] }}
+                                    {% endif %}
+                                  </a>
+                                </li>
+                              {% endfor %}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {% liquid
+                        assign namespace = namespace_e1cae4e4
+                        assign namespace_e1cae4e4 = nil
+                        assign value_list = value_list_e1cae4e4
+                        assign value_list_e1cae4e4 = nil
+                        assign value_key = value_key_e1cae4e4
+                        assign value_key_e1cae4e4 = nil
+                        assign is_country_selector = is_country_selector_e1cae4e4
+                        assign is_country_selector_e1cae4e4 = nil
+                        assign current_value = current_value_e1cae4e4
+                        assign current_value_e1cae4e4 = nil
+                        assign input_name = input_name_e1cae4e4
+                        assign input_name_e1cae4e4 = nil
+                      %}
+                      {% comment %}Component disclosure:default end{% endcomment %}
+                    {%- endform -%}
+                  {% endif %}
+                </div>
+                
+                {% comment %}Component cross-border:default end{% endcomment %}
+              {% endif %}
+            </div>
+            <div class="footer-bottom__bottom">
+              <p class="footer-bottom__credits">
+                &copy; {{ "now" | date: "%Y" }} {{ shop.name | link_to: '/' }} /
+                {{ powered_by_link }}
+              </p>
+              {% if section.settings.show_payment_icons %}
+                <div class="footer-bottom__payment-methods">
+                  {% for type in shop.enabled_payment_types %}
+                    {{ type | payment_type_svg_tag: class:'payment-icon' }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section-content>
+  </section-wrapper>
+</footer>
+{% schema %}
+{
+  "name": "t:common.footer.footer",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:component.footer.header_1.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_payment_icons",
+      "default": true,
+      "label": "t:component.footer.show_payment_icons.label"
+    },
+    {
+      "type": "header",
+      "content": "t:component.footer.header_2.content",
+      "info": "t:component.footer.header_2.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_follow_on_shop",
+      "label": "t:component.footer.enable_follow_on_shop.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:component.cross_border.header_1.content",
+      "info": "t:component.cross_border.header_1.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_language_selector",
+      "default": true,
+      "label": "t:component.cross_border.enable_language_selector.label"
+    },
+    {
+      "type": "header",
+      "content": "t:component.cross_border.header_2.content",
+      "info": "t:component.cross_border.header_2.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_country_selector",
+      "default": true,
+      "label": "t:component.cross_border.enable_country_selector.label"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "footer_email_form",
+      "name": "t:common.component.newsletter",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:common.text.heading",
+          "default": "Subscribe and save"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "t:common.text.text",
+          "default": "<p>Subscribe to get notified about product launches, special offers and company news.</p>"
+        },
+        {
+          "type": "range",
+          "id": "column_width",
+          "label": "t:common.component.column_width_desktop",
+          "step": 1,
+          "min": 15,
+          "max": 100,
+          "default": 33,
+          "unit": "t:common.unit.percent"
+        }
+      ]
+    },
+    {
+      "type": "menu",
+      "name": "t:common.navigation.menu",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:common.text.heading",
+          "default": "Footer menu"
+        },
+        {
+          "type": "link_list",
+          "id": "linklist",
+          "label": "t:component.block_footer_menu.blocks.menu.linklist.label",
+          "info": "t:component.block_footer_menu.blocks.menu.linklist.info",
+          "default": "footer"
+        },
+        {
+          "type": "range",
+          "id": "column_width",
+          "label": "t:common.component.column_width_desktop",
+          "step": 1,
+          "min": 15,
+          "max": 100,
+          "default": 17,
+          "unit": "t:common.unit.percent"
+        }
+      ]
+    },
+    {
+      "type": "about",
+      "name": "t:component.block_footer_about.blocks.about_and_social.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:common.text.heading",
+          "default": "About our store"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "t:component.block_footer_about.blocks.about_and_social.content.label",
+          "default": "<p>Use this text area to tell your customers about your brand and vision.</p>"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_social_icons",
+          "label": "t:common.component.show_social_icons",
+          "info": "t:component.block_footer_about.blocks.about_and_social.show_social_icons.info",
+          "default": true
+        },
+        {
+          "type": "range",
+          "id": "column_width",
+          "label": "t:common.component.column_width_desktop",
+          "step": 1,
+          "min": 15,
+          "max": 100,
+          "default": 33,
+          "unit": "t:common.unit.percent"
+        }
+      ]
+    },
+    {
+      "type": "logo",
+      "name": "t:common.image.logo",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:common.image.image"
+        },
+        {
+          "type": "select",
+          "id": "size",
+          "label": "t:common.text.size",
+          "options": [
+            {
+              "value": "small",
+              "label": "t:component.block_footer_logo.blocks.logo.size.option_1"
+            },
+            {
+              "value": "medium",
+              "label": "t:component.block_footer_logo.blocks.logo.size.option_2"
+            },
+            {
+              "value": "large",
+              "label": "t:component.block_footer_logo.blocks.logo.size.option_3"
+            },
+            {
+              "value": "xl",
+              "label": "t:component.block_footer_logo.blocks.logo.size.option_4"
+            },
+            {
+              "value": "fill",
+              "label": "t:component.block_footer_logo.blocks.logo.size.option_5"
+            }
+          ],
+          "default": "medium"
+        },
+        {
+          "type": "select",
+          "id": "alignment",
+          "label": "t:common.layout.alignment",
+          "options": [
+            {
+              "value": "left",
+              "label": "t:common.layout.left"
+            },
+            {
+              "value": "center",
+              "label": "t:common.layout.center"
+            },
+            {
+              "value": "right",
+              "label": "t:common.layout.right"
+            }
+          ],
+          "default": "left"
+        },
+        {
+          "type": "range",
+          "id": "column_width",
+          "label": "t:common.component.column_width_desktop",
+          "step": 1,
+          "min": 15,
+          "max": 100,
+          "default": 17,
+          "unit": "t:common.unit.percent"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

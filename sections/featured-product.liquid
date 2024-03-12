@@ -1,0 +1,3473 @@
+{% liquid
+  assign global_product = product
+  unless request.path contains 'async'
+   assign product = section.settings.product
+  endunless
+  assign product_form_id = 'featured-product-form-' | append: section.id
+  assign is_variant_selected = false
+
+  if product.selected_variant or request.path contains '/async'
+    assign selected_variant = product.selected_variant
+    assign is_variant_selected = true
+  elsif product.variants.size == 1 or section.settings.select_first_available_variant
+    assign selected_variant = product.selected_or_first_available_variant
+    assign is_variant_selected = true
+  endif
+%}
+
+<section data-component="featured-product" data-component-type="section" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="featured-product">
+  <script
+    type="application/json"
+    data-component-data
+  >
+    {
+      "product": {% if product != blank %}{{ all_products[product] | json }}{% else %}null{% endif %},
+      "url": {{ product.url | json }},
+      "selectedVariant": {% if selected_variant %}{{ selected_variant | json }}{% else %}false{% endif %}
+    }
+  </script>
+
+  <section-wrapper>
+    <section-content
+      class="
+        featured-product__grid
+        featured-product__grid--gallery-{{ section.settings.gallery_size }}
+      "
+      data-product-grid data-sticky-position="top"
+    >
+      <div class="featured-product__grid-column featured-product__grid-column--gallery">
+        {% comment %}Component featured-product-gallery:default begin{% endcomment %}
+        {% render 'featured-product-gallery', section: section, product: product %}
+        {% comment %}Component featured-product-gallery:default end{% endcomment %}
+      </div>
+
+      <div class="featured-product__grid-column featured-product__grid-column--details" data-product-grid-column-details>
+        {% liquid
+          assign is_tab_group = false
+          assign is_tab_sibling = false
+          assign is_prev_tab_open = false
+
+          assign is_prev_block_spacer = false
+        %}
+        {%- for block in section.blocks -%}
+          {% liquid
+            assign next_block = section.blocks[forloop.index]
+            assign class_string = 'featured-product-block'
+            assign class_string = class_string | append: ' featured-product-block--' | append: block.type
+            if block.type == 'variant_picker' and product.has_only_default_variant
+              assign class_string = class_string | append: ' featured-product-block--hidden'
+            endif
+            if is_prev_block_spacer
+              assign class_string = class_string | append: ' featured-product-block--hide-spacing-above'
+            endif
+            if next_block.type == 'spacer'
+              assign class_string = class_string | append: ' featured-product-block--hide-spacing-below'
+            endif
+            if block.settings.text_style != blank
+              assign class_string = class_string | append: ' featured-product-block--text-style-' | append: block.settings.text_style
+            endif
+            if block.type == 'collapsible_tab' or block.settings.show_as_tab
+              assign show_tab_as_open = block.settings.show_tab_as_open
+
+              if is_prior_tab_open
+              else
+                assign is_prior_tab_open = show_tab_as_open
+              endif
+
+              if is_tab_group
+                assign is_tab_sibling = true
+              endif
+
+              assign is_tab_group = true
+              assign class_string = class_string | append: ' featured-product-block--tab'
+            else
+              assign is_tab_group = false
+              assign is_tab_sibling = false
+              assign is_prior_tab_open = false
+            endif
+          %}
+          <div
+            class="{{ class_string }}"
+            data-type="{{ block.type }}"
+            data-id="{{ block.id }}"
+            {{ block.shopify_attributes }}
+          >
+            {%- case block.type -%}
+            {%- when '@app' -%}
+              {% render block %}
+            {%- when 'spacer' -%}
+              {% assign is_prev_block_spacer = true %}
+              <div class="featured-product-block__spacer featured-product-block__spacer--{{ block.settings.spacing }}"></div>
+            {%- when 'product_badges' %}
+              {% assign show_sale_badge = false %}
+              {% if block.settings.display == 'sale' or block.settings.display == 'sale-custom' or block.settings.display == 'custom-preferred' %}
+                {% assign show_sale_badge = true %}
+              {% endif %}
+              {% assign show_custom_badge = false %}
+              {% if block.settings.display == 'custom' or block.settings.display == 'sale-custom' or block.settings.display == 'custom-preferred' %}
+                {% assign show_custom_badge = true %}
+              {% endif %}
+
+              {% assign custom_preferred = false %}
+              {% if block.settings.display == 'custom-preferred' %}
+                {% assign custom_preferred = true %}
+              {% endif %}
+
+              {% comment %}Component product-badges:default begin{% endcomment %}
+              {% liquid
+                assign badge_product_d96705c7 = badge_product
+                assign badge_product = product
+              %}
+              {% comment %}
+                @param badge_product {Product} [Required]
+                  The product that these badges are for
+              
+                @param show_sale_badge {Boolean} [Optional]
+                  If true, will show a sale badge if the product is on sale
+              
+                @param show_custom_badge {Boolean} [Optional]
+                  If true, will show the first custom badge name that matches to a tag
+              
+                @param custom_preferred {Boolean} [Optional]
+                  If true, will only show a custom badge, even if a sale badge is available. Will show sale badge if no custom badge is available.
+              {% endcomment %}
+              
+              {% assign custom_preferred = custom_preferred | default: false %}
+              
+              {% assign custom_tag_label = blank %}
+              {% assign custom_tag_color = blank %}
+              {% assign custom_tag_background = blank %}
+              {% if show_custom_badge %}
+                {% for i in (1..4) %}
+                  {% assign tag_id = 'product_badge_tag_' | append: i %}
+                  {% assign tag_label = settings[tag_id] %}
+                  {% for tag in badge_product.tags %}
+                    {% if tag_label == tag %}
+                      {% assign tag_text_id = 'product_badge_text_color_' | append: i %}
+                      {% assign custom_tag_color = settings[tag_text_id] %}
+                      {% assign tag_background_id = 'product_badge_background_color_' | append: i %}
+                      {% assign custom_tag_background = settings[tag_background_id] %}
+                      {% assign custom_tag_label = tag %}
+                      {% break %}
+                    {% endif %}
+                  {% endfor %}
+                  {% if custom_tag_label != blank %}
+                    {% break %}
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+              
+              <div
+                data-component="product-badges"
+                data-component-type="component"
+                {% if tag != blank %}data-component-tag="{{ tag }}"
+                {% endif %}class="
+                  product-badges
+                  product-badges--font-{{ settings.product_badges_font }}
+                  {% if settings.product_badges_uppercase %}product-badges--uppercase{% endif %}
+                  {% if settings.product_badges_bold %}product-badges--bold{% endif %}
+                "
+              >
+                {% if badge_product.available %}
+                  {% if show_sale_badge and badge_product.price < badge_product.compare_at_price %}
+                    {% if custom_preferred == false or custom_tag_label == blank %}
+                      <div class="product-badges__badge product-badges__badge--sale">{{ 'products.on_sale' | t }}</div>
+                    {% endif %}
+                  {% endif %}
+              
+                  {% if show_custom_badge and custom_tag_label != blank %}
+                    <div
+                      class="product-badges__badge"
+                      style="
+                        --color-product-tag-text: {{ custom_tag_color }};
+                        --color-product-tag-background: {{ custom_tag_background }};
+                      "
+                    >
+                      {{ custom_tag_label }}
+                    </div>
+                  {% endif %}
+                {% else %}
+                  <div class="product-badges__badge product-badges__badge--sold-out">{{ 'products.sold_out' | t }}</div>
+                {% endif %}
+              </div>
+              
+              {% liquid
+                assign badge_product = badge_product_d96705c7
+                assign badge_product_d96705c7 = nil
+              %}
+              {% comment %}Component product-badges:default end{% endcomment %}
+            {%- when 'vendor' -%}
+              {% liquid
+                capture content
+                  if product == blank
+                    echo 'product.vendor.placeholder' | t
+                  elsif block.settings.use_vendor_link
+                    echo product.vendor | link_to_vendor
+                  else
+                    echo product.vendor
+                  endif
+                endcapture
+              %}
+              <span class="featured-product-block__vendor">{{- content -}}</span>
+            {%- when 'title' -%}
+              <h1 class="featured-product-block__title">{% if product != blank %}{{- product.title -}}{% else %}{{ 'product.title.placeholder' | t }}{% endif %}</h1>
+            {%- when 'sku' -%}
+              <span class="featured-product-block__sku">{% if product != blank %}{{- selected_variant.sku -}}{% else %}{{ 'product.sku.placeholder' | t }}{% endif %}</span>
+            {%- when 'price' -%}
+              <div class="featured-product-block__price">
+                {% if block.settings.show_label %}
+                  <span class="featured-product-block__price-label">{{- 'product.price.label' | t -}}</span>
+                {% endif %}
+                <div class="featured-product-block__price-price" role="status">
+                  {% comment %}Component price:default begin{% endcomment %}
+                  {% render 'price', product: product, selected_variant: selected_variant %}
+                  {% comment %}Component price:default end{% endcomment %}
+                </div>
+
+                {% if product != blank %}
+                  {%- form 'product', product, id: 'featured-product-form-installment', class: 'featured-product-block__price-installments' -%}
+                    <input type="hidden" name="id" value="{{ selected_variant.id }}">
+                    {{ form | payment_terms }}
+                  {%- endform -%}
+                {% endif %}
+              </div>
+            {% when 'size_guide' %}
+              {% comment %}Component product-size-guide:default begin{% endcomment %}
+              {% comment %}
+                @param block {Block} [Required]
+                  Block to use for rendering
+              {% endcomment %}
+              
+              <div data-component="product-size-guide" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="product-size-guide">
+                <template data-drawer-header-template>
+                  <h2>{{ block.settings.page.title | escape }}</h2>
+                </template>
+              
+                <template data-drawer>
+                  {% comment %}Component product-page-drawer:default begin{% endcomment %}
+                  {% liquid
+                    assign page_e7edc631 = page
+                    assign page = block.settings.page
+                  %}
+                  <div data-component="product-size-guide-drawer" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="product-page-drawer">
+                    <div class="product-page-drawer__content">{{ page.content }}</div>
+                  </div>
+                  
+                  {% liquid
+                    assign page = page_e7edc631
+                    assign page_e7edc631 = nil
+                  %}
+                  {% comment %}Component product-page-drawer:default end{% endcomment %}
+                </template>
+              
+                {% capture icon %}
+                  {% case block.settings.icon %}
+                    {% when 'coat-hanger' %}
+                      {% comment %}Icon coat-hanger:default begin{% endcomment %}
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M16.634 13.75 8.999 10l-7.635 3.75a.649.649 0 0 0-.3.307.673.673 0 0 0 .178.8.63.63 0 0 0 .4.143h14.716a.63.63 0 0 0 .4-.143.673.673 0 0 0 .178-.8.649.649 0 0 0-.3-.307h-.002ZM7 7.083c0-.383.101-.758.293-1.085.191-.327.466-.592.792-.767a1.932 1.932 0 0 1 2.078.158c.299.222.533.526.677.879.144.352.192.739.139 1.117a2.127 2.127 0 0 1-.44 1.03 2 2 0 0 1-.891.64.964.964 0 0 0-.47.364A1.05 1.05 0 0 0 9 10"/></svg>
+                      {% comment %}Icon coat-hanger:default end{% endcomment %}
+                    {% when 'diagonal-arrows' %}
+                      {% comment %}Icon diagonal-arrows:default begin{% endcomment %}
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M7 16H3v-4m12-4V4h-4M3 16 15 4"/></svg>
+                      {% comment %}Icon diagonal-arrows:default end{% endcomment %}
+                    {% when 'ruler' %}
+                      {% comment %}Icon ruler:default begin{% endcomment %}
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18"><mask id="a" fill="#fff"><path d="M1 17h16a1 1 0 0 0 1-1V5.925a1 1 0 0 0-1-1H1a1 1 0 0 0-1 1V16a1 1 0 0 0 1 1Z"/></mask><path fill="currentColor" d="M4.586 17a.625.625 0 1 0 1.25 0h-1.25Zm3.789 0a.625.625 0 1 0 1.25 0h-1.25Zm1.25-6.075a.625.625 0 0 0-1.25 0h1.25ZM12.165 17a.625.625 0 1 0 1.25 0h-1.25Zm1.25-4.275a.625.625 0 0 0-1.25 0h1.25Zm-7.58 0a.625.625 0 0 0-1.25 0h1.25ZM9.626 17v-6.075h-1.25V17h1.25Zm3.79 0v-4.275h-1.25V17h1.25Zm-7.58 0v-4.275h-1.25V17h1.25Zm-.624-1.25H1v2.5h4.21v-2.5Zm3.789 0H5.21v2.5H9v-2.5Zm3.79 0H9v2.5h3.79v-2.5Zm4.21 0h-4.21v2.5H17v-2.5Zm2.25.25V5.925h-2.5V16h2.5Zm-18 0V5.925h-2.5V16h2.5ZM17 3.675H1v2.5h16v-2.5ZM1.25 5.925a.25.25 0 0 1-.25.25v-2.5a2.25 2.25 0 0 0-2.25 2.25h2.5Zm18 0A2.25 2.25 0 0 0 17 3.675v2.5a.25.25 0 0 1-.25-.25h2.5ZM17 18.25A2.25 2.25 0 0 0 19.25 16h-2.5a.25.25 0 0 1 .25-.25v2.5Zm-16-2.5a.25.25 0 0 1 .25.25h-2.5A2.25 2.25 0 0 0 1 18.25v-2.5Z" mask="url(#a)"/></svg>
+                      {% comment %}Icon ruler:default end{% endcomment %}
+                    {% when 'ruler-rotated' %}
+                      {% comment %}Icon ruler-rotated:default begin{% endcomment %}
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18"><mask id="a" fill="#fff"><path d="m7.556 17.538 1.633-1.633 2.006-2.006 2.006-2.005 2.006-2.006 1.633-1.634a1 1 0 0 0 0-1.414l-4.604-4.603a1 1 0 0 0-1.414 0L1.538 11.52a1 1 0 0 0 0 1.414l4.604 4.603a1 1 0 0 0 1.414 0Z"/></mask><path fill="currentColor" d="M8.747 16.347a.625.625 0 1 0 .884-.884l-.884.884Zm2.006-2.006a.625.625 0 1 0 .884-.883l-.884.883Zm-1.373-3.14a.625.625 0 1 0-.884.884l.884-.884Zm3.38 1.134a.625.625 0 1 0 .883-.884l-.884.884Zm-1.374-3.14a.625.625 0 0 0-.884.884l.884-.884Zm3.379 1.134a.625.625 0 0 0 .884-.883l-.884.883Zm-7.39 2.878a.625.625 0 1 0-.884.884l.883-.884Zm6.017-6.018a.625.625 0 1 0-.884.884l.884-.884Zm-1.755 6.268L9.38 11.201l-.884.884 2.257 2.256.884-.883Zm2.006-2.006-2.257-2.256-.884.884 2.257 2.256.884-.884Zm-4.012 4.012-2.257-2.256-.883.884 2.256 2.256.884-.884Zm6.018-6.017-2.257-2.257-.884.884 2.257 2.256.884-.883ZM8.305 15.02l-1.633 1.634 1.768 1.767 1.633-1.633-1.768-1.768Zm2.006-2.006L8.305 15.02l1.768 1.768 2.006-2.006-1.768-1.768Zm2.006-2.005-2.006 2.005 1.768 1.768 2.006-2.006-1.768-1.767Zm3.64-3.64-1.634 1.634 1.768 1.767 1.633-1.633-1.768-1.768Zm-1.634 1.634-2.006 2.006 1.768 1.767 2.006-2.006-1.768-1.767Zm3.401-3.048L13.12 1.353 11.353 3.12l4.603 4.604 1.768-1.768Zm-10.698 10.7L2.422 12.05.654 13.819l4.604 4.603 1.768-1.767ZM9.938 1.353.654 10.637l1.768 1.768 9.284-9.285-1.768-1.767ZM2.422 12.05a.25.25 0 0 1 0 .354L.654 10.637a2.25 2.25 0 0 0 0 3.182l1.768-1.768ZM13.12 1.353a2.25 2.25 0 0 0-3.182 0l1.768 1.767a.25.25 0 0 1-.353 0l1.767-1.767Zm4.604 7.785a2.25 2.25 0 0 0 0-3.182l-1.768 1.768a.25.25 0 0 1 0-.354l1.768 1.768ZM6.672 16.655a.25.25 0 0 1 .354 0l-1.768 1.767a2.25 2.25 0 0 0 3.182 0l-1.768-1.767Z" mask="url(#a)"/></svg>
+                      {% comment %}Icon ruler-rotated:default end{% endcomment %}
+                    {% when 't-shirt' %}
+                      {% comment %}Icon t-shirt:default begin{% endcomment %}
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M14.135 4.46A4.842 4.842 0 0 0 11.46 3a2.7 2.7 0 0 1-.72 1.848A2.391 2.391 0 0 1 9 5.614a2.391 2.391 0 0 1-1.74-.766A2.699 2.699 0 0 1 6.537 3a4.841 4.841 0 0 0-2.673 1.46L1 7.504l2.462 2.614 1.846-1.96v7.189c0 .173.065.339.18.462a.598.598 0 0 0 .435.191h6.154c.163 0 .32-.069.435-.191a.675.675 0 0 0 .18-.462v-7.19l1.847 1.961L17 7.504 14.135 4.46Z"/></svg>
+                      {% comment %}Icon t-shirt:default end{% endcomment %}
+                  {% endcase %}
+                {% endcapture %}
+              
+                <button class="product-size-guide__drawer-btn" type="button" aria-haspopup=”dialog” data-drawer-btn>{{ icon }}{{ block.settings.text }}</button>
+              </div>
+              
+              {% comment %}Component product-size-guide:default end{% endcomment %}
+            {% when 'page' %}
+              {% comment %}Component product-page:default begin{% endcomment %}
+              {% comment %}
+                @param block {Block} [Required]
+                  Block to use for rendering
+              {% endcomment %}
+              
+              <div data-component="product-page" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="product-page">
+                <template data-drawer-header-template>
+                  <h2>{{ block.settings.page.title | escape }}</h2>
+                </template>
+              
+                <template data-drawer-template>
+                  {% comment %}Component product-page-drawer:default begin{% endcomment %}
+                  {% liquid
+                    assign page_7142ca80 = page
+                    assign page = block.settings.page
+                  %}
+                  <div data-component="product-size-guide-drawer" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="product-page-drawer">
+                    <div class="product-page-drawer__content">{{ page.content }}</div>
+                  </div>
+                  
+                  {% liquid
+                    assign page = page_7142ca80
+                    assign page_7142ca80 = nil
+                  %}
+                  {% comment %}Component product-page-drawer:default end{% endcomment %}
+                </template>
+              
+                {% comment %}Component button:default begin{% endcomment %}
+                {% liquid
+                  assign style_73a93f83 = style
+                  assign style = block.settings.button_style
+                  assign size_73a93f83 = size
+                  assign size = block.settings.button_size
+                  assign text_73a93f83 = text
+                  assign text = block.settings.text
+                  assign attributes_73a93f83 = attributes
+                  assign attributes = 'type="button" aria-haspopup=”dialog” data-drawer-btn'
+                %}
+                {% comment %}
+                  @param style [Required]
+                    This is the style of the button: primary, secondary, tertiary, or text. Default primary.
+                
+                  @param size [Required]
+                    This defines the size of the button: small, medium, or large. Default medium.
+                
+                  @param text [Required]
+                    This is the text to be included in the button.
+                
+                  @param attributes [Optional]
+                    This will include any additional attributes that the button needs. For example, aria-controls.
+                {% endcomment %}
+                
+                <button
+                  data-component="button"
+                  data-component-type="component"
+                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                  {% endif %}class="button button--{{ style }} button--{{ size }}{% if style == 'primary' or style == 'secondary' %} button--shadow{% endif %%}"
+                  {{ attributes }}
+                >
+                  {{ text }}
+                </button>
+                
+                {% liquid
+                  assign style = style_73a93f83
+                  assign style_73a93f83 = nil
+                  assign size = size_73a93f83
+                  assign size_73a93f83 = nil
+                  assign text = text_73a93f83
+                  assign text_73a93f83 = nil
+                  assign attributes = attributes_73a93f83
+                  assign attributes_73a93f83 = nil
+                %}
+                {% comment %}Component button:default end{% endcomment %}
+              </div>
+              
+              {% comment %}Component product-page:default end{% endcomment %}
+            {% when 'rating' %}
+              <div class="featured-product-block__rating">
+                {%- if product.metafields.reviews.rating.value != blank -%}
+                  {% liquid
+                    assign rating_decimal = 0
+                    assign decimal = product.metafields.reviews.rating.value.rating | modulo: 1
+                    if decimal >= 0.3 and decimal <= 0.7
+                      assign rating_decimal = 0.5
+                    elsif decimal > 0.7
+                      assign rating_decimal = 1
+                    endif
+                  %}
+                  <div
+                    class="featured-product-block__rating-stars"
+                    role="img"
+                    aria-label="{{ 'accessibility.star_reviews_info' | t: rating_value: product.metafields.reviews.rating.value, rating_max: product.metafields.reviews.rating.value.scale_max }}"
+                    style="--rating-percent: {{ product.metafields.reviews.rating.value.rating | divided_by: product.metafields.reviews.rating.value.scale_max | times: 100 | append: '%' }};"
+                  >
+                    <div class="featured-product-block__rating-stars-inactive">
+                      {% for i in (1..product.metafields.reviews.rating.value.scale_max) %}
+                        {% comment %}Icon star:default begin{% endcomment %}
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16" width="24" height="24"><path fill="currentColor" d="M7.688 1.047a.333.333 0 0 1 .624 0l1.687 4.784h4.766a.334.334 0 0 1 .216.587L11 9.72l1.667 5.007a.333.333 0 0 1-.513.374L8 12.054 3.844 15.1a.333.333 0 0 1-.511-.374L4.999 9.72l-3.982-3.3a.333.333 0 0 1 .216-.588H6l1.689-4.784Z"/></svg>
+                        {% comment %}Icon star:default end{% endcomment %}
+                      {% endfor %}
+                    </div>
+
+                    <div class="featured-product-block__rating-stars-active">
+                      {% for i in (1..product.metafields.reviews.rating.value.scale_max) %}
+                        {% comment %}Icon star:default begin{% endcomment %}
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16" width="24" height="24"><path fill="currentColor" d="M7.688 1.047a.333.333 0 0 1 .624 0l1.687 4.784h4.766a.334.334 0 0 1 .216.587L11 9.72l1.667 5.007a.333.333 0 0 1-.513.374L8 12.054 3.844 15.1a.333.333 0 0 1-.511-.374L4.999 9.72l-3.982-3.3a.333.333 0 0 1 .216-.588H6l1.689-4.784Z"/></svg>
+                        {% comment %}Icon star:default end{% endcomment %}
+                      {% endfor %}
+                    </div>
+                  </div>
+                  <p class="featured-product-block__rating-count">
+                    <span aria-hidden="true">({{ product.metafields.reviews.rating_count }})</span>
+                    <span class="visually-hidden">{{ product.metafields.reviews.rating_count }} {{ "accessibility.total_reviews" | t }}</span>
+                  </p>
+                </div>
+              {%- endif -%}
+            {%- when 'text' -%}
+              <p class="featured-product-block__text">{{- block.settings.text -}}</p>
+            {%- when 'variant_picker' -%}
+              {% comment %}Component block-variant-picker:default begin{% endcomment %}
+              {% liquid
+                assign omit_shopify_attributes_be9cd07c = omit_shopify_attributes
+                assign omit_shopify_attributes = true
+                assign form_id_be9cd07c = form_id
+                assign form_id = product_form_id
+              %}
+              {% comment %}
+                Display variant options for a product
+              
+                @param product [Required]
+                  The product object
+              
+                @param block [Required]
+                  The block object
+              
+                @param omit_shopify_attributes [Optional]
+                  Do not include the Shopify block attributes
+              
+                @param selected_variant [Optional]
+                  The selected variant object
+              
+                @param form_id [Optional]
+                  The associated form ID
+              {% endcomment %}
+              
+              {% liquid
+                assign product_option_style = block.settings.product_option_style
+                assign sold_out_options = block.settings.sold_out_options
+                assign swatches_enable = block.settings.swatches_enable
+                assign swatches_option_style = block.settings.swatches_option_style
+              %}
+              
+              <div data-component="block-variant-picker" data-component-type="block" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="variant-picker" {% unless omit_shopify_attributes %}{{ block.shopify_attributes }}{% endunless %}>
+                {% comment %}Component variant-selector:default begin{% endcomment %}
+                {% comment %}
+                  Display variant options for a product
+                
+                  @param product
+                    The product object
+                
+                  @param selected_variant
+                    The selected variant object
+                
+                  @param form_id
+                    The associated form ID
+                {% endcomment %}
+                
+                <div data-component="variant-selector" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="variant-selector">
+                  {% if product.has_only_default_variant %}
+                    <input
+                      class="variant-selector__variants variant-selector__variants--default"
+                      name="id"
+                      {% if form_id != blank %}form="{{ form_id }}"{% endif %}
+                      type="hidden"
+                      value="{{ product.variants.first.id }}"
+                      data-variants
+                    >
+                  {% else %}
+                    <label class="variant-selector__label">
+                      {{ 'product.variants.options' | t }}
+                
+                      <select
+                        class="variant-selector__variants"
+                        name="id"
+                        {% if form_id != blank %}form="{{ form_id }}"{% endif %}
+                        data-variants
+                      >
+                        <option
+                          value=""
+                          disabled
+                          {% if selected_variant == blank %}selected{% endif %}
+                        >
+                          {{ 'product.variants.choose_variant' | t }}
+                        </option>
+                        {% for variant in product.variants %}
+                          <option
+                            {% if selected_variant and selected_variant.id == variant.id %}selected{% endif %}
+                            value="{{ variant.id }}"
+                            {% unless variant.available %}disabled{% endunless %}
+                          >
+                            {{ variant.title }} - {{ variant.price | money }}
+                          </option>
+                        {% endfor %}
+                      </select>
+                    </label>
+                  {% endif %}
+                </div>
+                
+                {% comment %}Component variant-selector:default end{% endcomment %}
+                {% comment %}Component options-selector:default begin{% endcomment %}
+                {% comment %}
+                  Display variant options for a product
+                
+                  @param product
+                    The product object
+                
+                  @param product_option_style
+                
+                  @param sold_out_options
+                
+                  @param swatches_enable
+                
+                  @param swatches_option_style
+                
+                  @param selected_variant
+                    The selected variant object
+                {% endcomment %}
+                
+                {% comment %}UUID options_selector_id begin{% endcomment %}
+                {% assign options_selector_id = '65f4557c-7ca0-413e-9b87-2671552c2637' %}
+                {% comment %}UUID options_selector_id end{% endcomment %}
+                {% liquid
+                  assign style = product_option_style
+                  assign sold_out_options = sold_out_options
+                  assign enable_swatches = swatches_enable
+                  assign show_variant_images = false
+                  if swatches_option_style == 'variant_image'
+                    assign show_variant_images = true
+                  endif
+                %}
+                
+                <div
+                  data-component="options-selector"
+                  data-component-type="component"
+                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                  {% endif %}class="options-selector"
+                  {% if sold_out_options == 'disabled' %}data-disable-unavailable{% endif %}
+                  {% if sold_out_options == 'hidden' %}data-remove-unavailable{% endif %}
+                  {% if product.has_only_default_variant %}hidden{% endif %}
+                >
+                  <script
+                    type="application/json"
+                    data-component-data
+                  >
+                    {
+                      "disable_unavailable": {% if sold_out_options == 'disabled' %}true{% else %}false{% endif %},
+                      "remove_unavailable": {% if sold_out_options == 'hidden' %}true{% else %}false{% endif %}
+                    }
+                  </script>
+                
+                  {% for option in product.options_with_values %}
+                    {% assign input_id = options_selector_id | append: '-' | append: forloop.index %}
+                    {% assign option_index = forloop.index0 %}
+                    {% assign show_swatches = false %}
+                    {% if enable_swatches and option.name == 'Color' %}
+                      {% assign show_swatches = true %}
+                    {% endif %}
+                
+                    {% if style == 'select' and show_swatches == false %}
+                      {% comment %}Component option-dropdown:default begin{% endcomment %}
+                      {% comment %}
+                        Display option as a select
+                      
+                        @param option [Required]
+                          The option to display
+                      
+                        @param input_id [Required]
+                          The option id to apply to the label and input
+                      
+                        @param selected_variant [Optional]
+                          The selected variant to optionally default to
+                      {% endcomment %}
+                      
+                      <div data-component="option-dropdown" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="option-dropdown">
+                        <script
+                          type="application/json"
+                          data-component-data
+                        >
+                          {
+                            "chosen_option": {{ option.name | json }},
+                            "choose_option": {{ 'product.options.choose_option' | t: option: option.name | json }},
+                            "position": {{ option.position | json }}
+                          }
+                        </script>
+                      
+                        {% capture options %}
+                          {% unless selected_variant %}
+                            <option
+                              value=""
+                              disabled
+                              selected
+                            >
+                              {{ 'product.options.choose_option' | t: option: option.name }}
+                            </option>
+                          {% endunless %}
+                          {% for value in option.values %}
+                            <option
+                              value="{{ value | escape }}"
+                              {% if selected_variant and option.selected_value == value %}selected{% endif %}
+                            >
+                              {{ value }}
+                            </option>
+                          {% endfor %}
+                        {% endcapture %}
+                        {% liquid
+                          assign label_text = 'product.options.choose_option' | t: option: option.name
+                      
+                          if selected_variant
+                            assign label_text = option.name
+                          endif
+                        %}
+                        {% comment %}Component input-select:default begin{% endcomment %}
+                        {% comment %}
+                          @param label_text [Required]
+                            The text for the label to be included.
+                        
+                          @param options [Required]
+                            The list of options to include in the select.
+                        
+                          @param form_id [Optional]
+                            The form id to associate with
+                        
+                          @param input_id [Optional]
+                            The option id to apply to the label and input
+                        
+                          @param field_name [Optional]
+                            The field name for the form. Will be used for the "name" attribute.
+                        
+                          @param attributes [Optional]
+                            Additional attributes to append to the input field.
+                        {% endcomment %}
+                        
+                        {% if input_id == blank %}
+                          {% comment %}UUID input_id begin{% endcomment %}
+                          {% assign input_id = '61e62bbb-8916-475c-aaaf-ab5be3680b01' %}
+                          {% comment %}UUID input_id end{% endcomment %}
+                        {% endif %}
+                        
+                        <div data-component="input-select" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="input-select">
+                          <label class="input-select__label" for="{{ input_id }}" data-label>{{ label_text }}</label>
+                          <div class="input-select__wrapper">
+                            <select
+                              id="{{ input_id }}"
+                              class="input-select__select"
+                              {% if form_id != blank %}form="{{ form_id }}"{% endif %}
+                              {% if field_name != blank %}name="{{ field_name }}"{% endif %}
+                              {{ attributes }}
+                              data-input
+                            >
+                              {{ options }}
+                            </select>
+                          </div>
+                        </div>
+                        
+                        {% comment %}Component input-select:default end{% endcomment %}
+                      </div>
+                      
+                      {% comment %}Component option-dropdown:default end{% endcomment %}
+                    {% else %}
+                      {% comment %}Component option-selectable-boxes:default begin{% endcomment %}
+                      {% comment %}
+                        Display option as a selectable boxes, optionally as swatches
+                      
+                        @param option [Required]
+                          The option to display
+                      
+                        @param product [Required]
+                          The product object
+                      
+                        @param input_id [Required]
+                          The option id to apply to the label and input
+                      
+                        @param selected_variant [Optional]
+                          The selected variant to optionally default to
+                      
+                        @param show_swatches [Optional]
+                          Whether to display fieldset as swatches instead of radios
+                      
+                        @param show_variant_images [Optional]
+                          Whether to display variant images inside of swatch
+                      {% endcomment %}
+                      <div
+                        data-component="option-selectable-boxes"
+                        data-component-type="component"
+                        {% if tag != blank %}data-component-tag="{{ tag }}"
+                        {% endif %}class="option-selectable-boxes"
+                      >
+                        <script
+                          type="application/json"
+                          data-component-data
+                        >
+                          {
+                            "chosen_option": {{ 'product.options.chosen_option_html' | t: option: option.name, value: '|value|' | json }},
+                            "choose_option": {{ 'product.options.choose_option' | t: option: option.name | json }},
+                            "position": {{ option.position | json }}
+                          }
+                        </script>
+                      
+                        {% capture values %}
+                          {% liquid
+                            assign group_name = option.name | append: section.id | url_encode
+                      
+                            if show_swatches and show_variant_images
+                              comment
+                                The following builds out several variables that are used within this and other sub-components:
+                                  - option_value_array which contains the names of all of the option value variants for this product
+                                  - variant_indices_array which contains an the indices of the variants which are in the option_value_array
+                              endcomment
+                      
+                              assign option_key =  'option' | append: option.position
+                              assign option_value_variants_added = '|'
+                              assign variant_indices_string = ''
+                      
+                              for next_variant in product.variants
+                                assign search_string = '|' | append: next_variant[option_key] | append: '|'
+                                unless option_value_variants_added contains search_string
+                                  if next_variant.featured_image != blank
+                                    assign option_value_variants_added = option_value_variants_added | append: next_variant[option_key] | append: '|'
+                                    assign variant_indices_string = variant_indices_string | append: '|' | append: forloop.index0
+                                  endif
+                                endunless
+                              endfor
+                      
+                              assign option_value_array = option_value_variants_added | remove_first: '|' | split: '|'
+                              assign variant_indices_array = variant_indices_string | remove_first: '|' | split: '|'
+                            endif
+                          %}
+                      
+                          {% for value in option.values %}
+                            {% liquid
+                              assign value_input_id = input_id | append: '-' | append: forloop.index
+                              assign checked = false
+                      
+                              if selected_variant and option.selected_value == value
+                                assign checked = true
+                              endif
+                            %}
+                      
+                            {% if show_swatches %}
+                              {% liquid
+                                assign image = blank
+                                if show_variant_images
+                                  for option_value in option_value_array
+                                    if option_value == value
+                                      assign variant_index = variant_indices_array[forloop.index0] | times: 1
+                                      assign image = product.variants[variant_index].featured_image
+                                      break
+                                    endif
+                                  endfor
+                                endif
+                              %}
+                              {% comment %}Component input-swatch:default begin{% endcomment %}
+                              {% liquid
+                                assign label_text_4ada550f = label_text
+                                assign label_text = value
+                                assign input_value_4ada550f = input_value
+                                assign input_value = value
+                                assign input_id_4ada550f = input_id
+                                assign input_id = value_input_id
+                              %}
+                              {% comment %}
+                                @param label_text [Required]
+                                  The text for the label to be included.
+                              
+                                @param group_name [Required]
+                                  The group name the radio belongs to.
+                              
+                                @param input_value [Required]
+                                  The input value.
+                              
+                                @param input_id [Optional]
+                                  The option id to apply to the label and input
+                              
+                                @param attributes [Optional]
+                                  Additional attributes to append to the input field.
+                              
+                                @param image [Optional]
+                                  Image to display as swatch
+                              {% endcomment %}
+                              
+                              {% if input_id == blank %}
+                                {% comment %}UUID input_id begin{% endcomment %}
+                                {% assign input_id = 'c2b5b324-73cc-46d7-9917-da2ab7597be8' %}
+                                {% comment %}UUID input_id end{% endcomment %}
+                              {% endif %}
+                              {% liquid
+                                assign required = required | default: false
+                                assign disabled = disabled | default: false
+                                assign checked = checked | default: false
+                                assign unavailable = unavailable | default: false
+                              %}
+                              
+                              <div
+                                data-component="input-swatch"
+                                data-component-type="component"
+                                {% if tag != blank %}data-component-tag="{{ tag }}"
+                                {% endif %}class="
+                                  input-swatch
+                                  input-swatch__fill--{{ settings.swatch_shape }}
+                                "
+                                {% if disabled %}data-disabled{% endif %}
+                                {% if checked %}data-checked{% endif %}
+                                {% if unavailable %}data-unavailable{% endif %}
+                              >
+                                <input
+                                  id="{{ input_id }}"
+                                  class="input-swatch__input"
+                                  type="radio"
+                                  name="{{ group_name }}"
+                                  value="{{ input_value }}"
+                                  tabindex="0"
+                                  aria-label="{{ input_value | escape }}"
+                                  {% if required %}required{% endif %}
+                                  {% if disabled %}disabled{% endif %}
+                                  {% if checked %}checked{% endif %}
+                                  {{ attributes }}
+                                  data-input
+                                >
+                              
+                                <label class="input-swatch__label visually-hidden" for="{{ input_id }}">{{ label_text }}</label>
+                              
+                                {% comment %}Component swatch:default begin{% endcomment %}
+                                {% liquid
+                                  assign color_name_5af36867 = color_name
+                                  assign color_name = value
+                                  assign variant_image_5af36867 = variant_image
+                                  assign variant_image = image
+                                %}
+                                {% comment %}
+                                  @param color_name {String} [Required]
+                                    Color name for which to find a suitable background
+                                
+                                  @param variant_image {Boolean} [Optional]
+                                    Will display a this variant image, instead of a swatch color.
+                                
+                                  @param show_tooltip {Booleal} [Optional]
+                                    If true, will show tooltip on hover of the swatch.
+                                {% endcomment %}
+                                
+                                {%- assign variant_image = variant_image | default: blank -%}
+                                
+                                {%- assign swatch_color = blank -%}
+                                {%- assign swatch_image = blank -%}
+                                {%- assign custom_colors = settings.swatches_custom_colors -%}
+                                
+                                {% comment %} First look for a defined custom color {% endcomment %}
+                                {%- assign custom_colors = custom_colors | newline_to_br | strip_newlines | split: '<br />' -%}
+                                {%- assign swatch_search_color = color_name | downcase -%}
+                                {%- for custom_entry in custom_colors -%}
+                                  {%- assign custom_color = custom_entry | split: ':' -%}
+                                  {%- assign custom_color_name = custom_color[0] | strip | downcase -%}
+                                  {%- assign custom_color_value = custom_color[1] | strip -%}
+                                  {%- if swatch_search_color == custom_color_name -%}
+                                    {% assign swatch_color = custom_color_value %}
+                                    {%- break -%}
+                                  {%- endif -%}
+                                {%- endfor -%}
+                                
+                                {% comment %} Otherwise default to the raw color name, which will either be a
+                                valid named HTML color and displayed as such, or will be ignored by the browser. {% endcomment %}
+                                {%- if swatch_color == blank -%}
+                                  {% assign swatch_color = color_name | replace: " ", "" | handleize %}
+                                {%- endif -%}
+                                
+                                {% comment %} Use a variant image for the swatch if one exists. {% endcomment %}
+                                {%- if variant_image != blank -%}
+                                  {% assign swatch_image = variant_image %}
+                                {%- else -%}
+                                  {% comment %} If not using variant images, look for a image that matches the color name in the theme's files. {% endcomment %}
+                                  {% assign swatch_file_name = color_name | downcase | handleize | append: '.png' %}
+                                  {%- if images[swatch_file_name] != blank -%}
+                                    {%- assign swatch_image = images[swatch_file_name] -%}
+                                  {%- endif -%}
+                                {%- endif -%}
+                                
+                                <div
+                                  data-component="swatch"
+                                  data-component-type="component"
+                                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                                  {% endif %}class="swatch"
+                                  {% if swatch_image == blank %}
+                                    style="--swatch-color: {{ swatch_color }};"
+                                  {% endif %}
+                                >
+                                  <span class="swatch__label {% unless show_tooltip %}visually-hidden{% endunless %}">{{ color_name }}</span>
+                                  <div
+                                    class="
+                                      swatch__fill
+                                      swatch__fill--{{ settings.swatch_shape }}
+                                    "
+                                  >
+                                    {% if swatch_image != blank %}
+                                      {% comment %}Component lazy-img:default begin{% endcomment %}
+                                      {% render 'lazy-img', img: swatch_image, size: '50x', crop_focus: 'center', lazy: true, canvas: true %}
+                                      {% comment %}Component lazy-img:default end{% endcomment %}
+                                    {% endif %}
+                                  </div>
+                                </div>
+                                
+                                {% liquid
+                                  assign color_name = color_name_5af36867
+                                  assign color_name_5af36867 = nil
+                                  assign variant_image = variant_image_5af36867
+                                  assign variant_image_5af36867 = nil
+                                %}
+                                {% comment %}Component swatch:default end{% endcomment %}
+                              </div>
+                              
+                              {% liquid
+                                assign label_text = label_text_4ada550f
+                                assign label_text_4ada550f = nil
+                                assign input_value = input_value_4ada550f
+                                assign input_value_4ada550f = nil
+                                assign input_id = input_id_4ada550f
+                                assign input_id_4ada550f = nil
+                              %}
+                              {% comment %}Component input-swatch:default end{% endcomment %}
+                            {% else %}
+                              {% comment %}Component input-radio:default begin{% endcomment %}
+                              {% liquid
+                                assign label_text_359defba = label_text
+                                assign label_text = value
+                                assign input_value_359defba = input_value
+                                assign input_value = value
+                                assign input_id_359defba = input_id
+                                assign input_id = value_input_id
+                              %}
+                              {% comment %}
+                                @param label_text [Required]
+                                  The text for the label to be included.
+                              
+                                @param group_name [Required]
+                                  The group name the radio belongs to.
+                              
+                                @param input_value [Required]
+                                  The input value.
+                              
+                                @param input_id [Optional]
+                                  The option id to apply to the label and input
+                              
+                                @param required [Optional]
+                                  Whether the input is required
+                              
+                                @param disabled [Optional]
+                                  Whether the input is disabled
+                              
+                                @param checked [Optional]
+                                  Whether the input is checked
+                              
+                                @param unavailable [Optional]
+                                  Whether the input is unavailable
+                              
+                                @param attributes [Optional]
+                                  Additional attributes to append to the input field.
+                              {% endcomment %}
+                              
+                              {% if input_id == blank %}
+                                {% comment %}UUID input_id begin{% endcomment %}
+                                {% assign input_id = '5d69e689-fa95-4537-adf6-3003e3101e56' %}
+                                {% comment %}UUID input_id end{% endcomment %}
+                              {% endif %}
+                              {% liquid
+                                assign required = required | default: false
+                                assign disabled = disabled | default: false
+                                assign checked = checked | default: false
+                                assign unavailable = unavailable | default: false
+                              %}
+                              
+                              <div
+                                data-component="input-radio"
+                                data-component-type="component"
+                                {% if tag != blank %}data-component-tag="{{ tag }}"
+                                {% endif %}class="input-radio"
+                                {% if disabled %}data-disabled{% endif %}
+                                {% if checked %}data-checked{% endif %}
+                                {% if unavailable %}data-unavailable{% endif %}
+                              >
+                                <input
+                                  class="input-radio__input"
+                                  id="{{ input_id }}"
+                                  type="radio"
+                                  name="{{ group_name }}"
+                                  value="{{ input_value | escape }}"
+                                  tabindex="0"
+                                  aria-label="{{ input_value | escape }}"
+                                  {% if required %}required{% endif %}
+                                  {% if disabled %}disabled{% endif %}
+                                  {% if checked %}checked{% endif %}
+                                  {{ attributes }}
+                                  data-input
+                                >
+                              
+                                <label class="input-radio__label" for="{{ input_id }}">{{ label_text }}</label>
+                              </div>
+                              
+                              {% liquid
+                                assign label_text = label_text_359defba
+                                assign label_text_359defba = nil
+                                assign input_value = input_value_359defba
+                                assign input_value_359defba = nil
+                                assign input_id = input_id_359defba
+                                assign input_id_359defba = nil
+                              %}
+                              {% comment %}Component input-radio:default end{% endcomment %}
+                            {% endif %}
+                          {% endfor %}
+                        {% endcapture %}
+                        {% liquid
+                          assign label_text = 'product.options.choose_option' | t: option: option.name
+                          assign option_value_html = '<span>' | append: option.selected_value | append: '</span>'
+                      
+                          if selected_variant
+                            assign label_text = 'product.options.chosen_option_html' | t: option: option.name, value: option_value_html
+                          endif
+                        %}
+                        {% comment %}Component input-fieldset:default begin{% endcomment %}
+                        {% comment %}
+                          @param label_text [Required]
+                            The text for the label to be included.
+                        
+                          @param values [Required]
+                            The list of values to include in the fieldset.
+                        
+                          @param form_id [Optional]
+                            The form id to associate with
+                        
+                          @param field_name [Optional]
+                            The field name for the form. Will be used for the "name" attribute.
+                        
+                          @param attributes [Optional]
+                            Additional attributes to append to the input field.
+                        {% endcomment %}
+                        
+                        <fieldset
+                          data-component="input-fieldset"
+                          data-component-type="component"
+                          {% if tag != blank %}data-component-tag="{{ tag }}"
+                          {% endif %}class="input-fieldset"
+                          {% unless name == blank %}name="{{ field_name }}"{% endunless %}
+                          {% unless form_id == blank %}form="{{ form_id }}"{% endunless %}
+                          {{ attributes }}
+                        >
+                          <legend class="input-fieldset__legend" data-label>{{ label_text }}</legend>
+                        
+                          <div class="input-fieldset__values">
+                            {{ values }}
+                          </div>
+                        </fieldset>
+                        
+                        {% comment %}Component input-fieldset:default end{% endcomment %}
+                      </div>
+                      
+                      {% comment %}Component option-selectable-boxes:default end{% endcomment %}
+                    {% endif %}
+                  {% endfor %}
+                </div>
+                
+                {% comment %}Component options-selector:default end{% endcomment %}
+              </div>
+              
+              {% liquid
+                assign omit_shopify_attributes = omit_shopify_attributes_be9cd07c
+                assign omit_shopify_attributes_be9cd07c = nil
+                assign form_id = form_id_be9cd07c
+                assign form_id_be9cd07c = nil
+              %}
+              {% comment %}Component block-variant-picker:default end{% endcomment %}
+            {%- when 'inventory_status' %}
+              {% comment %}Component block-inventory-status:default begin{% endcomment %}
+              {% liquid
+                assign omit_shopify_attributes_e054676a = omit_shopify_attributes
+                assign omit_shopify_attributes = true
+              %}
+              {% comment %}
+                @param block [Required]
+              
+                @param omit_shopify_attributes [Optional]
+                  Do not include the Shopify block attributes
+              
+                @param selected_variant [Optional]
+              {% endcomment %}
+              
+              {% capture contents %}
+                {% if selected_variant %}
+                  {% if selected_variant.available %}
+                    {% if block.settings.show_stock_low and selected_variant.inventory_management and selected_variant.inventory_policy == 'deny' and selected_variant.inventory_quantity <= block.settings.stock_low_threshold %}
+                      {% assign product_inventory_status_state = 'block-inventory-status--stock-low' %}
+                      {% comment %}Icon stopwatch:default begin{% endcomment %}
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M2.423 10.385a6.577 6.577 0 1 0 13.154 0 6.577 6.577 0 0 0-13.154 0Zm4.5-9.345h4.154m2.573 4.695 1.235-1.234"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M7.962 3.89V1.04h2.077v2.85m4.5.265.692.692M9 10.385l3.115-3.115"/></svg>
+                      {% comment %}Icon stopwatch:default end{% endcomment %}{{ 'product.inventory.stock_low' | t: stock: selected_variant.inventory_quantity }}
+                    {% elsif block.settings.show_stock_available %}
+                      {% assign product_inventory_status_state = 'block-inventory-status--stock-available' %}
+                      {{ 'product.inventory.stock_available' | t }}
+                    {% else %}
+                      {% assign product_inventory_status_state = 'block-inventory-status--stock-unknown' %}
+                    {% endif %}
+                  {% else %}
+                    {% if block.settings.show_stock_incoming and selected_variant.incoming %}
+                      {% assign product_inventory_status_state = 'block-inventory-status--stock-incoming' %}
+                      {% assign date = selected_variant.next_incoming_date | date: "%b %d, %Y" %}
+                      {% comment %}Icon stopwatch:default begin{% endcomment %}
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M2.423 10.385a6.577 6.577 0 1 0 13.154 0 6.577 6.577 0 0 0-13.154 0Zm4.5-9.345h4.154m2.573 4.695 1.235-1.234"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M7.962 3.89V1.04h2.077v2.85m4.5.265.692.692M9 10.385l3.115-3.115"/></svg>
+                      {% comment %}Icon stopwatch:default end{% endcomment %}{{ 'product.inventory.stock_incoming' | t: date: date }}
+                    {% elsif block.settings.show_stock_unavailable %}
+                      {% assign product_inventory_status_state = 'block-inventory-status--stock-unavailable' %}
+                      {{ 'product.inventory.stock_unavailable' | t }}
+                    {% else %}
+                      {% assign product_inventory_status_state = 'block-inventory-status--stock-unknown' %}
+                    {% endif %}
+                  {% endif %}
+                {% else %}
+                  {% assign product_inventory_status_state = 'block-inventory-status--stock-unknown' %}
+                {% endif %}
+              {% endcapture %}
+              
+              <p
+                data-component="block-inventory-status"
+                data-component-type="block"
+                {% if tag != blank %}data-component-tag="{{ tag }}"
+                {% endif %}class="
+                  block-inventory-status
+                  {{ product_inventory_status_state }}
+                "
+                {% unless omit_shopify_attributes %}{{ block.shopify_attributes }}{% endunless %}
+              >
+                {{ contents }}
+              </p>
+              
+              {% liquid
+                assign omit_shopify_attributes = omit_shopify_attributes_e054676a
+                assign omit_shopify_attributes_e054676a = nil
+              %}
+              {% comment %}Component block-inventory-status:default end{% endcomment %}
+            {%- when 'quantity_selector' -%}
+              <div class="featured-product-block__quantity">
+                <span class="featured-product-block__quantity-label">{{- 'product.quantity.label' | t -}}</span>
+
+                <div class="featured-product-block__quantity-quantity">
+                  {% comment %}Component quantity-selector:default begin{% endcomment %}
+                  {% liquid
+                    assign form_id_04473954 = form_id
+                    assign form_id = product_form_id
+                    assign name_04473954 = name
+                    assign name = 'quantity'
+                    assign quantity_04473954 = quantity
+                    assign quantity = 1
+                    assign min_04473954 = min
+                    assign min = 1
+                  %}
+                  {% comment %}
+                    @param quantity [Required]
+                      The default quantity to be set.
+                  
+                    @param title [Required]
+                      The title of the quantity selectors product
+                    @param name
+                    @param [form_id]
+                    @param [min]
+                  {% endcomment %}
+                  
+                  {% liquid
+                    unless min
+                      assign min = 0
+                    endunless
+                  %}
+                  
+                  <div data-component="quantity-selector" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="quantity-selector">
+                    <button
+                      class="quantity-selector__button quantity-selector__button--minus"
+                      name="minus"
+                      type="button"
+                      data-quantity-minus
+                    >
+                      <span class="visually-hidden">{{ 'general.components.quantity_selector.decrease' | t: title: title | escape }}</span>
+                    </button>
+                    <input
+                      class="quantity-selector__input"
+                      type="number"
+                      name="{{ name }}"
+                      {% if form_id != blank %}form="{{ form_id }}"{% endif %}
+                      value="{{ quantity }}"
+                      min="{{ min }}"
+                      aria-label="{{ 'general.components.quantity_selector.input_label' | t: title: title | escape }}"
+                      data-quantity-input
+                    >
+                    <button
+                      class="quantity-selector__button quantity-selector__button--plus"
+                      name="plus"
+                      type="button"
+                      data-quantity-plus
+                    >
+                      <span class="visually-hidden">{{ 'general.components.quantity_selector.increase' | t: title: title | escape }}</span>
+                    </button>
+                  </div>
+                  
+                  {% liquid
+                    assign form_id = form_id_04473954
+                    assign form_id_04473954 = nil
+                    assign name = name_04473954
+                    assign name_04473954 = nil
+                    assign quantity = quantity_04473954
+                    assign quantity_04473954 = nil
+                    assign min = min_04473954
+                    assign min_04473954 = nil
+                  %}
+                  {% comment %}Component quantity-selector:default end{% endcomment %}
+                </div>
+              </div>
+            {%- when 'buy_buttons' -%}
+              {% assign variant_picker = section.blocks | where: 'type', 'variant_picker' %}
+              {% if variant_picker == blank %}
+                 <input
+                  name="id"
+                  {% if form_id != blank %}form="{{ form_id }}"{% endif %}
+                  type="hidden"
+                  value="{{ selected_variant.id }}"
+                  data-variants
+                >
+              {% endif %}
+              {% comment %}Component block-buy-buttons:default begin{% endcomment %}
+              {% liquid
+                assign omit_shopify_attributes_8099b203 = omit_shopify_attributes
+                assign omit_shopify_attributes = true
+                assign form_id_8099b203 = form_id
+                assign form_id = product_form_id
+              %}
+              {% comment %}
+                @param product [Required]
+              
+                @param block [Required]
+              
+                @param omit_shopify_attributes [Optional]
+                  Do not include the Shopify block attributes
+              
+                @param is_variant_selected [Optional]
+              
+                @param selected_variant [Optional]
+              
+                @param form_id [Optional]
+              {% endcomment %}
+              
+              <div data-component="block-buy-buttons" data-component-type="block" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="block-buy-buttons" {% unless omit_shopify_attributes %}{{ block.shopify_attributes }}{% endunless %}>
+                {% comment %}Component buy-buttons:default begin{% endcomment %}
+                {% liquid
+                  assign show_dynamic_checkout_f9272b5b = show_dynamic_checkout
+                  assign show_dynamic_checkout = block.settings.show_dynamic_checkout
+                %}
+                {% comment %}
+                  @param product [Required]
+                
+                  @param is_variant_selected [Optional]
+                
+                  @param selected_variant [Optional]
+                
+                  @param form_id [Optional]
+                
+                  @param show_dynamic_checkout [Optional]
+                {% endcomment %}
+                
+                <div data-component="buy-buttons" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="buy-buttons">
+                  <script
+                    type="application/json"
+                    data-component-data
+                  >
+                    {
+                      "unavailable": "{{ 'product.buy_buttons.unavailable' | t }}",
+                      "soldOut": "{{ 'product.buy_buttons.sold_out' | t }}",
+                      "addToCart": "{{ 'product.buy_buttons.add_to_cart' | t }}"
+                    }
+                  </script>
+                  {% capture buy_buttons %}
+                      {% liquid
+                        assign attributes = ''
+                        assign text = ''
+                        assign state = ''
+                
+                        if product == blank
+                          assign text = 'product.buy_buttons.unavailable' | t
+                          assign attributes = 'disabled'
+                          assign state = 'unavailable'
+                        elsif selected_variant
+                          if selected_variant.available
+                            assign text = 'product.buy_buttons.add_to_cart' | t
+                            assign state = 'available'
+                          else
+                            assign text = 'product.buy_buttons.sold_out' | t
+                            assign attributes = 'disabled'
+                            assign state = 'sold out'
+                          endif
+                        elsif is_variant_selected
+                          assign text = 'product.buy_buttons.unavailable' | t
+                          assign attributes = 'disabled'
+                          assign state = 'unavailable'
+                        else
+                          assign text = 'product.buy_buttons.select_variant' | t
+                          assign attributes = 'disabled'
+                        endif
+                      %}
+                
+                      {% comment %}Component button-action:default begin{% endcomment %}
+                      {% liquid
+                        assign style_224f4f47 = style
+                        assign style = 'primary'
+                        assign size_224f4f47 = size
+                        assign size = 'medium'
+                      %}
+                      {% comment %}
+                        @param style [Required]
+                          This is the style of the button: primary, secondary, or tertiary. Default primary.
+                      
+                        @param size [Required]
+                          This defines the size of the button: small, medium, or large. Default medium.
+                      
+                        @param text [Required]
+                          This is the text to be included in the button.
+                      
+                        @param attributes [Optional]
+                          This will include any additional attributes that the button needs. For example, aria-controls.
+                      {% endcomment %}
+                      
+                      <button
+                        data-component="button-action"
+                        data-component-type="component"
+                        {% if tag != blank %}data-component-tag="{{ tag }}"
+                        {% endif %}class="button-action button-action--{{ style }} button-action--{{ size }}{% if style == 'primary' or style == 'secondary' %} button-action--shadow{% endif %%}"
+                        aria-busy="false"
+                        aria-live="polite"
+                        {{ attributes }}
+                      >
+                        {{ text }}
+                      </button>
+                      
+                      {% liquid
+                        assign style = style_224f4f47
+                        assign style_224f4f47 = nil
+                        assign size = size_224f4f47
+                        assign size_224f4f47 = nil
+                      %}
+                      {% comment %}Component button-action:default end{% endcomment %}
+                
+                      {% assign attributes = nil %}
+                  {% endcapture %}
+                
+                  {% if product != blank %}
+                    {% form 'product', product, id: form_id, class: 'buy-buttons__form' %}
+                      {% if show_gift_card_recipient_form and product.gift_card? %}
+                        {% comment %}Component gift-card-recipient-form:default begin{% endcomment %}
+                        {%- liquid
+                          assign checkbox_label = 'gift_card_recipient_form.checkbox_label' | t
+                        
+                          assign email_label = 'gift_card_recipient_form.email_label' | t
+                          assign email_placeholder = 'gift_card_recipient_form.email_placeholder' | t
+                        
+                          assign error_message = 'gift_card_recipient_form.error_message' | t
+                        
+                          assign name_label = 'gift_card_recipient_form.name_label' | t
+                          assign name_placeholder = 'gift_card_recipient_form.name_placeholder' | t
+                        
+                          assign message_label = 'gift_card_recipient_form.message_label' | t
+                          assign message_placeholder = 'gift_card_recipient_form.message_placeholder' | t
+                        
+                          assign max_characters = 200
+                          assign max_characters_message = 'gift_card_recipient_form.max_characters_message' | t: max_characters: max_characters
+                        -%}
+                        
+                        {%- capture email_label_required -%}
+                          {{ email_label }} <span aria-hidden="true">*</span>
+                        {%- endcapture -%}
+                        
+                        <div data-component="gift-card-recipient-form" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="recipient-form" data-recipient-form>
+                          {% comment %}Component input-checkbox:default begin{% endcomment %}
+                          {% liquid
+                            assign form_namespace_df68f2ad = form_namespace
+                            assign form_namespace = 'properties'
+                            assign field_name_df68f2ad = field_name
+                            assign field_name = '__shopify_send_gift_card_to_recipient'
+                            assign label_text_df68f2ad = label_text
+                            assign label_text = checkbox_label
+                            assign attributes_df68f2ad = attributes
+                            assign attributes = 'data-input-checkbox'
+                          %}
+                          {% comment %}
+                            @param label_text [Required]
+                              The text for the label to be included.
+                          
+                            @param form_namespace [Required]
+                              The form's namespace that is used in "name" attribute as form_namespace[field_name].
+                          
+                            @param field_name [Required]
+                              The field name for the form. Will be used for the "name" attribute.
+                          
+                            @param form_id [Optional]
+                          
+                            @param hide_label [Optional]
+                              Hide the label text as an aria-label
+                          
+                            @param field_value [Optional]
+                              The value for the checkbox.
+                          
+                            @param checked [Optional]
+                              Boolean. If true, the checkbox will appear checked.
+                          
+                            @param disabled [Optional]
+                              Boolean. If true, the checkbox will appear disabled.
+                          
+                            @param attributes [Optional]
+                              Additional attributes to append to the input field.
+                          {% endcomment %}
+                          
+                          <div
+                            data-component="input-checkbox"
+                            data-component-type="component"
+                            {% if tag != blank %}data-component-tag="{{ tag }}"
+                            {% endif %}class="
+                              input-checkbox
+                              {% if checked %}input-checkbox--checked{% endif %}
+                              {% if disabled %}input-checkbox--disabled{% endif %}
+                            "
+                          >
+                            {% unless hide_label %}
+                              <label class="input-checkbox__label">
+                                <input
+                                  class="input-checkbox__checkbox"
+                                  type="checkbox"
+                                  name="{% if form_namespace %}{{ form_namespace }}[{{ field_name }}]{% else %}{{ field_name }}{% endif %}"
+                                  {% if form_id %}form="{{ form_id }}"{% endif %}
+                                  {% if field_value %}value="{{ field_value }}"{% endif %}
+                                  {% if checked %}checked{% endif %}
+                                  {% if disabled %}disabled{% endif %}
+                                  {{ attributes }}
+                                >
+                                {{ label_text }}
+                              </label>
+                            {% else %}
+                              <input
+                                class="input-checkbox__checkbox"
+                                type="checkbox"
+                                name="{% if form_namespace %}{{ form_namespace }}[{{ field_name }}]{% else %}{{ field_name }}{% endif %}"
+                                {% if form_id %}form="{{ form_id }}"{% endif %}
+                                {% if field_value %}value="{{ field_value }}"{% endif %}
+                                {% if checked %}checked{% endif %}
+                                {% if disabled %}disabled{% endif %}
+                                aria-label="{{ label_text }}"
+                                {{ attributes }}
+                              >
+                            {% endunless %}
+                          </div>
+                          
+                          {% liquid
+                            assign form_namespace = form_namespace_df68f2ad
+                            assign form_namespace_df68f2ad = nil
+                            assign field_name = field_name_df68f2ad
+                            assign field_name_df68f2ad = nil
+                            assign label_text = label_text_df68f2ad
+                            assign label_text_df68f2ad = nil
+                            assign attributes = attributes_df68f2ad
+                            assign attributes_df68f2ad = nil
+                          %}
+                          {% comment %}Component input-checkbox:default end{% endcomment %}
+                        
+                          <div class="recipient-form__fields">
+                            {% comment %}Component input-email:default begin{% endcomment %}
+                            {% liquid
+                              assign form_namespace_b8164d98 = form_namespace
+                              assign form_namespace = 'properties'
+                              assign field_name_b8164d98 = field_name
+                              assign field_name = 'Recipient email'
+                              assign input_class_b8164d98 = input_class
+                              assign input_class = 'recipient-form__email'
+                              assign input_id_b8164d98 = input_id
+                              assign input_id = 'recipient-form__email'
+                              assign label_text_b8164d98 = label_text
+                              assign label_text = email_label_required
+                              assign placeholder_b8164d98 = placeholder
+                              assign placeholder = email_placeholder
+                              assign attributes_b8164d98 = attributes
+                              assign attributes = 'data-input data-input-email'
+                            %}
+                            {% comment %}
+                              @param form [Required]
+                                The form that the input lives in.
+                            
+                              @param label_text [Required]
+                                The text for the label to be included.
+                            
+                              @param form_namespace [Required]
+                                The form's namespace that is used in "name" attribute as form_namespace[field_name].
+                            
+                              @param field_name [Required]
+                                The field name for the form. Will be used for the "name" attribute.
+                            
+                              @param input_class [Optional]
+                                The class for the input field.
+                            
+                              @param input_id [Optional]
+                                The type of field that is being rendered. Usually text, password, number, etc.
+                            
+                              @param placeholder [Optional]
+                                The placeholder for the input field.
+                            
+                              @param attributes [Optional]
+                                Additional attributes to append to the input field.
+                            {% endcomment %}
+                            
+                            {% if input_id == blank %}
+                              {% comment %}UUID input_id begin{% endcomment %}
+                              {% assign input_id = '460c54a7-d1fc-4ca4-bdf7-b1fc819a06f2' %}
+                              {% comment %}UUID input_id end{% endcomment %}
+                            {% endif %}
+                            
+                            <div data-component="input-email" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="input-field">
+                              <label for="{{ input_id }}">{{ label_text }}</label>
+                              <input
+                                class="{{ input_class }}"
+                                id="{{ input_id }}"
+                                type="email"
+                                name="{% if form_namespace %}{{ form_namespace }}[{{ field_name }}]{% else %}{{ field_name }}{% endif %}"
+                                value="{{ form[field_name] }}"
+                                placeholder="{{ placeholder }}"
+                                autocapitalize="off"
+                                autocorrect="off"
+                                spellcheck="false"
+                                {% if form.errors contains 'email' %}
+                                  aria-invalid="true"
+                                {% endif %}
+                                {{ attributes }}
+                              >
+                            </div>
+                            
+                            {% liquid
+                              assign form_namespace = form_namespace_b8164d98
+                              assign form_namespace_b8164d98 = nil
+                              assign field_name = field_name_b8164d98
+                              assign field_name_b8164d98 = nil
+                              assign input_class = input_class_b8164d98
+                              assign input_class_b8164d98 = nil
+                              assign input_id = input_id_b8164d98
+                              assign input_id_b8164d98 = nil
+                              assign label_text = label_text_b8164d98
+                              assign label_text_b8164d98 = nil
+                              assign placeholder = placeholder_b8164d98
+                              assign placeholder_b8164d98 = nil
+                              assign attributes = attributes_b8164d98
+                              assign attributes_b8164d98 = nil
+                            %}
+                            {% comment %}Component input-email:default end{% endcomment %}
+                        
+                            {% comment %}Component notification:default begin{% endcomment %}
+                            {% liquid
+                              assign type_7b035b38 = type
+                              assign type = 'error'
+                              assign content_7b035b38 = content
+                              assign content = error_message
+                              assign hidden_7b035b38 = hidden
+                              assign hidden = true
+                            %}
+                            {%- comment -%}
+                              @param content [Required]
+                                The content that goes in the notification banner
+                            
+                              @param type [Required]
+                                The type of notification banner ('error' or 'success')
+                            
+                              @param hidden [Optional]
+                                Whether the notification should be hidden
+                            {%- endcomment -%}
+                            
+                            <div
+                              data-component="notification"
+                              data-component-type="component"
+                              {% if tag != blank %}data-component-tag="{{ tag }}"
+                              {% endif %}class="
+                                notification
+                                notification--{{ type }}
+                              "
+                              {% if type == 'error' %}
+                                role="alert"
+                              {% else %}
+                                role="status"
+                              {% endif %}
+                              {% if hidden %}hidden{% endif %}
+                            >
+                              {{ content }}
+                            </div>
+                            
+                            {% liquid
+                              assign type = type_7b035b38
+                              assign type_7b035b38 = nil
+                              assign content = content_7b035b38
+                              assign content_7b035b38 = nil
+                              assign hidden = hidden_7b035b38
+                              assign hidden_7b035b38 = nil
+                            %}
+                            {% comment %}Component notification:default end{% endcomment %}
+                        
+                            {% comment %}Component input-field:default begin{% endcomment %}
+                            {% liquid
+                              assign form_namespace_1bd9d2ef = form_namespace
+                              assign form_namespace = 'properties'
+                              assign field_name_1bd9d2ef = field_name
+                              assign field_name = 'Recipient name'
+                              assign input_id_1bd9d2ef = input_id
+                              assign input_id = 'recipient-form__name'
+                              assign input_type_1bd9d2ef = input_type
+                              assign input_type = 'text'
+                              assign label_text_1bd9d2ef = label_text
+                              assign label_text = name_label
+                              assign placeholder_1bd9d2ef = placeholder
+                              assign placeholder = name_placeholder
+                              assign attributes_1bd9d2ef = attributes
+                              assign attributes = 'data-input'
+                            %}
+                            {% comment %}
+                              @param form [Required]
+                                The form that the input lives in.
+                            
+                              @param form_namespace [Required]
+                                The form's namespace that is used in "name" attribute as form_namespace[field_name].
+                            
+                              @param field_name [Required]
+                                The field name for the form. Will be used for the "name" attribute.
+                            
+                              @param input_type [Required]
+                                The type of field that is being rendered. Usually text, password, number, etc.
+                            
+                              @param input_id [Optional]
+                                The type of field that is being rendered. Usually text, password, number, etc.
+                            
+                              @param label_text [Required]
+                                The text for the label to be included.
+                            
+                              @param placeholder [Optional]
+                                The placeholder for the input field.
+                            
+                              @param attributes [Optional]
+                                Additional attributes to append to the input field.
+                            {% endcomment %}
+                            
+                            {% if input_id == blank %}
+                              {% comment %}UUID input_id begin{% endcomment %}
+                              {% assign input_id = 'fd67d6c2-014d-468b-a7fe-a3b584db0ce4' %}
+                              {% comment %}UUID input_id end{% endcomment %}
+                            {% endif %}
+                            
+                            <div data-component="input-field" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="input-field">
+                              <label for="{{ input_id }}">{{ label_text }}</label>
+                              <input
+                                id="{{ input_id }}"
+                                type="{{ input_type }}"
+                                name="{% if form_namespace %}{{ form_namespace }}[{{ field_name }}]{% else %}{{ field_name }}{% endif %}"
+                                value="{{ form[field_name] }}"
+                                placeholder="{{ placeholder }}"
+                                {{ attributes }}
+                              >
+                            </div>
+                            
+                            {% liquid
+                              assign form_namespace = form_namespace_1bd9d2ef
+                              assign form_namespace_1bd9d2ef = nil
+                              assign field_name = field_name_1bd9d2ef
+                              assign field_name_1bd9d2ef = nil
+                              assign input_id = input_id_1bd9d2ef
+                              assign input_id_1bd9d2ef = nil
+                              assign input_type = input_type_1bd9d2ef
+                              assign input_type_1bd9d2ef = nil
+                              assign label_text = label_text_1bd9d2ef
+                              assign label_text_1bd9d2ef = nil
+                              assign placeholder = placeholder_1bd9d2ef
+                              assign placeholder_1bd9d2ef = nil
+                              assign attributes = attributes_1bd9d2ef
+                              assign attributes_1bd9d2ef = nil
+                            %}
+                            {% comment %}Component input-field:default end{% endcomment %}
+                        
+                            {% comment %}Component input-textarea:default begin{% endcomment %}
+                            {% liquid
+                              assign form_namespace_520bd134 = form_namespace
+                              assign form_namespace = 'properties'
+                              assign field_name_520bd134 = field_name
+                              assign field_name = 'Message'
+                              assign input_id_520bd134 = input_id
+                              assign input_id = 'recipient-form__message'
+                              assign label_text_520bd134 = label_text
+                              assign label_text = message_label
+                              assign placeholder_520bd134 = placeholder
+                              assign placeholder = message_placeholder
+                              assign rows_520bd134 = rows
+                              assign rows = 5
+                              assign maxlength_520bd134 = maxlength
+                              assign maxlength = max_characters
+                            %}
+                            {% comment %}
+                              @param label_text [Required]
+                                The text for the label to be included.
+                            
+                              @param form_namespace [Required]
+                                The form's namespace that is used in "name" attribute as form_namespace[field_name].
+                            
+                              @param field_name [Required]
+                                The field name for the form. Will be used for the "name" attribute.
+                            
+                              @param form_id [Optional]
+                                The form that the input lives in.
+                            
+                              @param input_id [Optional]
+                                The type of field that is being rendered. Usually text, password, number, etc.
+                            
+                              @param input_text [Optional]
+                                The initial text to display within the textarea
+                            
+                              @param placeholder [Optional]
+                                The placeholder for the input field.
+                            
+                              @param attributes [Optional]
+                                Additional attributes to append to the input field.
+                            
+                              @param rows [Optional]
+                                The number of rows for the textarea (height)
+                            
+                              @param columns [Optional]
+                                The number of columns for the textarea (width)
+                            
+                              @param maxlength [Optional]
+                                The maximum number of characters for the textarea
+                            {% endcomment %}
+                            
+                            {% if input_id == blank %}
+                              {% comment %}UUID input_id begin{% endcomment %}
+                              {% assign input_id = '525b0eb5-4439-4b3d-8bc1-ca9e154abdbb' %}
+                              {% comment %}UUID input_id end{% endcomment %}
+                            {% endif %}
+                            
+                            <div data-component="input-textarea" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="textarea">
+                              <label for="{{ input_id }}">{{ label_text }}</label>
+                              <textarea
+                                id="{{ input_id }}"
+                                name="{% if form_namespace %}{{ form_namespace }}[{{ field_name }}]{% else %}{{ field_name }}{% endif %}"
+                                {% if form_id %}
+                                  form="{{ form_id }}"
+                                {% endif %}
+                                {% if rows %}rows="{{ rows }}"{% endif %}
+                                {% if columns %}cols="{{ columns }}"{% endif %}
+                                {% if maxlength %}maxlength="{{ maxlength }}"{% endif %}
+                                placeholder="{{ placeholder }}"
+                                {{ attributes }}
+                                data-input
+                              >
+                                {%- if input_text != blank -%}{{- input_text -}}{%- endif -%}
+                              </textarea>
+                            </div>
+                            
+                            {% liquid
+                              assign form_namespace = form_namespace_520bd134
+                              assign form_namespace_520bd134 = nil
+                              assign field_name = field_name_520bd134
+                              assign field_name_520bd134 = nil
+                              assign input_id = input_id_520bd134
+                              assign input_id_520bd134 = nil
+                              assign label_text = label_text_520bd134
+                              assign label_text_520bd134 = nil
+                              assign placeholder = placeholder_520bd134
+                              assign placeholder_520bd134 = nil
+                              assign rows = rows_520bd134
+                              assign rows_520bd134 = nil
+                              assign maxlength = maxlength_520bd134
+                              assign maxlength_520bd134 = nil
+                            %}
+                            {% comment %}Component input-textarea:default end{% endcomment %}
+                        
+                            <div class="recipient-form__max-characters-message">
+                              <small>
+                                {{- max_characters_message -}}
+                              </small>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {% comment %}Component gift-card-recipient-form:default end{% endcomment %}
+                      {% endif %}
+                
+                      <div class="buy-buttons__buttons{% if show_dynamic_checkout %} buy-buttons__buttons--dynamic-checkout{% endif %}">
+                        {% comment %}Component notification:default begin{% endcomment %}
+                        {% liquid
+                          assign type_ebfe5294 = type
+                          assign type = 'error'
+                          assign contents_ebfe5294 = contents
+                          assign contents = ''
+                          assign hidden_ebfe5294 = hidden
+                          assign hidden = true
+                        %}
+                        {%- comment -%}
+                          @param content [Required]
+                            The content that goes in the notification banner
+                        
+                          @param type [Required]
+                            The type of notification banner ('error' or 'success')
+                        
+                          @param hidden [Optional]
+                            Whether the notification should be hidden
+                        {%- endcomment -%}
+                        
+                        <div
+                          data-component="notification"
+                          data-component-type="component"
+                          {% if tag != blank %}data-component-tag="{{ tag }}"
+                          {% endif %}class="
+                            notification
+                            notification--{{ type }}
+                          "
+                          {% if type == 'error' %}
+                            role="alert"
+                          {% else %}
+                            role="status"
+                          {% endif %}
+                          {% if hidden %}hidden{% endif %}
+                        >
+                          {{ content }}
+                        </div>
+                        
+                        {% liquid
+                          assign type = type_ebfe5294
+                          assign type_ebfe5294 = nil
+                          assign contents = contents_ebfe5294
+                          assign contents_ebfe5294 = nil
+                          assign hidden = hidden_ebfe5294
+                          assign hidden_ebfe5294 = nil
+                        %}
+                        {% comment %}Component notification:default end{% endcomment %}
+                
+                        {{ buy_buttons }}
+                
+                        {% if show_dynamic_checkout and is_variant_selected and selected_variant.available %}
+                          {{ form | payment_button }}
+                        {% endif %}
+                      </div>
+                      {% unless exclude_surface_pickup %}
+                        {% comment %}Component surface-pick-up:default begin{% endcomment %}
+                        {% assign pick_up_availabilities = selected_variant.store_availabilities | where: 'pick_up_enabled', true %}
+                        
+                        <div data-component="surface-pick-up" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="surface-pick-up{%- unless selected_variant.available and pick_up_availabilities.size > 0 %} surface-pick-up--hidden{% endunless -%}">
+                          <template data-drawer-header-template>
+                            <h2 class="h4 surface-pick-up-drawer__heading">{{ product.title }}</h2>
+                            {% unless product.has_only_default_variant %}<span class="surface-pick-up-drawer__subheading">{{ selected_variant.title }}</span>{% endunless %}
+                          </template>
+                        
+                          <template data-drawer-template>
+                            {% comment %}Component surface-pick-up-drawer:default begin{% endcomment %}
+                            <div data-component="surface-pick-up-drawer" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="surface-pick-up-drawer">
+                              {% assign pick_up_availabilities = selected_variant.store_availabilities | where: 'pick_up_enabled', true %}
+                              {% if selected_variant.available and pick_up_availabilities.size > 0 %}
+                                {%- assign closest_location_country_code = pick_up_availabilities.first.location.address.country_code -%}
+                                {%- assign imperialSystemCountries = 'US,MM,LR'  | split: ',' -%}
+                                {%- if imperialSystemCountries contains closest_location_country_code -%}
+                                  {%- assign unit_system = 'imperial' -%}
+                                {%- else -%}
+                                  {%- assign unit_system = 'metric' -%}
+                                {%- endif -%}
+                                <ul class="surface-pick-up-items" role="list">
+                                  {% for location in pick_up_availabilities %}
+                                    <li
+                                      class="surface-pick-up-item surface-pick-up-item--{% if location.available %}available{% else %}unavailable{% endif %}"
+                                      data-surface-pick-up-item
+                                    >
+                                      {% if location.available %}
+                                        <span class="surface-pick-up-item__in-stock-icon">{% comment %}Icon check:default begin{% endcomment %}
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path stroke="currentColor" stroke-width="1.5" d="m1.47 9.63 4.61 3.768 8.45-9.796"/></svg>
+{% comment %}Icon check:default end{% endcomment %}</span>
+                                      {% else %}
+                                        <span class="surface-pick-up-item__out-of-stock-icon">{% comment %}Icon cross:default begin{% endcomment %}
+<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 13 13"><path d="m1.47 2.53 4.5 4.5 1.06-1.06-4.5-4.5-1.06 1.06Zm4.5 4.5 4.5 4.5 1.06-1.06-4.5-4.5-1.06 1.06Zm1.06 0 4.5-4.5-1.06-1.06-4.5 4.5 1.06 1.06Zm3.44-5.56-9 9 1.06 1.06 9-9-1.06-1.06Z"/></svg>
+{% comment %}Icon cross:default end{% endcomment %}</span>
+                                      {% endif %}
+                            
+                                      <div class="surface-pick-up-item__header">
+                                        <h3 class="surface-pick-up-item__pick-up-location">{{ location.location.name }}</h3>
+                                        <p
+                                          class="surface-pick-up-item__pick-up-distance"
+                                        >
+                                          <span
+                                            data-distance
+                                            data-latitude="{{ location.location.latitude }}"
+                                            data-longitude="{{ location.location.longitude }}"
+                                          >
+                                          </span>
+                                          <span
+                                            data-distance-unit="{{ unit_system }}"
+                                          >
+                                            {%- if unit_system == 'imperial' -%}
+                                              {{ 'store_availability.general.miles' | t }}
+                                            {%- else -%}
+                                              {{ 'store_availability.general.kilometers' | t }}
+                                            {%- endif -%}
+                                          </span>
+                                        </p>
+                                      </div>
+                            
+                                      <div class="surface-pick-up-item__availability">
+                                        {% if location.available %}
+                                          {% assign pick_up_time = location.pick_up_time | downcase %}
+                                          {{ 'store_availability.general.available_for_pick_up_at_time_html' | t: pick_up_time: pick_up_time }}
+                                        {% else %}
+                                          {{ 'store_availability.general.unavailable_for_pick_up_at_time_html' | t }}
+                                        {% endif %}
+                                      </div>
+                            
+                                      <address class="surface-pick-up-item__address-info">
+                                        {{ location.location.address | format_address }}
+                                        {%- if location.location.phone.size > 0 %}
+                                          <a href="tel:{{ location.location.phone }}">{{ location.location.phone }}</a>
+                                        {%- endif -%}
+                                      </address>
+                                    </li>
+                                  {% endfor %}
+                                </ul>
+                              {% endif %}
+                            </div>
+                            
+                            {% comment %}Component surface-pick-up-drawer:default end{% endcomment %}
+                          </template>
+                        
+                          {% if selected_variant.available and pick_up_availabilities.size > 0 %}
+                            {% assign closest_location = pick_up_availabilities.first %}
+                        
+                            <div class="surface-pick-up-embed surface-pick-up-embed--{% if closest_location.available %}available{% else %}unavailable{% endif %}">
+                              {% if closest_location.available %}
+                                <span class="surface-pick-up-embed__in-stock-icon">{% comment %}Icon check:default begin{% endcomment %}
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path stroke="currentColor" stroke-width="1.5" d="m1.47 9.63 4.61 3.768 8.45-9.796"/></svg>
+{% comment %}Icon check:default end{% endcomment %}</span>
+                              {% else %}
+                                <span class="surface-pick-up-embed__out-of-stock-icon">{% comment %}Icon cross:default begin{% endcomment %}
+<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 13 13"><path d="m1.47 2.53 4.5 4.5 1.06-1.06-4.5-4.5-1.06 1.06Zm4.5 4.5 4.5 4.5 1.06-1.06-4.5-4.5-1.06 1.06Zm1.06 0 4.5-4.5-1.06-1.06-4.5 4.5 1.06 1.06Zm3.44-5.56-9 9 1.06 1.06 9-9-1.06-1.06Z"/></svg>
+{% comment %}Icon cross:default end{% endcomment %}</span>
+                              {% endif %}
+                        
+                              <div class="surface-pick-up-embed__location-info">
+                                {% if closest_location.available %}
+                                  <h3 class="surface-pick-up-embed__location-availability">{{ 'store_availability.general.available_for_pick_up_at_html' | t: location_name: closest_location.location.name }}</h3>
+                                  <small class="surface-pick-up-embed__location-pick-up-time">{{ closest_location.pick_up_time }}</small>
+                                {% else %}
+                                  <h3 class="surface-pick-up-embed__location-availability">{{ 'store_availability.general.unavailable_for_pick_up_at_html' | t: location_name: closest_location.location.name }}</h3>
+                                {% endif %}
+                              </div>
+                        
+                              {% assign text = 'store_availability.general.view_store_info' | t %}
+                              {% if pick_up_availabilities.size > 1 %}
+                                {% assign text = 'store_availability.general.check_other_stores' | t %}
+                              {% endif %}
+                              {% comment %}Component button:default begin{% endcomment %}
+                              {% liquid
+                                assign style_33d7e646 = style
+                                assign style = 'text'
+                                assign size_33d7e646 = size
+                                assign size = 'small'
+                                assign attributes_33d7e646 = attributes
+                                assign attributes = 'type="button" aria-haspopup="dialog"'
+                              %}
+                              {% comment %}
+                                @param style [Required]
+                                  This is the style of the button: primary, secondary, tertiary, or text. Default primary.
+                              
+                                @param size [Required]
+                                  This defines the size of the button: small, medium, or large. Default medium.
+                              
+                                @param text [Required]
+                                  This is the text to be included in the button.
+                              
+                                @param attributes [Optional]
+                                  This will include any additional attributes that the button needs. For example, aria-controls.
+                              {% endcomment %}
+                              
+                              <button
+                                data-component="button"
+                                data-component-type="component"
+                                {% if tag != blank %}data-component-tag="{{ tag }}"
+                                {% endif %}class="button button--{{ style }} button--{{ size }}{% if style == 'primary' or style == 'secondary' %} button--shadow{% endif %%}"
+                                {{ attributes }}
+                              >
+                                {{ text }}
+                              </button>
+                              
+                              {% liquid
+                                assign style = style_33d7e646
+                                assign style_33d7e646 = nil
+                                assign size = size_33d7e646
+                                assign size_33d7e646 = nil
+                                assign attributes = attributes_33d7e646
+                                assign attributes_33d7e646 = nil
+                              %}
+                              {% comment %}Component button:default end{% endcomment %}
+                            </div>
+                          {% endif %}
+                        </div>
+                        
+                        {% comment %}Component surface-pick-up:default end{% endcomment %}
+                      {% endunless %}
+                    {% endform %}
+                  {% else %}
+                    <div class="buy-buttons__buttons{% if show_dynamic_checkout %} buy-buttons__buttons--dynamic-checkout{% endif %}">
+                      {{ buy_buttons }}
+                    </div>
+                  {% endif %}
+                </div>
+                
+                {% liquid
+                  assign show_dynamic_checkout = show_dynamic_checkout_f9272b5b
+                  assign show_dynamic_checkout_f9272b5b = nil
+                %}
+                {% comment %}Component buy-buttons:default end{% endcomment %}
+              </div>
+              
+              {% liquid
+                assign omit_shopify_attributes = omit_shopify_attributes_8099b203
+                assign omit_shopify_attributes_8099b203 = nil
+                assign form_id = form_id_8099b203
+                assign form_id_8099b203 = nil
+              %}
+              {% comment %}Component block-buy-buttons:default end{% endcomment %}
+            {%- when 'description' -%}
+              <div class="featured-product-block__description">
+                {% if block.settings.show_as_tab %}
+                  {% comment %}Component collapsible-tab:default begin{% endcomment %}
+                  {% liquid
+                    assign heading_c54f83ed = heading
+                    assign heading = block.settings.heading
+                    assign content_c54f83ed = content
+                    assign content = product.description
+                    assign is_sibling_c54f83ed = is_sibling
+                    assign is_sibling = is_tab_sibling
+                  %}
+                  {% comment %}
+                    Display content as a collapsible tab
+                  
+                    @param heading
+                      The tab heading
+                  
+                    @param content
+                      The tab content
+                  
+                    @param show_tab_as_open [optional]
+                  
+                    @param is_sibling [optional]
+                  {% endcomment %}
+                  
+                  <details data-component="collapsible-tab" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="collapsible-tab{% if is_sibling %} collapsible-tab--sibling{% endif %}"{% if show_tab_as_open %} open{% endif %}>
+                    <summary class="collapsible-tab__label"><h2 class="h5">{{ heading }}</h2>{% comment %}Icon chevron-small:default begin{% endcomment %}
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path stroke="currentColor" stroke-width="1.75" d="m1 5 7 7 7-7"/></svg>
+{% comment %}Icon chevron-small:default end{% endcomment %}</summary>
+                    <div class="collapsible-tab__panel">{{ content }}</div>
+                  </details>
+                  
+                  {% liquid
+                    assign heading = heading_c54f83ed
+                    assign heading_c54f83ed = nil
+                    assign content = content_c54f83ed
+                    assign content_c54f83ed = nil
+                    assign is_sibling = is_sibling_c54f83ed
+                    assign is_sibling_c54f83ed = nil
+                  %}
+                  {% comment %}Component collapsible-tab:default end{% endcomment %}
+                {% else %}
+                  <span class="featured-product-block__description-heading">{{- block.settings.heading -}}</span>
+                  <p class="featured-product-block__description-content">{{- product.description -}}</p>
+                {% endif %}
+              </div>
+            {%- when 'collapsible_tab' -%}
+              <div class="featured-product-block__collapsible-tab">
+                {% liquid
+                  capture content
+                    echo block.settings.content
+                    if block.settings.page
+                      echo block.settings.page.content
+                    endif
+                  endcapture
+                %}
+                {% comment %}Component collapsible-tab:default begin{% endcomment %}
+                {% liquid
+                  assign heading_c54f83ed = heading
+                  assign heading = block.settings.heading
+                  assign is_sibling_c54f83ed = is_sibling
+                  assign is_sibling = is_tab_sibling
+                %}
+                {% comment %}
+                  Display content as a collapsible tab
+                
+                  @param heading
+                    The tab heading
+                
+                  @param content
+                    The tab content
+                
+                  @param show_tab_as_open [optional]
+                
+                  @param is_sibling [optional]
+                {% endcomment %}
+                
+                <details data-component="collapsible-tab" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="collapsible-tab{% if is_sibling %} collapsible-tab--sibling{% endif %}"{% if show_tab_as_open %} open{% endif %}>
+                  <summary class="collapsible-tab__label"><h2 class="h5">{{ heading }}</h2>{% comment %}Icon chevron-small:default begin{% endcomment %}
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path stroke="currentColor" stroke-width="1.75" d="m1 5 7 7 7-7"/></svg>
+{% comment %}Icon chevron-small:default end{% endcomment %}</summary>
+                  <div class="collapsible-tab__panel">{{ content }}</div>
+                </details>
+                
+                {% liquid
+                  assign heading = heading_c54f83ed
+                  assign heading_c54f83ed = nil
+                  assign is_sibling = is_sibling_c54f83ed
+                  assign is_sibling_c54f83ed = nil
+                %}
+                {% comment %}Component collapsible-tab:default end{% endcomment %}
+              </div>
+            {%- when 'product_upsell' -%}
+              <div class="featured-product-block__product-recommendations">
+                {% capture content %}
+                  {% comment %}Component block-product-upsell:default begin{% endcomment %}
+                  {% liquid
+                    assign omit_shopify_attributes_2c959c05 = omit_shopify_attributes
+                    assign omit_shopify_attributes = true
+                  %}
+                  {% comment %}
+                    @param product [Required]
+                      The product that this component renders using.
+                  
+                    @param block [Required]
+                      The block object this component belongs to.
+                  
+                    @param omit_shopify_attributes [Optional]
+                      Do not include the Shopify block attributes
+                  {% endcomment %}
+                  
+                  {% assign crop_focus = 'center' %}
+                  {% assign media_crop = 'fit' %}
+                  
+                  <div data-component="block-product-upsell" data-component-type="block" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="block-product-upsell" {% unless omit_shopify_attributes %}{{ block.shopify_attributes }}{% endunless %}>
+                    {% for i in (1..4) %}
+                      {% assign product_setting_name = 'product_' | append: i %}
+                      {% assign product_upsell = block.settings[product_setting_name] %}
+                      {% if product_upsell == blank %}
+                        {% continue %}
+                      {% endif %}
+                  
+                      <div class="block-product-upsell__product">
+                        {% if product_upsell.featured_image != blank %}
+                          <div class="block-product-upsell__product-image">
+                            {% comment %}Component lazy-img:default begin{% endcomment %}
+                            {% render 'lazy-img', img: product_upsell.featured_image, size: '100x', crop_focus: crop_focus, fill_mode: media_crop, lazy: true, canvas: true %}
+                            {% comment %}Component lazy-img:default end{% endcomment %}
+                          </div>
+                        {% endif %}
+                  
+                        <div class="block-product-upsell__product-details">
+                          {% if product_upsell.vendor != blank %}
+                            <span class="block-product-upsell__product-vendor">{{ product_upsell.vendor }}</span>
+                          {% endif %}
+                  
+                          <div class="block-product-upsell__product-title">{{ product_upsell.title }}</div>
+                  
+                          <div class="block-product-upsell__product-price">{% comment %}Component price:default begin{% endcomment %}
+{% render 'price', product: product_upsell %}
+{% comment %}Component price:default end{% endcomment %}</div>
+                  
+                          <a
+                            class="block-product-upsell__product-link"
+                            href="{{ product_upsell.url }}"
+                          >
+                            {{ 'product.product_upsell.view_product' | t }}
+                          </a>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                  
+                  {% liquid
+                    assign omit_shopify_attributes = omit_shopify_attributes_2c959c05
+                    assign omit_shopify_attributes_2c959c05 = nil
+                  %}
+                  {% comment %}Component block-product-upsell:default end{% endcomment %}
+                {% endcapture %}
+
+                {% if block.settings.show_as_tab %}
+                  {% comment %}Component collapsible-tab:default begin{% endcomment %}
+                  {% liquid
+                    assign heading_86b45322 = heading
+                    assign heading = block.settings.heading
+                    assign is_sibling_86b45322 = is_sibling
+                    assign is_sibling = is_tab_sibling
+                  %}
+                  {% comment %}
+                    Display content as a collapsible tab
+                  
+                    @param heading
+                      The tab heading
+                  
+                    @param content
+                      The tab content
+                  
+                    @param show_tab_as_open [optional]
+                  
+                    @param is_sibling [optional]
+                  {% endcomment %}
+                  
+                  <details data-component="collapsible-tab" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="collapsible-tab{% if is_sibling %} collapsible-tab--sibling{% endif %}"{% if show_tab_as_open %} open{% endif %}>
+                    <summary class="collapsible-tab__label"><h2 class="h5">{{ heading }}</h2>{% comment %}Icon chevron-small:default begin{% endcomment %}
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path stroke="currentColor" stroke-width="1.75" d="m1 5 7 7 7-7"/></svg>
+{% comment %}Icon chevron-small:default end{% endcomment %}</summary>
+                    <div class="collapsible-tab__panel">{{ content }}</div>
+                  </details>
+                  
+                  {% liquid
+                    assign heading = heading_86b45322
+                    assign heading_86b45322 = nil
+                    assign is_sibling = is_sibling_86b45322
+                    assign is_sibling_86b45322 = nil
+                  %}
+                  {% comment %}Component collapsible-tab:default end{% endcomment %}
+                {% else %}
+                  <span class="featured-product-block__product-recommendations-heading">{{- block.settings.heading -}}</span>
+                  <p class="featured-product-block__product-recommendations-content">{{- content -}}</p>
+                {% endif %}
+              </div>
+            {%- when 'share' -%}
+              {% liquid
+                if selected_variant
+                  if selected_variant.image
+                    assign share_image = selected_variant.image | img_url: '1024x'
+                  else
+                    assign share_image = product.featured_image | img_url: '1024x'
+                  endif
+                  assign share_url = shop.url | append: selected_variant.url
+                  assign share_title = product.title | append: ' ' | append: selected_variant.title
+                else
+                  assign share_image = product.featured_image | img_url: '1024x'
+                  assign share_url = shop.url | append: product.url
+                  assign share_title = product.title
+                endif
+              %}
+
+              {% capture content %}
+                {% comment %}Component share:default begin{% endcomment %}
+                {% liquid
+                  assign show_facebook_d61cad97 = show_facebook
+                  assign show_facebook = block.settings.show_facebook
+                  assign show_x_d61cad97 = show_x
+                  assign show_x = block.settings.show_x
+                  assign show_pinterest_d61cad97 = show_pinterest
+                  assign show_pinterest = block.settings.show_pinterest
+                %}
+                {% comment %}
+                  @param share_url {String} [Required]
+                    URL to share
+                
+                  @param share_title {Object} [Optional]
+                    If sending data to a service, description or title to share
+                
+                  @param share_image {String} [Optional]
+                    If sending data to a service, URL of image to share.
+                
+                  @param show_facebook {Boolean} [Optional]
+                    Show facebook share button
+                
+                  @param show_x {Boolean} [Optional]
+                    Show X share button
+                
+                  @param show_pinterest {Boolean} [Optional]
+                    Show pinterest share button
+                {% endcomment %}
+                
+                {% liquid
+                  assign show_facebook = show_facebook
+                  assign show_x = show_x
+                  assign show_pinterest = show_pinterest
+                  assign share_url = share_url | url_param_escape
+                  assign share_title = share_title | url_param_escape
+                  if share_image != blank
+                    assign share_image = share_image | url_param_escape
+                  endif
+                
+                  assign copy_url_text = 'general.components.share.copy_to_clipboard' | t
+                %}
+                
+                <div data-component="share" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="share">
+                  <script
+                    type="application/json"
+                    data-component-data
+                  >
+                    {
+                      "locales": {
+                        "success_message": {{ 'general.components.share.success_message' | t | json }}
+                      }
+                    }
+                  </script>
+                  <div class="share__list">
+                    {% if show_facebook %}
+                      {% assign href = '//www.facebook.com/sharer.php?u=' | append: share_url %}
+                      {% capture text %}
+                        {% comment %}Icon facebook:default begin{% endcomment %}
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.591.077a7.981 7.981 0 0 0-5.247 2.329A7.925 7.925 0 0 0 .392 5.573a8 8 0 0 0 .248 5.604c.072.17.254.543.347.71.243.44.542.876.862 1.258a7.984 7.984 0 0 0 4.886 2.78l.016.002v-5.576H4.719V8.04H6.75L6.753 7c.003-1.107.002-1.082.04-1.341.138-.952.594-1.67 1.327-2.084.336-.19.758-.319 1.211-.369.46-.05 1.219-.012 2.02.102l.212.03c.002 0 .003.441.003.982v.983l-.598.003c-.64.003-.669.005-.838.044-.437.101-.728.384-.832.806-.041.17-.042.185-.042 1.07v.814h1.106c.999 0 1.107.002 1.107.012 0 .013-.343 2.244-.35 2.279l-.004.02H9.256v5.573l.04-.005a7.9 7.9 0 0 0 2.286-.738 8.013 8.013 0 0 0 3.837-4.142c.33-.813.517-1.647.572-2.561.012-.186.012-.679 0-.864a7.95 7.95 0 0 0-.497-2.37A8.02 8.02 0 0 0 10.9.607 8.088 8.088 0 0 0 8.532.084a16.32 16.32 0 0 0-.941-.007Z" fill="currentColor"/></svg>
+                        {% comment %}Icon facebook:default end{% endcomment %}
+                        <span class="share__text">{{ 'general.components.share.share_on_facebook' | t }}</span>
+                      {% endcapture %}
+                      {% comment %}Component button-link:default begin{% endcomment %}
+                      {% liquid
+                        assign style_eecf5126 = style
+                        assign style = 'secondary'
+                        assign size_eecf5126 = size
+                        assign size = 'small'
+                      %}
+                      {% comment %}
+                        @param href [Required]
+                          This is the anchor tag for the link button.
+                      
+                        @param style [Required]
+                          This is the style of the button: primary, secondary, tertiary, or text.
+                      
+                        @param size [Required]
+                          This defines the size of the button: small, medium, or large.
+                      
+                        @param text [Required]
+                          This is the text to be included in the button.
+                      
+                        @param attributes [Optional]
+                          Any additional attributes to add to the button-link tag.
+                      {% endcomment %}
+                      
+                      <a
+                        data-component="button-link"
+                        data-component-type="component"
+                        {% if tag != blank %}data-component-tag="{{ tag }}"
+                        {% endif %}class="button-link button-link--{{ style }} button-link--{{ size }}{% if style == 'primary' or style == 'secondary' %} button-link--shadow{% endif %%}"
+                        {% if href != blank %}
+                          href="{{ href }}"
+                        {% endif %}
+                        {{ attributes }}
+                      >
+                        {{ text }}
+                      </a>
+                      
+                      {% liquid
+                        assign style = style_eecf5126
+                        assign style_eecf5126 = nil
+                        assign size = size_eecf5126
+                        assign size_eecf5126 = nil
+                      %}
+                      {% comment %}Component button-link:default end{% endcomment %}
+                    {% endif %}
+                
+                    {% if show_x %}
+                      {% assign href = '//x.com/intent/tweet?url=' | append: share_url %}
+                      {% capture text %}
+                        {% comment %}Icon x:default begin{% endcomment %}
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.522 6.771 15.48 0h-1.412L8.895 5.88 4.765 0H0l6.247 8.89L0 15.993h1.412l5.461-6.21 4.363 6.21H16l-6.478-9.22ZM7.59 8.97l-.633-.885L1.92 1.039h2.168l4.064 5.685.633.886L14.068 15H11.9L7.589 8.97Z" fill="currentColor"/></svg>
+                        {% comment %}Icon x:default end{% endcomment %}
+                        <span class="share__text">{{ 'general.components.share.share_on_x' | t }}</span>
+                      {% endcapture %}
+                      {% comment %}Component button-link:default begin{% endcomment %}
+                      {% liquid
+                        assign style_eecf5126 = style
+                        assign style = 'secondary'
+                        assign size_eecf5126 = size
+                        assign size = 'small'
+                      %}
+                      {% comment %}
+                        @param href [Required]
+                          This is the anchor tag for the link button.
+                      
+                        @param style [Required]
+                          This is the style of the button: primary, secondary, tertiary, or text.
+                      
+                        @param size [Required]
+                          This defines the size of the button: small, medium, or large.
+                      
+                        @param text [Required]
+                          This is the text to be included in the button.
+                      
+                        @param attributes [Optional]
+                          Any additional attributes to add to the button-link tag.
+                      {% endcomment %}
+                      
+                      <a
+                        data-component="button-link"
+                        data-component-type="component"
+                        {% if tag != blank %}data-component-tag="{{ tag }}"
+                        {% endif %}class="button-link button-link--{{ style }} button-link--{{ size }}{% if style == 'primary' or style == 'secondary' %} button-link--shadow{% endif %%}"
+                        {% if href != blank %}
+                          href="{{ href }}"
+                        {% endif %}
+                        {{ attributes }}
+                      >
+                        {{ text }}
+                      </a>
+                      
+                      {% liquid
+                        assign style = style_eecf5126
+                        assign style_eecf5126 = nil
+                        assign size = size_eecf5126
+                        assign size_eecf5126 = nil
+                      %}
+                      {% comment %}Component button-link:default end{% endcomment %}
+                    {% endif %}
+                
+                    {% if show_pinterest and share_image %}
+                      {% assign href = '//pinterest.com/pin/create/button/?url=' | append: share_url | append: '&amp;media=' | append: share_image | append: '&amp;description=' | append: share_title %}
+                      {% capture text %}
+                        {% comment %}Icon pinterest:default begin{% endcomment %}
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 .587a7.485 7.485 0 0 1 5.244 2.178 7.484 7.484 0 0 1 1.182 8.96A7.36 7.36 0 0 1 8 15.422a7.558 7.558 0 0 1-2.107-.284c.373-.604.622-1.147.756-1.6l.524-2.036c.125.25.364.463.711.65a2.41 2.41 0 0 0 1.102.275c.774 0 1.467-.222 2.08-.667a4.329 4.329 0 0 0 1.423-1.822 6.49 6.49 0 0 0 .497-2.604c0-1.156-.444-2.143-1.324-2.987a4.684 4.684 0 0 0-3.378-1.271c-.827 0-1.6.142-2.293.426a4.649 4.649 0 0 0-2.996 4.214c0 .666.125 1.253.382 1.76.25.498.623.853 1.13 1.066.088.036.168.036.23 0 .063-.026.107-.088.134-.177l.16-.605c.044-.133.018-.266-.098-.4a2.089 2.089 0 0 1-.507-1.449 3.52 3.52 0 0 1 3.68-3.573c.97 0 1.725.267 2.258.791.542.533.818 1.218.818 2.062a6.28 6.28 0 0 1-.293 1.965 3.528 3.528 0 0 1-.827 1.44c-.356.355-.773.533-1.244.533-.383 0-.694-.133-.943-.418a1.098 1.098 0 0 1-.23-1.004c.135-.475.274-.95.417-1.422l.16-.65c.053-.23.08-.417.08-.577 0-.32-.089-.587-.249-.791-.178-.205-.418-.311-.738-.311-.4 0-.738.178-1.004.55-.267.365-.41.828-.41 1.388.005.346.06.69.16 1.022l.054.133c-.533 2.293-.844 3.645-.96 4.036-.106.488-.142 1.066-.115 1.724a7.467 7.467 0 0 1-4.445-6.8c0-2.044.72-3.804 2.17-5.244A7.147 7.147 0 0 1 8 .578v.009Z" fill="currentColor"/></svg>
+                        {% comment %}Icon pinterest:default end{% endcomment %}
+                        <span class="share__text">{{ 'general.components.share.share_on_pinterest' | t }}</span>
+                      {% endcapture %}
+                      {% comment %}Component button-link:default begin{% endcomment %}
+                      {% liquid
+                        assign style_eecf5126 = style
+                        assign style = 'secondary'
+                        assign size_eecf5126 = size
+                        assign size = 'small'
+                      %}
+                      {% comment %}
+                        @param href [Required]
+                          This is the anchor tag for the link button.
+                      
+                        @param style [Required]
+                          This is the style of the button: primary, secondary, tertiary, or text.
+                      
+                        @param size [Required]
+                          This defines the size of the button: small, medium, or large.
+                      
+                        @param text [Required]
+                          This is the text to be included in the button.
+                      
+                        @param attributes [Optional]
+                          Any additional attributes to add to the button-link tag.
+                      {% endcomment %}
+                      
+                      <a
+                        data-component="button-link"
+                        data-component-type="component"
+                        {% if tag != blank %}data-component-tag="{{ tag }}"
+                        {% endif %}class="button-link button-link--{{ style }} button-link--{{ size }}{% if style == 'primary' or style == 'secondary' %} button-link--shadow{% endif %%}"
+                        {% if href != blank %}
+                          href="{{ href }}"
+                        {% endif %}
+                        {{ attributes }}
+                      >
+                        {{ text }}
+                      </a>
+                      
+                      {% liquid
+                        assign style = style_eecf5126
+                        assign style_eecf5126 = nil
+                        assign size = size_eecf5126
+                        assign size_eecf5126 = nil
+                      %}
+                      {% comment %}Component button-link:default end{% endcomment %}
+                    {% endif %}
+                  </div>
+                  <div class="share__copy-url">
+                    <span
+                      class="
+                        share__copy-url-success
+                        hidden
+                        success
+                      "
+                      role="status"
+                      data-share-copy-success
+                    >
+                    </span>
+                    <div class="share__input-wrapper" data-share-input-wrapper>
+                      <input
+                        class="share__input"
+                        type="text"
+                        value="{{ share_url }}"
+                        onclick="this.select();"
+                        readonly
+                      >
+                    </div>
+                    {% comment %}Component button:default begin{% endcomment %}
+                    {% liquid
+                      assign style_64ce7375 = style
+                      assign style = 'primary'
+                      assign size_64ce7375 = size
+                      assign size = 'small'
+                      assign text_64ce7375 = text
+                      assign text = copy_url_text
+                    %}
+                    {% comment %}
+                      @param style [Required]
+                        This is the style of the button: primary, secondary, tertiary, or text. Default primary.
+                    
+                      @param size [Required]
+                        This defines the size of the button: small, medium, or large. Default medium.
+                    
+                      @param text [Required]
+                        This is the text to be included in the button.
+                    
+                      @param attributes [Optional]
+                        This will include any additional attributes that the button needs. For example, aria-controls.
+                    {% endcomment %}
+                    
+                    <button
+                      data-component="button"
+                      data-component-type="component"
+                      {% if tag != blank %}data-component-tag="{{ tag }}"
+                      {% endif %}class="button button--{{ style }} button--{{ size }}{% if style == 'primary' or style == 'secondary' %} button--shadow{% endif %%}"
+                      {{ attributes }}
+                    >
+                      {{ text }}
+                    </button>
+                    
+                    {% liquid
+                      assign style = style_64ce7375
+                      assign style_64ce7375 = nil
+                      assign size = size_64ce7375
+                      assign size_64ce7375 = nil
+                      assign text = text_64ce7375
+                      assign text_64ce7375 = nil
+                    %}
+                    {% comment %}Component button:default end{% endcomment %}
+                  </div>
+                </div>
+                
+                {% liquid
+                  assign show_facebook = show_facebook_d61cad97
+                  assign show_facebook_d61cad97 = nil
+                  assign show_x = show_x_d61cad97
+                  assign show_x_d61cad97 = nil
+                  assign show_pinterest = show_pinterest_d61cad97
+                  assign show_pinterest_d61cad97 = nil
+                %}
+                {% comment %}Component share:default end{% endcomment %}
+              {% endcapture %}
+
+              <div class="featured-product-block__share">
+                {% if block.settings.show_as_tab %}
+                  {% comment %}Component collapsible-tab:default begin{% endcomment %}
+                  {% liquid
+                    assign heading_78301a90 = heading
+                    assign heading = block.settings.heading
+                    assign is_sibling_78301a90 = is_sibling
+                    assign is_sibling = is_tab_sibling
+                  %}
+                  {% comment %}
+                    Display content as a collapsible tab
+                  
+                    @param heading
+                      The tab heading
+                  
+                    @param content
+                      The tab content
+                  
+                    @param show_tab_as_open [optional]
+                  
+                    @param is_sibling [optional]
+                  {% endcomment %}
+                  
+                  <details data-component="collapsible-tab" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="collapsible-tab{% if is_sibling %} collapsible-tab--sibling{% endif %}"{% if show_tab_as_open %} open{% endif %}>
+                    <summary class="collapsible-tab__label"><h2 class="h5">{{ heading }}</h2>{% comment %}Icon chevron-small:default begin{% endcomment %}
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path stroke="currentColor" stroke-width="1.75" d="m1 5 7 7 7-7"/></svg>
+{% comment %}Icon chevron-small:default end{% endcomment %}</summary>
+                    <div class="collapsible-tab__panel">{{ content }}</div>
+                  </details>
+                  
+                  {% liquid
+                    assign heading = heading_78301a90
+                    assign heading_78301a90 = nil
+                    assign is_sibling = is_sibling_78301a90
+                    assign is_sibling_78301a90 = nil
+                  %}
+                  {% comment %}Component collapsible-tab:default end{% endcomment %}
+                {% else %}
+                  <span class="featured-product-block__share-heading">{{- block.settings.heading -}}</span>
+                  <p class="featured-product-block__share-content">{{- content -}}</p>
+                {% endif %}
+              </div>
+            {%- when 'custom_liquid' -%}
+              {{ block.settings.custom_liquid }}
+            {%- when 'product_label' -%}
+              {% comment %}Component block-product-label:default begin{% endcomment %}
+              {% liquid
+                assign omit_shopify_attributes_6016acbb = omit_shopify_attributes
+                assign omit_shopify_attributes = true
+              %}
+              {% comment %}
+                @param block [Required]
+                  The block to render
+              
+                @param omit_shopify_attributes [Optional]
+                  Do not include the Shopify block attributes
+              {% endcomment %}
+              
+              <div
+                data-component="block-product-label"
+                data-component-type="block"
+                {% if tag != blank %}data-component-tag="{{ tag }}"
+                {% endif %}class="
+                  block-product-label
+                  block-product-label--style-{{ block.settings.label_style }}
+                  block-product-label--size-{{ block.settings.label_size }}
+                  {% if block.settings.label == blank %}hidden{% endif %}
+                "
+                {% unless omit_shopify_attributes %}{{ block.shopify_attributes }}{% endunless %}
+              >
+                {% if block.settings.icon %}
+                  <span class="block-product-label__icon">
+                    {% comment %}Component lazy-img:default begin{% endcomment %}
+                    {% render 'lazy-img', img: block.settings.icon, size: '20x', lazy: true, focal_point: block.settings.icon.presentation.focal_point %}
+                    {% comment %}Component lazy-img:default end{% endcomment %}
+                  </span>
+                {% endif %}
+                <span class="block-product-label__label">{{ block.settings.label }}</span>
+              </div>
+              
+              {% liquid
+                assign omit_shopify_attributes = omit_shopify_attributes_6016acbb
+                assign omit_shopify_attributes_6016acbb = nil
+              %}
+              {% comment %}Component block-product-label:default end{% endcomment %}
+            {%- when 'product_details' -%}
+              <span class="featured-product-block__product-details">{{ 'product.details.label' | t | link_to: product.url }}</span>
+            {%- endcase -%}
+          </div>
+        {%- endfor -%}
+      </div>
+    </section-content>
+  </section-wrapper>
+</section>
+
+{% liquid
+  assign product = global_product
+  assign global_product = nil
+%}
+{% schema %}
+{
+  "name": "t:common.component.featured_product",
+  "tag": "section",
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "vendor",
+      "name": "t:common.product.vendor",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "use_vendor_link",
+          "label": "t:common.product.vendor_collection_link",
+          "default": true
+        },
+        {
+          "type": "select",
+          "id": "text_style",
+          "label": "t:common.text.text_style",
+          "options": [
+            {
+              "value": "accent",
+              "label": "t:common.text.accent"
+            },
+            {
+              "value": "subheading",
+              "label": "t:common.text.subheading"
+            },
+            {
+              "value": "body",
+              "label": "t:common.text.body"
+            }
+          ],
+          "default": "accent"
+        }
+      ]
+    },
+    {
+      "type": "title",
+      "name": "t:common.text.title",
+      "limit": 1
+    },
+    {
+      "type": "sku",
+      "name": "t:common.product.sku",
+      "limit": 1
+    },
+    {
+      "type": "price",
+      "name": "t:common.product.price",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_label",
+          "label": "t:common.component.show_label",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "rating",
+      "name": "t:common.product.rating",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:common.info.product_reviews"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "t:common.text.text",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "t:common.text.text"
+        },
+        {
+          "type": "select",
+          "id": "text_style",
+          "options": [
+            {
+              "value": "accent",
+              "label": "t:common.text.accent"
+            },
+            {
+              "value": "subheading",
+              "label": "t:common.text.subheading"
+            },
+            {
+              "value": "body",
+              "label": "t:common.text.body"
+            }
+          ],
+          "default": "subheading",
+          "label": "t:common.text.text_style"
+        }
+      ]
+    },
+    {
+      "type": "variant_picker",
+      "name": "t:common.product.variant_picker",
+      "limit": 1,
+      "settings": [
+        {
+          "id": "product_option_style",
+          "type": "select",
+          "label": "t:component.block_variant_picker.blocks.variant_picker.product_option_style.label",
+          "options": [
+            {
+              "value": "select",
+              "label": "t:component.block_variant_picker.blocks.variant_picker.product_option_style.option_1"
+            },
+            {
+              "value": "radio",
+              "label": "t:component.block_variant_picker.blocks.variant_picker.product_option_style.option_2"
+            }
+          ],
+          "default": "select"
+        },
+        {
+          "id": "sold_out_options",
+          "type": "select",
+          "label": "t:component.block_variant_picker.blocks.variant_picker.sold_out_options.label",
+          "options": [
+            {
+              "value": "selectable",
+              "label": "t:component.block_variant_picker.blocks.variant_picker.sold_out_options.option_1"
+            },
+            {
+              "value": "disabled",
+              "label": "t:component.block_variant_picker.blocks.variant_picker.sold_out_options.option_2"
+            },
+            {
+              "value": "hidden",
+              "label": "t:component.block_variant_picker.blocks.variant_picker.sold_out_options.option_3"
+            }
+          ],
+          "default": "selectable",
+          "info": "t:component.block_variant_picker.blocks.variant_picker.sold_out_options.info"
+        },
+        {
+          "type": "checkbox",
+          "id": "swatches_enable",
+          "label": "t:component.block_variant_picker.blocks.variant_picker.swatches_enable.label",
+          "info": "t:component.block_variant_picker.blocks.variant_picker.swatches_enable.info",
+          "default": true
+        },
+        {
+          "type": "select",
+          "id": "swatches_option_style",
+          "label": "t:component.block_variant_picker.blocks.variant_picker.swatches_option_style.label",
+          "options": [
+            {
+              "value": "color_swatch",
+              "label": "t:component.block_variant_picker.blocks.variant_picker.swatches_option_style.option_1"
+            },
+            {
+              "value": "variant_image",
+              "label": "t:component.block_variant_picker.blocks.variant_picker.swatches_option_style.option_2"
+            }
+          ],
+          "default": "color_swatch"
+        }
+      ]
+    },
+    {
+      "type": "inventory_status",
+      "name": "t:common.product.inventory_status",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_stock_available",
+          "default": true,
+          "label": "t:component.block_inventory_status.blocks.inventory_status.show_stock_available.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_stock_unavailable",
+          "default": true,
+          "label": "t:component.block_inventory_status.blocks.inventory_status.show_stock_unavailable.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_stock_low",
+          "default": true,
+          "label": "t:component.block_inventory_status.blocks.inventory_status.show_stock_low.label"
+        },
+        {
+          "type": "range",
+          "id": "stock_low_threshold",
+          "label": "t:component.block_inventory_status.blocks.inventory_status.stock_low_threshold.label",
+          "min": 5,
+          "max": 25,
+          "step": 1,
+          "default": 5
+        },
+        {
+          "type": "checkbox",
+          "id": "show_stock_incoming",
+          "default": true,
+          "label": "t:component.block_inventory_status.blocks.inventory_status.show_stock_incoming.label",
+          "info": "t:component.block_inventory_status.blocks.inventory_status.show_stock_incoming.info"
+        }
+      ]
+    },
+    {
+      "type": "quantity_selector",
+      "name": "t:common.product.quantity",
+      "limit": 1
+    },
+    {
+      "type": "buy_buttons",
+      "name": "t:common.product.buy_buttons",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_dynamic_checkout",
+          "default": true,
+          "label": "t:component.block_buy_buttons.blocks.buy_buttons.show_dynamic_checkout.label",
+          "info": "t:component.block_buy_buttons.blocks.buy_buttons.show_dynamic_checkout.info"
+        }
+      ]
+    },
+    {
+      "type": "description",
+      "name": "t:common.text.description",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_as_tab",
+          "label": "t:common.product.show_as_tab",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_tab_as_open",
+          "label": "t:common.component.show_tab_opened_default",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:common.text.heading",
+          "default": "Description"
+        }
+      ]
+    },
+    {
+      "type": "size_guide",
+      "name": "t:common.product.size_guide",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "t:component.product_size_guide.blocks.size_guide.text.label",
+          "default": "View size chart"
+        },
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "t:component.product_size_guide.blocks.size_guide.icon.label",
+          "options": [
+            {
+              "value": "coat-hanger",
+              "label": "t:component.product_size_guide.blocks.size_guide.icon.option_1"
+            },
+            {
+              "value": "diagonal-arrows",
+              "label": "t:component.product_size_guide.blocks.size_guide.icon.option_2"
+            },
+            {
+              "value": "ruler",
+              "label": "t:component.product_size_guide.blocks.size_guide.icon.option_3"
+            },
+            {
+              "value": "ruler-rotated",
+              "label": "t:component.product_size_guide.blocks.size_guide.icon.option_4"
+            },
+            {
+              "value": "t-shirt",
+              "label": "t:component.product_size_guide.blocks.size_guide.icon.option_5"
+            }
+          ],
+          "default": "ruler"
+        },
+        {
+          "type": "page",
+          "id": "page",
+          "label": "t:component.product_size_guide.blocks.size_guide.page.label"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "name": "t:common.component.page",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "t:common.text.label",
+          "default": "View page"
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "t:component.product_page.blocks.page.button_style.label",
+          "options": [
+            {
+              "value": "primary",
+              "label": "t:common.style.primary"
+            },
+            {
+              "value": "secondary",
+              "label": "t:common.style.secondary"
+            },
+            {
+              "value": "tertiary",
+              "label": "t:component.product_page.blocks.page.button_style.option_3"
+            },
+            {
+              "value": "text",
+              "label": "t:common.text.text"
+            }
+          ],
+          "default": "text"
+        },
+        {
+          "type": "select",
+          "id": "button_size",
+          "label": "t:component.product_page.blocks.page.button_size.label",
+          "options": [
+            {
+              "value": "small",
+              "label": "t:common.size.small"
+            },
+            {
+              "value": "medium",
+              "label": "t:common.size.medium"
+            },
+            {
+              "value": "large",
+              "label": "t:common.size.small"
+            }
+          ],
+          "default": "medium"
+        },
+        {
+          "type": "page",
+          "id": "page",
+          "label": "t:common.component.page"
+        }
+      ]
+    },
+    {
+      "type": "collapsible_tab",
+      "name": "t:common.component.collapsible_tab",
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_tab_as_open",
+          "label": "t:common.component.show_tab_opened_default",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:common.text.heading",
+          "default": "Collapsible tab"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "t:common.text.text"
+        },
+        {
+          "type": "page",
+          "id": "page",
+          "label": "t:common.component.page"
+        }
+      ]
+    },
+    {
+      "type": "product_upsell",
+      "name": "t:common.product.upsell",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:component.block_product_upsell.blocks.product_upsell.paragraph_1.content"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_as_tab",
+          "label": "t:common.product.show_as_tab",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_tab_as_open",
+          "label": "t:common.component.show_tab_opened_default",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:common.text.heading",
+          "default": "Style with"
+        },
+        {
+          "type": "product",
+          "id": "product_1",
+          "label": "t:component.block_product_upsell.blocks.product_upsell.product_1.label"
+        },
+        {
+          "type": "product",
+          "id": "product_2",
+          "label": "t:component.block_product_upsell.blocks.product_upsell.product_2.label"
+        },
+        {
+          "type": "product",
+          "id": "product_3",
+          "label": "t:component.block_product_upsell.blocks.product_upsell.product_3.label"
+        },
+        {
+          "type": "product",
+          "id": "product_4",
+          "label": "t:component.block_product_upsell.blocks.product_upsell.product_4.label"
+        }
+      ]
+    },
+    {
+      "type": "share",
+      "name": "t:common.component.share",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_as_tab",
+          "label": "t:common.product.show_as_tab",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_tab_as_open",
+          "label": "t:common.component.show_tab_opened_default",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:common.text.heading",
+          "default": "Share"
+        },
+        {
+          "type": "paragraph",
+          "content": "t:common.info.preview_image_share"
+        },
+        {
+          "type": "paragraph",
+          "content": "t:common.info.store_title_share"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_facebook",
+          "label": "t:common.component.show_facebook",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_x",
+          "label": "t:common.component.show_x",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_pinterest",
+          "label": "t:common.component.show_pinterest",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "custom_liquid",
+      "name": "t:common.component.custom_liquid",
+      "settings": [
+        {
+          "type": "liquid",
+          "id": "custom_liquid",
+          "label": "t:common.component.custom_liquid",
+          "info": "t:common.info.custom_liquid",
+          "default": "{{ 'Write or paste your Liquid code here' }}"
+        }
+      ]
+    },
+    {
+      "type": "product_badges",
+      "name": "t:common.product.badges",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "display",
+          "label": "t:common.product.display_badges",
+          "options": [
+            {
+              "value": "sale",
+              "label": "t:common.product.badges_sale_only"
+            },
+            {
+              "value": "custom",
+              "label": "t:common.product.badges_custom_only"
+            },
+            {
+              "value": "custom-preferred",
+              "label": "t:common.product.badges_custom_preferred"
+            },
+            {
+              "value": "sale-custom",
+              "label": "t:common.product.badges_both"
+            }
+          ],
+          "default": "sale"
+        }
+      ]
+    },
+    {
+      "type": "product_label",
+      "name": "t:common.product.label",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:component.block_product_label.blocks.product_label.paragraph_1.content"
+        },
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "t:component.block_product_label.blocks.product_label.icon.label"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "t:common.text.label",
+          "default": "Product label"
+        },
+        {
+          "type": "select",
+          "id": "label_style",
+          "label": "t:component.block_product_label.blocks.product_label.label_style.label",
+          "options": [
+            {
+              "value": "simple",
+              "label": "t:component.block_product_label.blocks.product_label.label_style.option_1"
+            },
+            {
+              "value": "outlined",
+              "label": "t:component.block_product_label.blocks.product_label.label_style.option_2"
+            }
+          ],
+          "default": "simple"
+        },
+        {
+          "type": "select",
+          "id": "label_size",
+          "label": "t:component.block_product_label.blocks.product_label.label_size.label",
+          "options": [
+            {
+              "value": "small",
+              "label": "t:common.size.small"
+            },
+            {
+              "value": "medium",
+              "label": "t:common.size.medium"
+            },
+            {
+              "value": "large",
+              "label": "t:common.size.large"
+            }
+          ],
+          "default": "small"
+        }
+      ]
+    },
+    {
+      "type": "spacer",
+      "name": "t:common.component.spacer",
+      "settings": [
+        {
+          "type": "select",
+          "id": "spacing",
+          "label": "t:common.style.spacing",
+          "options": [
+            {
+              "value": "small",
+              "label": "t:common.size.small"
+            },
+            {
+              "value": "medium",
+              "label": "t:common.size.medium"
+            },
+            {
+              "value": "large",
+              "label": "t:common.size.large"
+            }
+          ],
+          "default": "medium"
+        }
+      ]
+    },
+    {
+      "type": "product_details",
+      "name": "t:component.featured_product.blocks.product_details.name",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:component.featured_product.blocks.product_details.paragraph_1.content"
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "t:common.product.product"
+    },
+    {
+      "type": "checkbox",
+      "id": "select_first_available_variant",
+      "label": "t:common.product.first_available_variant_label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:common.product.badges"
+    },
+    {
+      "type": "select",
+      "id": "gallery_badges",
+      "label": "t:common.product.display_badges",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:common.style.none"
+        },
+        {
+          "value": "sale",
+          "label": "t:common.product.badges_sale_only"
+        },
+        {
+          "value": "custom",
+          "label": "t:common.product.badges_custom_only"
+        },
+        {
+          "value": "custom-preferred",
+          "label": "t:common.product.badges_custom_preferred"
+        },
+        {
+          "value": "sale-custom",
+          "label": "t:common.product.badges_both"
+        }
+      ],
+      "default": "sale"
+    },
+    {
+      "type": "header",
+      "content": "t:common.media.media"
+    },
+    {
+      "type": "select",
+      "id": "gallery_size",
+      "label": "t:component.featured_product.gallery_size.label",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:common.size.small"
+        },
+        {
+          "value": "medium",
+          "label": "t:common.size.medium"
+        },
+        {
+          "value": "large",
+          "label": "t:common.size.large"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_gallery_thumbnails",
+      "label": "t:common.product.show_gallery_thumbnails",
+      "info": "t:common.info.desktop_only_thumbnails",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "gallery_thumbnail_size",
+      "label": "t:component.featured_product_gallery.gallery_thumbnail_size.label",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:common.size.small"
+        },
+        {
+          "value": "medium",
+          "label": "t:common.size.medium"
+        },
+        {
+          "value": "large",
+          "label": "t:common.size.large"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_gallery_autoplay",
+      "label": "t:component.featured_product_gallery.enable_gallery_autoplay.label",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "media_ratio",
+      "label": "t:common.media.media_aspect_ratio",
+      "options": [
+        {
+          "value": "natural",
+          "label": "t:common.size.natural"
+        },
+        {
+          "value": "portrait",
+          "label": "t:common.size.portrait_ratio_3_4"
+        },
+        {
+          "value": "landscape",
+          "label": "t:common.size.landscape_ratio_4_3"
+        },
+        {
+          "value": "square",
+          "label": "t:common.size.square_ratio_1_1"
+        }
+      ],
+      "default": "natural"
+    },
+    {
+      "type": "select",
+      "id": "media_crop",
+      "label": "t:common.media.media_crop_mode",
+      "info": "t:common.info.no_effect_natural_aspect_ratio",
+      "options": [
+        {
+          "value": "fit",
+          "label": "t:common.size.fit"
+        },
+        {
+          "value": "fill",
+          "label": "t:common.size.fill"
+        }
+      ],
+      "default": "fill"
+    },
+    {
+      "type": "range",
+      "id": "mobile_media_width",
+      "label": "t:common.media.mobile_media_width",
+      "min": 80,
+      "max": 100,
+      "step": 10,
+      "unit": "t:common.unit.percent",
+      "default": 80
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_image_zoom",
+      "label": "t:common.media.enable_image_zoom",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "t:common.media.enable_video_autoplay"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoloop",
+      "label": "t:common.media.enable_video_autoloop",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "mute_video",
+      "label": "t:common.media.enable_video_mute",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:common.component.featured_product",
+      "blocks": [
+        {
+          "type": "title"
+        },
+        {
+          "type": "price"
+        },
+        {
+          "type": "variant_picker"
+        },
+        {
+          "type": "quantity_selector"
+        },
+        {
+          "type": "buy_buttons"
+        },
+        {
+          "type": "product_details"
+        },
+        {
+          "type": "description"
+        }
+      ],
+      "category": "t:component.featured_product.presets.featured_product.category"
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "*"
+    ]
+  }
+}
+{% endschema %}

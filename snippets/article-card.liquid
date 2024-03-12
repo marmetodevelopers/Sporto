@@ -1,0 +1,95 @@
+{%- comment -%}
+  @param article [Required]
+    The article to use for the card
+
+  @param alternate_image [Optional]
+    If provided, the provided image will be used in place of the articles default image
+
+  @param is_featured [Optional]
+    If true, the article will display more of its excerpt before truncating (240 vs 120 characters)
+{%- endcomment -%}
+
+<article data-component="article-card" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="article-card">
+  <div class="article-card__content">
+    <div class="article-card__content-top">
+      {% assign featured_image = alternate_image | default: article.image %}
+      {% if section.settings.show_featured_image and featured_image != blank %}
+        <a
+          class="article-card__image-wrapper"
+          href="{{ article.url }}"
+        >
+          {% if featured_image != blank %}
+            {% comment %}Component lazy-img:default begin{% endcomment %}
+            {% render 'lazy-img', img: featured_image, size: '1200x', lazy: true, canvas: true, focal_point: featured_image.presentation.focal_point %}
+            {% comment %}Component lazy-img:default end{% endcomment %}
+          {% endif %}
+        </a>
+      {% endif %}
+
+      {% if section.settings.show_tags and article.tags.size > 0 %}
+      {%- comment -%}
+        `article.handle` contains the blog it belongs to ex: news/article-title
+        Use that to determine the parent blog so that we always link to the correct blog
+      {%- endcomment -%}
+        {% liquid
+          assign parent_blog = article.handle | split: '/'
+          assign parent_blog_handle = parent_blog[0]
+        %}
+        <ul class="article-card__tags">
+          {%- for tag in article.tags -%}
+            <li class="article-card__tag">
+              {% liquid
+                assign tag_handle = tag | handle
+                assign tag_link = blogs[parent_blog_handle].url
+
+                if tag_handle != blank
+                  assign tag_link = tag_link | append: '/tagged/' | append: tag_handle
+                endif
+              %}
+
+              <a href="{{ tag_link }}">
+                {{ tag | escape }}
+              </a>
+            </li>
+          {%- endfor -%}
+        </ul>
+      {% endif %}
+
+      <h2 class="article-card__title">
+        <a class="article-card__location" href="{{ article.url }}">
+          {{ article.title | escape }}
+        </a>
+      </h2>
+
+      {% if section.settings.show_excerpt and article.excerpt_or_content.size > 0 %}
+        <p class="article-card__excerpt">
+          {% if article.excerpt != blank %}
+            {{ article.excerpt | strip_html }}
+          {% else %}
+            {% liquid
+              assign truncation_length = 90
+              if is_featured
+                assign truncation_length = 240
+              endif
+            %}
+            {{ article.content | strip_html | truncate: truncation_length }}
+          {% endif %}
+        </p>
+      {% endif %}
+    </div>
+    {% if section.settings.show_date or section.settings.show_author %}
+      <div class="article-card__content-bottom">
+        {% if section.settings.show_author %}
+          <span class="article-card__author">
+            {{ 'blogs.article.written_by' | t: author: article.author }}
+          </span>
+        {% endif %}
+        {% if section.settings.show_date %}
+          <span class="article-card__date">
+            {{ article.published_at | time_tag: format: 'date' }}
+          </span>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</article>

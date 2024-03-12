@@ -1,0 +1,40 @@
+{
+  "sections": {
+    "main": {
+      "type": "product-quickshop",
+      "blocks": {
+        "block_1": {
+          "type": "details",
+          "settings": {
+          }
+        },
+        "block_2": {
+          "type": "variant_picker",
+          "settings": {
+          }
+        },
+        "block_3": {
+          "type": "quantity_selector",
+          "settings": {
+          }
+        },
+        "block_4": {
+          "type": "buy_buttons",
+          "settings": {
+          }
+        }
+      },
+      "block_order": [
+        "block_1",
+        "block_2",
+        "block_3",
+        "block_4"
+      ],
+      "settings": {
+      }
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

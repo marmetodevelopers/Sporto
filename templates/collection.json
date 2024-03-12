@@ -1,0 +1,31 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-collection-grid",
+      "settings": {
+      }
+    },
+    "banner": {
+      "type": "collection-banner",
+      "settings": {
+      }
+    },
+    "title": {
+      "type": "collection-title",
+      "disabled": true,
+      "settings": {
+      }
+    },
+    "subcollections": {
+      "type": "collection-subcollections",
+      "settings": {
+      }
+    }
+  },
+  "order": [
+    "banner",
+    "title",
+    "subcollections",
+    "main"
+  ]
+}

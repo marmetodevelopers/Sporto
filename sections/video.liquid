@@ -1,0 +1,209 @@
+<section data-component="video" data-component-type="section" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="video">
+  <section-wrapper>
+    <section-header>
+      <h2 class="video__heading">{{ section.settings.heading | escape }}</h2>
+    </section-header>
+  </section-wrapper>
+
+  <section-wrapper {% if section.settings.wide %}width="wide" {% endif %}>
+    <section-content>
+      {% comment %}Component video-player:default begin{% endcomment %}
+      {% liquid
+        assign video_type = ''
+        if section.settings.video_url != blank
+          if section.settings.video_url.type == 'youtube'
+            assign video_type = 'youtube'
+          else
+            assign video_type = 'vimeo'
+          endif
+        elsif section.settings.html5_video != blank
+          assign video_type = 'html5'
+        endif
+      
+        if section.settings.aspect_ratio == '16:9'
+          assign aspect_ratio_class = '16-9'
+        elsif section.settings.aspect_ratio == '4:3'
+          assign aspect_ratio_class = '4-3'
+        endif
+      %}
+      
+      <div
+        data-component="video-player"
+        data-component-type="component"
+        {% if tag != blank %}data-component-tag="{{ tag }}"
+        {% endif %}class="
+          video-player
+          video-player--aspect-ratio-{{ aspect_ratio_class }}
+        "
+      >
+        <script
+          type="application/json"
+          data-component-data
+        >
+          { "type": "{{ video_type }}" }
+        </script>
+      
+        {% case video_type %}
+          {% when 'youtube' %}
+            {% liquid
+              assign attribute_string = 'enablejsapi=1|'
+              if section.settings.autoplay
+                assign attribute_string = attribute_string | append: 'autoplay=1|'
+              endif
+              if section.settings.autoloop
+                assign attribute_string = attribute_string | append: 'loop=1|'
+                assign attribute_string = attribute_string | append: 'playlist=' | append: section.settings.video_url.id | append: '|'
+              endif
+              if section.settings.mute_video
+                assign attribute_string = attribute_string | append: 'mute=1|'
+              endif
+              assign attribute_string = attribute_string | split: '|'
+              assign attribute_string = attribute_string | join: '&'
+            %}
+      
+            <iframe
+              class="video-player__video"
+              src="https://www.youtube.com/embed/{{ section.settings.video_url.id }}?{{ attribute_string }}"
+              allow="autoplay; encrypted-media"
+              allowfullscreen
+              title="{{ section.settings.description | escape }}"
+              data-video
+            ></iframe>
+          {% when 'vimeo' %}
+            {% liquid
+              assign attribute_string = ''
+              if section.settings.autoplay
+                assign attribute_string = attribute_string | append: 'autoplay=1|'
+              endif
+              if section.settings.autoloop
+                assign attribute_string = attribute_string | append: 'loop=1|'
+              endif
+              if section.settings.mute_video
+                assign attribute_string = attribute_string | append: 'muted=1|'
+              endif
+              assign attribute_string = attribute_string | split: '|'
+              assign attribute_string = attribute_string | join: '&'
+            %}
+      
+            <iframe
+              class="video-player__video"
+              src="https://player.vimeo.com/video/{{ section.settings.video_url.id }}?{{ attribute_string }}"
+              allow="autoplay; encrypted-media"
+              allowfullscreen
+              title="{{ section.settings.description | escape }}"
+              data-video
+            ></iframe>
+          {% when 'html5' %}
+            {% liquid
+              assign attribute_string = 'playsinline|'
+              if section.settings.autoplay
+                assign attribute_string = attribute_string | append: 'autoplay|'
+              endif
+              if section.settings.autoloop
+                assign attribute_string = attribute_string | append: 'loop|'
+              endif
+              if section.settings.mute_video
+                assign attribute_string = attribute_string | append: 'muted|'
+              endif
+              assign attribute_string = attribute_string | split: '|'
+              assign attribute_string = attribute_string | join: ' '
+            %}
+      
+            <video
+              {{ attribute_string }}
+              data-video
+            >
+              <source src="{{ section.settings.html5_video }}">
+            </video>
+        {% endcase %}
+      </div>
+      
+      {% comment %}Component video-player:default end{% endcomment %}
+    </section-content>
+  </section-wrapper>
+</section>
+{% schema %}
+{
+  "name": "t:common.component.video",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "wide",
+      "label": "t:common.size.wide_display"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:common.text.heading",
+      "default": "Video"
+    },
+    {
+      "type": "select",
+      "id": "aspect_ratio",
+      "label": "t:component.video_player.aspect_ratio.label",
+      "options": [
+        {
+          "value": "16:9",
+          "label": "t:component.video_player.aspect_ratio.option_1"
+        },
+        {
+          "value": "4:3",
+          "label": "t:component.video_player.aspect_ratio.option_2"
+        }
+      ],
+      "default": "16:9"
+    },
+    {
+      "type": "video_url",
+      "id": "video_url",
+      "accept": [
+        "youtube",
+        "vimeo"
+      ],
+      "default": "https://www.youtube.com/watch?v=_9VUPq3SxOc",
+      "label": "t:component.video_player.video_url.label",
+      "placeholder": "t:component.video_player.video_url.placeholder"
+    },
+    {
+      "type": "text",
+      "id": "html5_video",
+      "label": "t:component.video_player.html5_video.label"
+    },
+    {
+      "type": "text",
+      "id": "description",
+      "label": "t:component.video_player.description.label",
+      "default": "This video used as the default placeholder video in Shopify themes.",
+      "info": "t:component.video_player.description.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "t:common.media.enable_video_autoplay"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoloop",
+      "label": "t:common.media.enable_video_autoloop",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "mute_video",
+      "label": "t:common.media.enable_video_mute",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:common.component.video",
+      "category": "t:component.video.presets.video.category"
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "*"
+    ]
+  }
+}
+{% endschema %}

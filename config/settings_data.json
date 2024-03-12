@@ -1,0 +1,236 @@
+{
+  "current": "Cotton",
+  "presets": {
+    "Cotton": {
+      "color_heading": "#131313",
+      "color_body": "#131313",
+      "color_accent": "#0f3d51",
+      "color_lines": "#131313",
+      "color_site_background": "#ffffff",
+      "color_site_background_secondary": "#efede5",
+      "color_sale": "#c93030",
+      "color_badge_text": "#ac1e1e",
+      "color_badge_background": "#ffffff",
+      "color_star_ratings": "#131313",
+      "color_in_stock": "#5b8c25",
+      "color_low_in_stock": "#ac1e1e",
+      "color_out_of_stock": "#131313",
+      "color_button_main": "#102833",
+      "color_overlay_opacity": 15,
+      "color_footer_background": "#f7f7f7",
+      "color_footer_text": "#131313",
+      "font_body": "helvetica_n3",
+      "font_body_size": 16,
+      "font_body_height": 1.3,
+      "font_heading": "dm_sans_n5",
+      "font_heading_size": 35,
+      "font_heading_height": 1.1,
+      "cart_show_vendor": false,
+      "product_card_color_option_name": "hidden",
+      "product_card_label_style": "outlined",
+      "product_card_show_vendor": false,
+      "product_card_media_ratio": "portrait",
+      "product_card_crop_mode": "fill",
+      "product_card_badges": "sale-custom",
+      "predictive_search_show_posts_and_pages": false,
+      "product_badges_uppercase": false,
+      "product_badges_bold": false,
+      "product_badges_font": "body",
+      "product_badge_background_color_1": "#131313",
+      "product_badge_text_color_2": "#131313",
+      "product_badge_background_color_2": "#ffffff",
+      "product_badge_tag_2": "New",
+      "product_badge_text_color_3": "#131313",
+      "product_badge_background_color_3": "#ffffff",
+      "product_badge_text_color_4": "#ffffff",
+      "product_badge_background_color_4": "#0f3d51",
+      "color_background": "#ffffff",
+      "type_size_base": 16,
+      "sections": {
+        "header-password": {
+          "type": "header-password",
+          "settings": {
+            "logo_width": 145,
+            "logo_width_mobile": 200,
+            "header_sticky": false,
+            "show_border": true,
+            "show_social_icons": true,
+            "toolbar_text_color": "#ffffff",
+            "toolbar_bg_color": "#494931",
+            "enable_language_selector": true,
+            "enable_country_selector": true
+          }
+        },
+        "footer-password": {
+          "type": "footer-password",
+          "settings": {
+          }
+        }
+      },
+      "content_for_index": [
+
+      ]
+    },
+    "Nylon": {
+      "color_heading": "#000000",
+      "color_body": "#000000",
+      "color_accent": "#1601ff",
+      "color_lines": "#1601ff",
+      "color_site_background": "#ffffff",
+      "color_site_background_secondary": "#ffffff",
+      "color_sale": "#f72100",
+      "color_badge_text": "#ffffff",
+      "color_badge_background": "#f72100",
+      "color_star_ratings": "#000000",
+      "color_in_stock": "#1601ff",
+      "color_low_in_stock": "#1601ff",
+      "color_out_of_stock": "#d10000",
+      "color_button_main_contrast": "#ffffff",
+      "color_button_main": "#1601ff",
+      "color_overlay": "#000000",
+      "color_overlay_opacity": 20,
+      "color_footer_background": "#ffffff",
+      "color_footer_text": "#000000",
+      "font_body": "univers_next_n4",
+      "font_body_size": 17,
+      "font_body_height": 1.3,
+      "font_heading": "univers_next_n5",
+      "font_heading_uppercase": true,
+      "font_heading_size": 37,
+      "font_heading_spacing": 2,
+      "font_heading_height": 1.1,
+      "enable_checkout_lock_icon": true,
+      "cart_enable_cross_sell": false,
+      "show_dynamic_payment": true,
+      "cart_show_vendor": false,
+      "product_card_color_option_name": "below",
+      "product_card_color_option": "hidden",
+      "product_card_label_style": "standard",
+      "product_card_show_vendor": false,
+      "product_card_media_ratio": "portrait",
+      "product_card_crop_mode": "fill",
+      "product_card_badges": "sale-custom",
+      "predictive_search_show_posts_and_pages": false,
+      "product_badges_uppercase": true,
+      "product_badges_bold": false,
+      "product_badges_font": "heading",
+      "product_badge_text_color_1": "#000000",
+      "product_badge_background_color_1": "#dedede",
+      "product_badge_text_color_2": "#ffffff",
+      "product_badge_background_color_2": "#1601ff",
+      "product_badge_text_color_3": "#000000",
+      "product_badge_background_color_3": "#ffffff",
+      "product_badge_background_color_4": "#ef5e0d",
+      "product_badge_tag_4": "bestseller",
+      "color_background": "#ffffff",
+      "type_size_base": 16,
+      "sections": {
+        "header-password": {
+          "type": "header-password",
+          "settings": {
+            "logo_width": 145,
+            "logo_width_mobile": 200,
+            "header_sticky": false,
+            "show_border": true,
+            "show_social_icons": true,
+            "toolbar_text_color": "#ffffff",
+            "toolbar_bg_color": "#1601ff",
+            "enable_language_selector": true,
+            "enable_country_selector": true
+          }
+        },
+        "footer-password": {
+          "type": "footer-password",
+          "settings": {
+          }
+        }
+      },
+      "content_for_index": [
+
+      ]
+    },
+    "Lycra": {
+      "color_heading": "#000000",
+      "color_body": "#000000",
+      "color_accent": "#7058db",
+      "color_lines": "#000000",
+      "color_site_background": "#f0eee8",
+      "color_site_background_secondary": "#f0eee8",
+      "color_sale": "#7058db",
+      "color_badge_text": "#ffffff",
+      "color_badge_background": "#7058dB",
+      "color_star_ratings": "#7058db",
+      "color_in_stock": "#7058db",
+      "color_low_in_stock": "#7058db",
+      "color_out_of_stock": "#7058db",
+      "color_button_main_contrast": "#d7ef00",
+      "color_button_main": "#000000",
+      "color_overlay_opacity": 20,
+      "color_footer_background": "#000000",
+      "color_footer_text": "#ffffff",
+      "font_body": "slate_n3",
+      "font_body_size": 18,
+      "font_body_height": 1.3,
+      "font_heading": "itc_clearface_n4",
+      "font_heading_size": 45,
+      "font_heading_height": 1.2,
+      "currency_code_enabled": false,
+      "show_dynamic_payment": false,
+      "cart_show_vendor": false,
+      "continue_shopping_collection": "all",
+      "product_card_color_option_name": "hidden",
+      "product_card_color_option": "count",
+      "product_card_label_style": "standard",
+      "product_card_show_vendor": false,
+      "product_card_media_ratio": "natural",
+      "product_card_crop_mode": "fill",
+      "product_card_badges": "sale-custom",
+      "price_savings_style": "percent",
+      "predictive_search_show_posts_and_pages": false,
+      "product_badges_uppercase": false,
+      "product_badges_bold": false,
+      "product_badges_font": "heading",
+      "product_badge_tag_1": "Bestseller",
+      "product_badge_text_color_2": "#000000",
+      "product_badge_background_color_2": "#d7ef00",
+      "product_badge_tag_2": "New",
+      "product_badge_text_color_3": "#000000",
+      "product_badge_background_color_3": "#ffffff",
+      "product_badge_tag_3": "",
+      "product_badge_text_color_4": "#7058db",
+      "product_badge_background_color_4": "#ffffff",
+      "product_badge_tag_4": "",
+      "color_background": "#ffffff",
+      "type_size_base": 16,
+      "sections": {
+        "header-password": {
+          "type": "header-password",
+          "settings": {
+            "logo_width": 145,
+            "logo_width_mobile": 200,
+            "header_sticky": false,
+            "show_border": true,
+            "show_social_icons": true,
+            "toolbar_text_color": "#ffffff",
+            "toolbar_bg_color": "#494931",
+            "enable_language_selector": true,
+            "enable_country_selector": true
+          }
+        },
+        "footer-password": {
+          "type": "footer-password",
+          "settings": {
+          }
+        },
+        "cart-drawer-template": {
+          "type": "cart-drawer-template",
+          "settings": {
+          }
+        }
+      },
+      "content_for_index": [
+
+      ]
+    }
+  }
+}

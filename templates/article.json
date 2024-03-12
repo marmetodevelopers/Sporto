@@ -1,0 +1,34 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-article",
+      "blocks": {
+        "block-1": {
+          "type": "content",
+          "settings": {
+            "show_date": true,
+            "show_author": true
+          }
+        },
+        "block-2": {
+          "type": "share",
+          "settings": {
+            "show_share_icons": true
+          }
+        }
+      },
+      "block_order": [
+        "block-1",
+        "block-2"
+      ],
+      "settings": {
+        "show_article_image": true,
+        "image_display": "column",
+        "title_style": "column"
+      }
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

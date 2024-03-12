@@ -1,0 +1,675 @@
+{% liquid
+  assign has_image = false
+  if section.settings.image != blank
+    assign has_image = true
+  endif
+%}
+
+<section
+  data-component="newsletter"
+  data-component-type="section"
+  {% if tag != blank %}data-component-tag="{{ tag }}"
+  {% endif %}class="newsletter"
+  style="
+    --newsletter-foreground-color: {{ section.settings.foreground_color }};
+    --block-text-color: {{ section.settings.text_color }};
+  "
+>
+  <section-wrapper>
+    <section-content>
+      <div
+        class="
+          newsletter__wrapper
+          {% if has_image %}
+            newsletter__wrapper--with-image
+          {% endif %}
+        "
+      >
+        <div class="newsletter__content">
+          {% for block in section.blocks %}
+            {% case block.type %}
+              {%- when '@app' -%}
+                {% render block %}
+              {%- when 'preheading' -%}
+                {% comment %}Component block-preheading:sizeable begin{% endcomment %}
+                <div
+                  data-component="block-preheading"
+                  data-component-type="block"
+                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                  {% endif %}class="
+                    block-preheading
+                    block-preheading--{{ block.settings.size }}
+                    {% if block.settings.bolder %}
+                      block-preheading--bolder
+                    {% endif %}
+                    {% if block.settings.uppercase %}
+                      block-preheading--uppercase
+                    {% endif %}
+                  "
+                  {{ block.shopify_attributes }}
+                >
+                  {{ block.settings.content | escape }}
+                </div>
+                
+                {% comment %}Component block-preheading:sizeable end{% endcomment %}
+              {%- when 'heading' -%}
+                {% comment %}Component block-heading:sizeable begin{% endcomment %}
+                <div
+                  data-component="block-heading"
+                  data-component-type="block"
+                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                  {% endif %}class="
+                    block-heading
+                    block-heading--desktop-{{ block.settings.size_desktop }}
+                    {% unless block.settings.size_mobile == 'same_as_desktop' %}
+                      block-heading--mobile-{{ block.settings.size_mobile }}
+                    {% endunless %}
+                  "
+                  {{ block.shopify_attributes }}
+                >
+                  <h2>
+                    {{ block.settings.content | escape }}
+                  </h2>
+                </div>
+                
+                {% comment %}Component block-heading:sizeable end{% endcomment %}
+              {%- when 'text' -%}
+                {% comment %}Component block-richtext:sizeable begin{% endcomment %}
+                <div
+                  data-component="block-richtext"
+                  data-component-type="block"
+                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                  {% endif %}class="block-richtext block-richtext--{{ block.settings.size }}"
+                  {{ block.shopify_attributes }}
+                >
+                  {{ block.settings.content }}
+                </div>
+                
+                {% comment %}Component block-richtext:sizeable end{% endcomment %}
+              {%- when 'email_form' -%}
+                {% comment %}Component block-newsletter-form:default begin{% endcomment %}
+                {% assign morph_base_color = block.settings.color_main %}
+                {% assign morph_adjustment = 3 %}
+                {% capture color_button_morphed %}{% comment %}Inject morph begin{% endcomment %}
+{% comment %}
+  This adjusts the color to give it an appropriate difference from the original color.
+  It is usually used for link hover color, and things where we need to distinguish a change.
+
+  @param morph_base_color {Color}
+    The origin color to morph
+
+  @param morph_adjustment {Number}
+    The number to multiply the lightness and saturation by. Default 2.
+{% endcomment %}
+
+{% if morph_adjustment == blank %}
+  {% assign morph_adjustment = 2 %}
+{% endif %}
+
+{% assign morph_adjustment = morph_adjustment | times: 1.0 %}
+
+{% assign color_lightness = morph_base_color | color_extract: 'lightness' %}
+
+{% if color_lightness > 20.0 %}
+  {% if color_lightness > 50.0 %}
+    {% assign light_adjustment = color_lightness | divided_by: 25.0 | times: morph_adjustment %}
+  {% else %}
+    {% assign light_adjustment = color_lightness | divided_by: 15.0 | times: morph_adjustment %}
+  {% endif %}
+  {% assign new_color = morph_base_color | color_darken: light_adjustment %}
+{% else %}
+  {% if color_lightness < 7.0 %}
+    {% assign light_adjustment = 3.0 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 45.0 %}
+  {% elsif color_lightness < 12.0 %}
+    {% assign light_adjustment = 2.25 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color | color_desaturate: 15.0 %}
+  {% else %}
+    {% assign light_adjustment = 1.75 | times: morph_adjustment %}
+    {% assign new_color = morph_base_color %}
+  {% endif %}
+  {% assign new_color = new_color | color_lighten: light_adjustment %}
+{% endif %}
+
+{{ new_color }}
+
+{% assign morph_base_color = blank %}
+{% assign morph_adjustment = blank %}
+
+{% comment %}Inject morph end{% endcomment %}{% endcapture %}
+                
+                <div
+                  data-component="block-newsletter-form"
+                  data-component-type="block"
+                  {% if tag != blank %}data-component-tag="{{ tag }}"
+                  {% endif %}class="block-newsletter-form"
+                  style="
+                    --color-button-main-contrast: {{ block.settings.color_contrast }};
+                    --color-button-main: {{ block.settings.color_main }};
+                    --color-button-main-invoked: {{ color_button_morphed }};
+                    --color-form-foreground: {{ block.settings.color_main }};
+                    --color-form-active: {{ block.settings.color_main }};
+                    --color-form-foreground-rgb:
+                      {{ block.settings.color_main | color_extract: 'red'}},
+                      {{ block.settings.color_main | color_extract: 'green'}},
+                      {{ block.settings.color_main | color_extract: 'blue'}};
+                  "
+                  {{ block.shopify_attributes }}
+                >
+                  {% liquid
+                    assign label_text = 'general.components.newsletter_form.label' | t
+                    assign button_text = 'general.components.newsletter_form.button_label' | t
+                    assign placeholder_text = 'general.components.newsletter_form.label' | t
+                  %}
+                
+                  {%- capture input_attributes -%}
+                    required
+                    autocorrect="off"
+                    autocapitalize="off"
+                    autocomplete="email"
+                    aria-required="true"
+                    {% if form.errors %}
+                      autofocus
+                      aria-invalid="true"
+                      aria-describedby="newsletter-error--{{ section.id }}"
+                    {% elsif form.posted_successfully? %}
+                      aria-describedby="newsletter-success--{{ section.id }}"
+                    {% endif %}
+                  {%- endcapture -%}
+                
+                  {%- capture button_attributes -%}
+                    aria-label="{{ button_label }}"
+                    data-newsletter-submit
+                  {%- endcapture -%}
+                  {% comment %}UUID newsletter_id begin{% endcomment %}
+                  {% assign newsletter_id = 'ef618b19-a64f-4280-9d93-74387ad11c4b' %}
+                  {% comment %}UUID newsletter_id end{% endcomment %}
+                  {% assign newsletter_id = newsletter_id | append: '-' | append: block.id %}
+                  {% form 'customer', id: newsletter_id, classclass: 'newsletter-form', data-newsletter: '' %}
+                    {% if form.errors %}
+                      {% capture form_error_content %}
+                        <p
+                          id="newsletter-error--{{ section.id }}"
+                          tabindex="-1"
+                          autofocus
+                        >
+                          {{ form.errors.translated_fields['email'] | capitalize }} {{ form.errors.messages['email'] }}
+                        </p>
+                      {% endcapture %}
+                
+                      {% comment %}Component notification:default begin{% endcomment %}
+                      {% liquid
+                        assign content_da8a19e5 = content
+                        assign content = form_error_content
+                        assign type_da8a19e5 = type
+                        assign type = 'error'
+                      %}
+                      {%- comment -%}
+                        @param content [Required]
+                          The content that goes in the notification banner
+                      
+                        @param type [Required]
+                          The type of notification banner ('error' or 'success')
+                      
+                        @param hidden [Optional]
+                          Whether the notification should be hidden
+                      {%- endcomment -%}
+                      
+                      <div
+                        data-component="notification"
+                        data-component-type="component"
+                        {% if tag != blank %}data-component-tag="{{ tag }}"
+                        {% endif %}class="
+                          notification
+                          notification--{{ type }}
+                        "
+                        {% if type == 'error' %}
+                          role="alert"
+                        {% else %}
+                          role="status"
+                        {% endif %}
+                        {% if hidden %}hidden{% endif %}
+                      >
+                        {{ content }}
+                      </div>
+                      
+                      {% liquid
+                        assign content = content_da8a19e5
+                        assign content_da8a19e5 = nil
+                        assign type = type_da8a19e5
+                        assign type_da8a19e5 = nil
+                      %}
+                      {% comment %}Component notification:default end{% endcomment %}
+                    {% endif %}
+                    {%- if form.posted_successfully? -%}
+                      {% capture form_success_content %}
+                        <h3
+                          id="newsletter-success--{{ section.id }}"
+                          tabindex="-1"
+                          autofocus
+                        >
+                          {{ 'general.components.newsletter_form.success' | t }}
+                        </h3>
+                      {% endcapture %}
+                      {% comment %}Component notification:default begin{% endcomment %}
+                      {% liquid
+                        assign content_da8a19e5 = content
+                        assign content = form_success_content
+                        assign type_da8a19e5 = type
+                        assign type = 'success'
+                      %}
+                      {%- comment -%}
+                        @param content [Required]
+                          The content that goes in the notification banner
+                      
+                        @param type [Required]
+                          The type of notification banner ('error' or 'success')
+                      
+                        @param hidden [Optional]
+                          Whether the notification should be hidden
+                      {%- endcomment -%}
+                      
+                      <div
+                        data-component="notification"
+                        data-component-type="component"
+                        {% if tag != blank %}data-component-tag="{{ tag }}"
+                        {% endif %}class="
+                          notification
+                          notification--{{ type }}
+                        "
+                        {% if type == 'error' %}
+                          role="alert"
+                        {% else %}
+                          role="status"
+                        {% endif %}
+                        {% if hidden %}hidden{% endif %}
+                      >
+                        {{ content }}
+                      </div>
+                      
+                      {% liquid
+                        assign content = content_da8a19e5
+                        assign content_da8a19e5 = nil
+                        assign type = type_da8a19e5
+                        assign type_da8a19e5 = nil
+                      %}
+                      {% comment %}Component notification:default end{% endcomment %}
+                    {%- endif -%}
+                    <div class="newsletter-form__content">
+                      <input type="hidden" name="contact[tags]" value="newsletter">
+                      {% assign input_id = section.id | append: '-' | append: block.id | append: '-newsletter' %}
+                      {% comment %}Component input-field:default begin{% endcomment %}
+                      {% liquid
+                        assign input_type_661af0c4 = input_type
+                        assign input_type = 'email'
+                        assign placeholder_661af0c4 = placeholder
+                        assign placeholder = placeholder_text
+                        assign form_namespace_661af0c4 = form_namespace
+                        assign form_namespace = 'contact'
+                        assign field_name_661af0c4 = field_name
+                        assign field_name = 'email'
+                        assign attributes_661af0c4 = attributes
+                        assign attributes = input_attributes
+                      %}
+                      {% comment %}
+                        @param form [Required]
+                          The form that the input lives in.
+                      
+                        @param form_namespace [Required]
+                          The form's namespace that is used in "name" attribute as form_namespace[field_name].
+                      
+                        @param field_name [Required]
+                          The field name for the form. Will be used for the "name" attribute.
+                      
+                        @param input_type [Required]
+                          The type of field that is being rendered. Usually text, password, number, etc.
+                      
+                        @param input_id [Optional]
+                          The type of field that is being rendered. Usually text, password, number, etc.
+                      
+                        @param label_text [Required]
+                          The text for the label to be included.
+                      
+                        @param placeholder [Optional]
+                          The placeholder for the input field.
+                      
+                        @param attributes [Optional]
+                          Additional attributes to append to the input field.
+                      {% endcomment %}
+                      
+                      {% if input_id == blank %}
+                        {% comment %}UUID input_id begin{% endcomment %}
+                        {% assign input_id = '49e3e0ff-61a7-4b33-871f-e2ca6f429a16' %}
+                        {% comment %}UUID input_id end{% endcomment %}
+                      {% endif %}
+                      
+                      <div data-component="input-field" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="input-field">
+                        <label for="{{ input_id }}">{{ label_text }}</label>
+                        <input
+                          id="{{ input_id }}"
+                          type="{{ input_type }}"
+                          name="{% if form_namespace %}{{ form_namespace }}[{{ field_name }}]{% else %}{{ field_name }}{% endif %}"
+                          value="{{ form[field_name] }}"
+                          placeholder="{{ placeholder }}"
+                          {{ attributes }}
+                        >
+                      </div>
+                      
+                      {% liquid
+                        assign input_type = input_type_661af0c4
+                        assign input_type_661af0c4 = nil
+                        assign placeholder = placeholder_661af0c4
+                        assign placeholder_661af0c4 = nil
+                        assign form_namespace = form_namespace_661af0c4
+                        assign form_namespace_661af0c4 = nil
+                        assign field_name = field_name_661af0c4
+                        assign field_name_661af0c4 = nil
+                        assign attributes = attributes_661af0c4
+                        assign attributes_661af0c4 = nil
+                      %}
+                      {% comment %}Component input-field:default end{% endcomment %}
+                      {% comment %}Component button:default begin{% endcomment %}
+                      {% liquid
+                        assign style_642b94ca = style
+                        assign style = block.settings.style
+                        assign size_642b94ca = size
+                        assign size = 'small'
+                        assign text_642b94ca = text
+                        assign text = button_text
+                        assign attributes_642b94ca = attributes
+                        assign attributes = button_attributes
+                      %}
+                      {% comment %}
+                        @param style [Required]
+                          This is the style of the button: primary, secondary, tertiary, or text. Default primary.
+                      
+                        @param size [Required]
+                          This defines the size of the button: small, medium, or large. Default medium.
+                      
+                        @param text [Required]
+                          This is the text to be included in the button.
+                      
+                        @param attributes [Optional]
+                          This will include any additional attributes that the button needs. For example, aria-controls.
+                      {% endcomment %}
+                      
+                      <button
+                        data-component="button"
+                        data-component-type="component"
+                        {% if tag != blank %}data-component-tag="{{ tag }}"
+                        {% endif %}class="button button--{{ style }} button--{{ size }}{% if style == 'primary' or style == 'secondary' %} button--shadow{% endif %%}"
+                        {{ attributes }}
+                      >
+                        {{ text }}
+                      </button>
+                      
+                      {% liquid
+                        assign style = style_642b94ca
+                        assign style_642b94ca = nil
+                        assign size = size_642b94ca
+                        assign size_642b94ca = nil
+                        assign text = text_642b94ca
+                        assign text_642b94ca = nil
+                        assign attributes = attributes_642b94ca
+                        assign attributes_642b94ca = nil
+                      %}
+                      {% comment %}Component button:default end{% endcomment %}
+                    </div>
+                  {% endform %}
+                </div>
+                
+                {% comment %}Component block-newsletter-form:default end{% endcomment %}
+            {% endcase %}
+          {% endfor %}
+        </div>
+        {% if has_image %}
+          <div class="newsletter__image-wrapper">
+            {% comment %}Component lazy-img:default begin{% endcomment %}
+            {% render 'lazy-img', img: section.settings.image, size: '1200x', lazy: true, canvas: true, focal_point: section.settings.image.presentation.focal_point %}
+            {% comment %}Component lazy-img:default end{% endcomment %}
+          </div>
+        {% endif %}
+      </div>
+    </section-content>
+  </section-wrapper>
+</section>
+{% schema %}
+{
+  "name": "t:common.component.newsletter",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:common.image.image"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "t:common.text.text_color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "foreground_color",
+      "label": "t:component.newsletter.foreground_color.label",
+      "default": "#F0F0F0"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "preheading",
+      "name": "t:common.text.preheading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "content",
+          "label": "t:common.text.content",
+          "default": "Preheading"
+        },
+        {
+          "type": "select",
+          "id": "size",
+          "label": "t:common.text.size",
+          "options": [
+            {
+              "value": "small",
+              "label": "t:common.size.small"
+            },
+            {
+              "value": "medium",
+              "label": "t:common.size.medium"
+            },
+            {
+              "value": "large",
+              "label": "t:common.size.large"
+            }
+          ],
+          "default": "large"
+        },
+        {
+          "type": "checkbox",
+          "id": "bolder",
+          "label": "t:common.text.bolder",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "uppercase",
+          "label": "t:common.text.uppercase_text",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "name": "t:common.text.heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "content",
+          "label": "t:common.text.heading",
+          "default": "Talk about your brand"
+        },
+        {
+          "type": "select",
+          "id": "size_desktop",
+          "label": "t:component.block_heading.blocks.heading.size_desktop.label",
+          "options": [
+            {
+              "value": "small",
+              "label": "t:common.size.small"
+            },
+            {
+              "value": "medium",
+              "label": "t:common.size.medium"
+            },
+            {
+              "value": "large",
+              "label": "t:common.size.large"
+            },
+            {
+              "value": "extra-large",
+              "label": "t:common.size.extra_large"
+            }
+          ],
+          "default": "medium"
+        },
+        {
+          "type": "select",
+          "id": "size_mobile",
+          "label": "t:component.block_heading.blocks.heading.size_mobile.label",
+          "options": [
+            {
+              "value": "same_as_desktop",
+              "label": "t:component.block_heading.blocks.heading.size_mobile.option_1"
+            },
+            {
+              "value": "small",
+              "label": "t:common.size.small"
+            },
+            {
+              "value": "medium",
+              "label": "t:common.size.medium"
+            },
+            {
+              "value": "large",
+              "label": "t:common.size.large"
+            },
+            {
+              "value": "extra-large",
+              "label": "t:common.size.extra_large"
+            }
+          ],
+          "default": "same_as_desktop"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "t:common.text.text",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "t:common.text.description",
+          "default": "<p>Share information about your brand with your customers. Describe a product, make announcements, or welcome customers to your store.</p>"
+        },
+        {
+          "type": "select",
+          "id": "size",
+          "label": "t:common.text.size",
+          "options": [
+            {
+              "value": "small",
+              "label": "t:common.size.small"
+            },
+            {
+              "value": "medium",
+              "label": "t:common.size.medium"
+            },
+            {
+              "value": "large",
+              "label": "t:common.size.large"
+            }
+          ],
+          "default": "medium"
+        }
+      ]
+    },
+    {
+      "type": "email_form",
+      "name": "t:component.block_newsletter_form.blocks.email_form.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "style",
+          "label": "t:component.block_newsletter_form.blocks.email_form.style.label",
+          "options": [
+            {
+              "value": "primary",
+              "label": "t:common.style.primary"
+            },
+            {
+              "value": "secondary",
+              "label": "t:common.style.secondary"
+            }
+          ]
+        },
+        {
+          "type": "color",
+          "id": "color_main",
+          "label": "t:common.style.main_color",
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "color_contrast",
+          "label": "t:common.style.contrast_color",
+          "default": "#ffffff"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:common.component.newsletter",
+      "blocks": [
+        {
+          "type": "preheading",
+          "settings": {
+            "content": "Preheading"
+          }
+        },
+        {
+          "type": "heading",
+          "settings": {
+            "content": "Newsletter"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "content": "<p>Invite customers to join your mailing list.</p>"
+          }
+        },
+        {
+          "type": "email_form"
+        }
+      ],
+      "category": "t:component.newsletter.presets.newsletter.category"
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "*"
+    ]
+  }
+}
+{% endschema %}

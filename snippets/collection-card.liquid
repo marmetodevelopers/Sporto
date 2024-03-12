@@ -1,0 +1,73 @@
+{%- comment -%}
+  @param collection [Required]
+    The collection being rendered in the card
+
+  @param use_custom_image [Optional]
+    Toggle custom image usage
+
+  @param custom_image [Optional]
+    A custom image to use in place of the collection image
+{%- endcomment -%}
+
+{% liquid
+  assign featured_image = collection.featured_image
+
+  if use_custom_image
+    assign featured_image = custom_image
+  endif
+
+  assign crop_focus = false
+  if section.settings.collection_card_crop_mode == 'fill' and section.settings.collection_card_media_ratio != 'natural'
+    assign crop_focus = 'center'
+  endif
+
+  assign fill_mode = 'fill'
+  if section.settings.collection_card_crop_mode == 'fit' and section.settings.collection_card_media_ratio != 'natural'
+    assign fill_mode = 'fit'
+  endif
+
+  assign onboarding = false
+  if collection == blank
+    assign onboarding = true
+  endif
+%}
+
+<div data-component="collection-card" data-component-type="component" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="collection-card">
+  <a class="collection-card__location" href="{{ collection.url }}">
+    <div
+      class="
+        collection-card__image-wrapper
+        collection-card__image-wrapper--{{ section.settings.collection_card_media_ratio }}
+      "
+    >
+      {% if onboarding or featured_image == blank %}
+        {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
+      {% else %}
+        {% comment %}Component lazy-img:default begin{% endcomment %}
+        {% render 'lazy-img', img: featured_image, size: '1200x', lazy: true, canvas: true, crop_focus: crop_focus, fill_mode: fill_mode, focal_point: featured_image.presentation.focal_point %}
+        {% comment %}Component lazy-img:default end{% endcomment %}
+      {% endif %}
+    </div>
+    {% if section.settings.show_title or section.settings.show_product_count or section.settings.show_description or onboarding %}
+      <div class="collection-card__text">
+        {% if section.settings.show_title %}
+          {% if onboarding %}
+            <h3 class="collection-card__title">{{ 'onboarding.collection_title' | t }}</h3>
+          {% else %}
+            <h3 class="collection-card__title">{{ collection.title | escape }}</h3>
+          {% endif %}
+        {% endif %}
+        {% if section.settings.show_description and collection.description != blank %}
+          <p class="collection-card__description">
+            {{ collection.description | strip_html | truncatewords: 12 }}
+          </p>
+        {% endif %}
+        {% if section.settings.show_product_count and onboarding == false %}
+          <div class="collection-card__product-count">
+            <span>{{ 'general.components.collection_card.item_count' | t: count: collection.products_count }}</span>
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+  </a>
+</div>

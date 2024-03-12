@@ -1,0 +1,32 @@
+{% liquid 
+  capture _
+    echo settings.show_age_gate_logo
+  endcapture
+%}
+
+<section data-component="page-age-gate" data-component-type="section" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}data-required-age="||{{ section.settings.min_age }}||"></section>
+{% schema %}
+{
+  "name": "t:sections.age_gate.name",
+  "class": "shopify-section__age-gate",
+  "settings": [
+    {
+      "type": "number",
+      "id": "min_age",
+      "label": "t:sections.age_gate.minimum_age.label",
+      "default": 18
+    }
+  ],
+  "presets": [
+    {
+      "category": "t:sections.age_gate.presets.category",
+      "name": "t:sections.age_gate.presets.name"
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "*"
+    ]
+  }
+}
+{% endschema %}
