@@ -3,6 +3,15 @@
     "main": {
       "type": "product",
       "blocks": {
+        "product_label_7yHzPP": {
+          "type": "product_label",
+          "settings": {
+            "icon": "shopify:\/\/shop_images\/umbrella_256x224_dcb4c1bb-ee05-4291-b3d8-2fdd5a4d6707.png",
+            "label": "{{ product.metafields.custom.product_label.value }} 100% waterproof",
+            "label_style": "outlined",
+            "label_size": "small"
+          }
+        },
         "block_1": {
           "type": "title",
           "settings": {
@@ -11,55 +20,218 @@
         "block_2": {
           "type": "price",
           "settings": {
+            "show_label": false
           }
         },
         "block_3": {
           "type": "text",
           "settings": {
+            "text": "",
+            "text_style": "subheading"
+          }
+        },
+        "inventory_status_JHiC4G": {
+          "type": "inventory_status",
+          "settings": {
+            "show_stock_available": true,
+            "show_stock_unavailable": true,
+            "show_stock_low": true,
+            "stock_low_threshold": 5,
+            "show_stock_incoming": true
           }
         },
         "block_4": {
           "type": "variant_picker",
           "settings": {
+            "product_option_style": "radio",
+            "sold_out_options": "selectable",
+            "swatches_enable": true,
+            "swatches_option_style": "color_swatch"
           }
         },
-        "block_5": {
-          "type": "quantity_selector",
+        "size_guide_FMaNRY": {
+          "type": "size_guide",
           "settings": {
-          }
-        },
-        "block_6": {
-          "type": "description",
-          "settings": {
+            "text": "View size chart",
+            "icon": "coat-hanger",
+            "page": ""
           }
         },
         "block_7": {
           "type": "buy_buttons",
           "settings": {
+            "show_gift_card_recipient_form": false,
+            "show_dynamic_checkout": true
+          }
+        },
+        "page_CB7QXV": {
+          "type": "page",
+          "settings": {
+            "text": "View store information",
+            "button_style": "text",
+            "button_size": "medium",
+            "page": ""
+          }
+        },
+        "block_5": {
+          "type": "quantity_selector",
+          "disabled": true,
+          "settings": {
+          }
+        },
+        "complementary_products_pbEFVh": {
+          "type": "complementary_products",
+          "settings": {
+            "heading": "Pairs well with",
+            "product_recommendation_limit": 5
+          }
+        },
+        "block_6": {
+          "type": "description",
+          "settings": {
+            "show_as_tab": true,
+            "show_tab_as_open": true,
+            "heading": "Description"
+          }
+        },
+        "collapsible_tab_qNpdBd": {
+          "type": "collapsible_tab",
+          "settings": {
+            "show_tab_as_open": true,
+            "heading": "Care",
+            "content": "<p>Spot clean only.{{ product.metafields.custom.product_care | metafield_tag }}<\/p>",
+            "page": ""
+          }
+        },
+        "collapsible_tab_gc7DGA": {
+          "type": "collapsible_tab",
+          "settings": {
+            "show_tab_as_open": true,
+            "heading": "Shipping + Returns",
+            "content": "<p>Shipping<\/p><p>Orders can take 1-4 business days to process before shipping. As soon as your package has left our warehouse, you will receive a confirmation by email. <\/p><p>Returns<\/p><p>﻿If for any reason you are unhappy with your purchase we offer returns for store credit within 7 days of delivery. If 7 days have passed since your purchase has been delivered, unfortunately, we are unable to offer you a credit or exchange.<br\/><br\/><em>Please note that sale, discounted and custom items are final sale.<\/em>{{ product.metafields.custom.product_shipping_returns | metafield_tag }}<\/p>",
+            "page": ""
+          }
+        },
+        "product_upsell_p76KmK": {
+          "type": "product_upsell",
+          "settings": {
+            "show_as_tab": false,
+            "show_tab_as_open": false,
+            "heading": "Style with",
+            "product_1": "",
+            "product_2": "sporto-macho-thermal-ultima-black-kids-round-neck-full-sleeve-black-kid",
+            "product_3": "sporto-macho-thermal-ultima-black-kids-trouser",
+            "product_4": "sporto-macho-thermal-magma-black-kids-trouser-inner-elastic-magma-black-kids-trouser-inner-elastic-black"
+          }
+        },
+        "sku_fr6Bxm": {
+          "type": "sku",
+          "disabled": true,
+          "settings": {
           }
         }
       },
       "block_order": [
+        "product_label_7yHzPP",
         "block_1",
         "block_2",
         "block_3",
+        "inventory_status_JHiC4G",
         "block_4",
+        "size_guide_FMaNRY",
+        "block_7",
+        "page_CB7QXV",
         "block_5",
+        "complementary_products_pbEFVh",
         "block_6",
-        "block_7"
+        "collapsible_tab_qNpdBd",
+        "collapsible_tab_gc7DGA",
+        "product_upsell_p76KmK",
+        "sku_fr6Bxm"
       ],
       "settings": {
+        "select_first_available_variant": true,
+        "gallery_badges": "sale",
+        "gallery_layout": "grid",
+        "show_gallery_thumbnails": true,
+        "media_ratio": "natural",
+        "media_crop": "fill",
+        "mobile_media_width": 80,
+        "enable_image_zoom": true,
+        "autoplay": false,
+        "autoloop": true,
+        "mute_video": false
+      }
+    },
+    "image_with_text_jzjqkc": {
+      "type": "image-with-text",
+      "blocks": {
+        "preheading_iYcXir": {
+          "type": "preheading",
+          "settings": {
+            "content": "CARE FOR MATERIALS",
+            "size": "large",
+            "bolder": false,
+            "uppercase": true
+          }
+        },
+        "heading_6knaQf": {
+          "type": "heading",
+          "settings": {
+            "content": "Recycled polyester",
+            "size_desktop": "medium",
+            "size_mobile": "same_as_desktop"
+          }
+        },
+        "text_Rqi8Le": {
+          "type": "text",
+          "settings": {
+            "content": "<p>Instead of ending up in the oceans, or the landfill, we recycle post-consumer plastic that get spun into yarn for garment manufacturing.<\/p>",
+            "size": "medium"
+          }
+        },
+        "button_Und7gy": {
+          "type": "button",
+          "settings": {
+            "text": "Learn more",
+            "url": "",
+            "style": "primary",
+            "color_main": "#000000",
+            "color_contrast": "#ffffff"
+          }
+        }
+      },
+      "block_order": [
+        "preheading_iYcXir",
+        "heading_6knaQf",
+        "text_Rqi8Le",
+        "button_Und7gy"
+      ],
+      "settings": {
+        "wide": true,
+        "image": "shopify:\/\/shop_images\/SS21_TOPApparel_Web-89_800x992_44d126c4-f55a-48fb-91be-ccb40d7766d6.webp",
+        "image_height_desktop": "500",
+        "image_height_mobile": "natural",
+        "image_width": "50",
+        "image_position": "right",
+        "image_style": "padded",
+        "text_alignment": "center",
+        "color_background": "#f0f0f0",
+        "color_text": "#222222"
       }
     },
     "product-recommendations": {
       "type": "product-recommendations",
       "settings": {
-        "heading": "You may also like"
+        "heading": "You might also love these",
+        "limit": 5,
+        "cards_per_group": "4"
       }
     }
   },
   "order": [
     "main",
+    "image_with_text_jzjqkc",
     "product-recommendations"
   ]
 }
