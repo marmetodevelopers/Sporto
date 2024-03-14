@@ -129,6 +129,11 @@
           "disabled": true,
           "settings": {
           }
+        },
+        "images_hjgTte": {
+          "type": "images",
+          "settings": {
+          }
         }
       },
       "block_order": [
@@ -147,7 +152,8 @@
         "collapsible_tab_qNpdBd",
         "collapsible_tab_gc7DGA",
         "product_upsell_p76KmK",
-        "sku_fr6Bxm"
+        "sku_fr6Bxm",
+        "images_hjgTte"
       ],
       "settings": {
         "select_first_available_variant": true,
