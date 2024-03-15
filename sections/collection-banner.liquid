@@ -32,16 +32,16 @@
           {% endunless %}
         "
       >
-        <div class="collection-banner__text">
-          <h1 class="collection-banner__title">
+        {% comment %} <div class="collection-banner__text">
+          {% comment %} <h1 class="collection-banner__title">
             {{ collection.title | escape }}
-          </h1>
+          </h1> {% endcomment %}
           {% if section.settings.show_description and collection.description != blank %}
             <div class="collection-banner__description">
               {{ collection.description }}
             </div>
           {% endif %}
-        </div>
+        </div> {% endcomment %}
         {% if show_image %}
           <div
             class="
@@ -74,75 +74,7 @@
       "label": "t:component.collection_banner.show_image.label",
       "default": true,
       "info": "t:component.collection_banner.show_image.info"
-    },
-    {
-      "type": "select",
-      "id": "image_width_large",
-      "label": "t:component.collection_banner.image_width_large.label",
-      "options": [
-        {
-          "value": "50",
-          "label": "t:common.size.50_percent"
-        },
-        {
-          "value": "55",
-          "label": "t:component.collection_banner.image_width_large.option_2"
-        },
-        {
-          "value": "60",
-          "label": "t:common.size.60_percent"
-        }
-      ],
-      "default": "50"
-    },
-    {
-      "type": "select",
-      "id": "image_height_large",
-      "label": "t:component.collection_banner.image_height_large.label",
-      "options": [
-        {
-          "value": "natural",
-          "label": "t:common.size.natural"
-        },
-        {
-          "value": "300",
-          "label": "t:common.size.300px"
-        },
-        {
-          "value": "400",
-          "label": "t:common.size.400px"
-        },
-        {
-          "value": "500",
-          "label": "t:common.size.500px"
-        }
-      ],
-      "default": "400"
-    },
-    {
-      "type": "select",
-      "id": "image_height_small",
-      "label": "t:component.collection_banner.image_height_small.label",
-      "options": [
-        {
-          "value": "natural",
-          "label": "t:common.size.natural"
-        },
-        {
-          "value": "200",
-          "label": "t:component.collection_banner.image_height_small.option_2"
-        },
-        {
-          "value": "300",
-          "label": "t:common.size.300px"
-        },
-        {
-          "value": "400",
-          "label": "t:common.size.400px"
-        }
-      ],
-      "default": "200"
-    },
+    }, 
     {
       "type": "select",
       "id": "image_position_small",

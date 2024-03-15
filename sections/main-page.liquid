@@ -1,9 +1,11 @@
 <section data-component="main-page" data-component-type="section" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="main-page">
   <section-wrapper {% if section.settings.width == 'content' %}width="content"{% endif %}>
     <section-header>
-      <h1>
-        {{ page.title | escape }}
-      </h1>
+      {% if page.title != 'Contact Us' %}
+        <h1 align="center">
+          {{ page.title | escape }}
+        </h1>
+      {% endif %} 
     </section-header>
   </section-wrapper>
   <section-wrapper {% if section.settings.width == 'content' %}width="content"{% endif %}>

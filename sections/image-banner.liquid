@@ -349,7 +349,7 @@
                                     data-component="button-link"
                                     data-component-type="component"
                                     {% if tag != blank %}data-component-tag="{{ tag }}"
-                                    {% endif %}class="button-link button-link--{{ style }} button-link--{{ size }}{% if style == 'primary' or style == 'secondary' %} button-link--shadow{% endif %%}"
+                                    {% endif %}class="button-link button-link--{{ style }} button-link--{{ size }} {% if style == 'primary' or style == 'secondary' %} button-link--shadow{% endif %%}"
                                     {% if href != blank %}
                                       href="{{ href }}"
                                     {% endif %}
@@ -2561,6 +2561,30 @@
             {
               "value": "text",
               "label": "t:common.text.signpost"
+            },
+            {
+              "value": "primary-blue",
+              "label": "Primary Blue"
+            },
+            {
+              "value": "primary-orange",
+              "label": "Primary Orange"
+            },
+            {
+              "value": "secondary-skyblue",
+              "label": "Secondary Sky Blue"
+            },
+            {
+              "value": "secondary-green",
+              "label": "Secondary Green"
+            },
+            {
+              "value": "secondary-pink",
+              "label": "Secondary Pink"
+            },
+            {
+              "value": "secondary-yellow",
+              "label": "Secondary Yellow"
             }
           ],
           "default": "icon"

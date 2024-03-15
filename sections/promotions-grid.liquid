@@ -243,7 +243,7 @@
                               data-component="button"
                               data-component-type="component"
                               {% if tag != blank %}data-component-tag="{{ tag }}"
-                              {% endif %}class="button button--{{ style }} button--{{ size }}{% if style == 'primary' or style == 'secondary' %} button--shadow{% endif %%}"
+                              {% endif %}class="button button-link--{{ style }} button-link--{{ size }}{% if style == 'primary' or style == 'secondary' %} button--shadow{% endif %%}"
                               {{ attributes }}
                             >
                               {{ text }}
@@ -370,7 +370,7 @@
                               data-component="button"
                               data-component-type="component"
                               {% if tag != blank %}data-component-tag="{{ tag }}"
-                              {% endif %}class="button button--{{ style }} button--{{ size }}{% if style == 'primary' or style == 'secondary' %} button--shadow{% endif %%}"
+                              {% endif %}class="button button-link--{{ style }} button-link--{{ size }}{% if style == 'primary' or style == 'secondary' %} button--shadow{% endif %%}"
                               {{ attributes }}
                             >
                               {{ text }}
@@ -497,7 +497,7 @@
                               data-component="button"
                               data-component-type="component"
                               {% if tag != blank %}data-component-tag="{{ tag }}"
-                              {% endif %}class="button button--{{ style }} button--{{ size }}{% if style == 'primary' or style == 'secondary' %} button--shadow{% endif %%}"
+                              {% endif %}class="button button-link--{{ style }} button-link--{{ size }}{% if style == 'primary' or style == 'secondary' %} button--shadow{% endif %%}"
                               {{ attributes }}
                             >
                               {{ text }}
@@ -1310,6 +1310,30 @@
             {
               "value": "text",
               "label": "t:common.text.signpost"
+            },
+            {
+              "value": "primary-blue",
+              "label": "Primary Blue"
+            },
+            {
+              "value": "primary-orange",
+              "label": "Primary Orange"
+            },
+            {
+              "value": "secondary-skyblue",
+              "label": "Secondary Sky Blue"
+            },
+            {
+              "value": "secondary-green",
+              "label": "Secondary Green"
+            },
+            {
+              "value": "secondary-pink",
+              "label": "Secondary Pink"
+            },
+            {
+              "value": "secondary-yellow",
+              "label": "Secondary Yellow"
             }
           ],
           "default": "icon"
@@ -1663,7 +1687,7 @@
             {
               "value": "text",
               "label": "t:common.text.signpost"
-            }
+            } 
           ],
           "default": "primary"
         },
@@ -1714,7 +1738,7 @@
             {
               "value": "text",
               "label": "t:common.text.signpost"
-            }
+            } 
           ],
           "default": "secondary"
         },

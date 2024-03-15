@@ -1,5 +1,74 @@
 {
-  "current": "Cotton",
+  "current": {
+    "color_heading": "#131313",
+    "color_body": "#131313",
+    "color_accent": "#0f3d51",
+    "color_lines": "#131313",
+    "color_site_background": "#ffffff",
+    "color_site_background_secondary": "#efede5",
+    "color_sale": "#c93030",
+    "color_badge_text": "#ac1e1e",
+    "color_badge_background": "#ffffff",
+    "color_star_ratings": "#131313",
+    "color_in_stock": "#5b8c25",
+    "color_low_in_stock": "#ac1e1e",
+    "color_out_of_stock": "#131313",
+    "color_button_main": "#102833",
+    "color_overlay_opacity": 15,
+    "color_footer_background": "#f7f7f7",
+    "color_footer_text": "#131313",
+    "font_body": "helvetica_n3",
+    "font_body_size": 16,
+    "font_body_height": 1.3,
+    "font_heading": "dm_sans_n5",
+    "font_heading_size": 35,
+    "font_heading_height": 1.1,
+    "cart_show_vendor": false,
+    "product_card_color_option_name": "hidden",
+    "product_card_label_style": "outlined",
+    "product_card_show_vendor": false,
+    "product_card_media_ratio": "portrait",
+    "product_card_crop_mode": "fill",
+    "product_card_badges": "sale-custom",
+    "product_badges_uppercase": false,
+    "product_badges_bold": false,
+    "product_badges_font": "body",
+    "product_badge_background_color_1": "#131313",
+    "product_badge_text_color_2": "#131313",
+    "product_badge_background_color_2": "#ffffff",
+    "product_badge_tag_2": "New",
+    "product_badge_text_color_3": "#131313",
+    "product_badge_background_color_3": "#ffffff",
+    "product_badge_text_color_4": "#ffffff",
+    "product_badge_background_color_4": "#0f3d51",
+    "predictive_search_show_posts_and_pages": false,
+    "color_background": "#ffffff",
+    "type_size_base": 16,
+    "sections": {
+      "header-password": {
+        "type": "header-password",
+        "settings": {
+          "logo_width": 145,
+          "logo_width_mobile": 200,
+          "header_sticky": false,
+          "show_border": true,
+          "show_social_icons": true,
+          "toolbar_text_color": "#ffffff",
+          "toolbar_bg_color": "#494931",
+          "enable_language_selector": true,
+          "enable_country_selector": true
+        }
+      },
+      "footer-password": {
+        "type": "footer-password",
+        "settings": {
+        }
+      }
+    },
+    "content_for_index": [
+
+    ]
+  },
   "presets": {
     "Cotton": {
       "color_heading": "#131313",
