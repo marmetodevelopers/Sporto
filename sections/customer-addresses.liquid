@@ -1,12 +1,12 @@
 <section data-component="customer-addresses" data-component-type="section" {% if tag != blank %}data-component-tag="{{ tag }}" {% endif %}class="customer-addresses">
   <section-wrapper width="constrained">
-    <section-header class="customer-addresses__header">
+    <section-header class="customer-addresses__header" align="center">
       <a href="{{ routes.account_url }}" class="customer-addresses__back">&larr; {{ 'general.customer.return' | t }}</a>
 
       <h1 class="customer-addresses__heading">{{ 'customer.addresses.title' | t }}</h1>
     </section-header>
   </section-wrapper>
-  <section-wrapper width="constrained">
+  <section-wrapper width="constrained" align="center">
     <section-content>
     {%- paginate customer.addresses by 5 -%}
       <div class="customer-addresses__new-address" data-address-item>

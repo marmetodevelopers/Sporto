@@ -1,24 +1,45 @@
 {
   "sections": {
-    "main": {
-      "type": "main-collection-grid",
-      "settings": {
-      }
-    },
     "banner": {
       "type": "collection-banner",
       "settings": {
+        "show_description": false,
+        "show_image": true,
+        "image_position_small": "above",
+        "color_heading": "#ffffff",
+        "color_text": "#ffffff",
+        "color_background": "#ffffff"
       }
     },
     "title": {
       "type": "collection-title",
-      "disabled": true,
       "settings": {
+        "show_description": true
       }
     },
     "subcollections": {
       "type": "collection-subcollections",
       "settings": {
+        "heading": "Subcollections",
+        "subheading": "Help guide customers to the products they’re looking for by featuring subcollections on your collection page.",
+        "collections_per_row": 6,
+        "menu": "main-menu",
+        "show_title": true,
+        "show_description": false,
+        "show_product_count": false,
+        "collection_card_media_ratio": "natural",
+        "collection_card_crop_mode": "fill"
+      }
+    },
+    "main": {
+      "type": "main-collection-grid",
+      "settings": {
+        "show_divider": true,
+        "columns_desktop": 4,
+        "products_per_page": "24",
+        "filters_show_sorting": true,
+        "filters_show_filters": true,
+        "filters_show_totals": true
       }
     }
   },

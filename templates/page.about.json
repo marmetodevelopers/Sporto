@@ -1,0 +1,213 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "disabled": true,
+      "settings": {
+        "width": "content"
+      }
+    },
+    "rich_text_e93HEX": {
+      "type": "rich-text",
+      "blocks": {
+        "preheading_UkabPx": {
+          "type": "preheading",
+          "settings": {
+            "content": "United by blue",
+            "size": "small",
+            "bolder": false,
+            "uppercase": true
+          }
+        },
+        "heading_6zEEKJ": {
+          "type": "heading",
+          "settings": {
+            "content": "We're here to prove that fashion can be a force for good.",
+            "size_desktop": "medium",
+            "size_mobile": "same_as_desktop"
+          }
+        }
+      },
+      "block_order": [
+        "preheading_UkabPx",
+        "heading_6zEEKJ"
+      ],
+      "settings": {
+        "wide": false,
+        "content_display": "center",
+        "text_alignment": "center",
+        "add_space_to_top": true,
+        "add_space_to_bottom": true,
+        "background_color": "#484931",
+        "text_color": "#ffffff"
+      }
+    },
+    "video_YefhDe": {
+      "type": "video",
+      "settings": {
+        "wide": false,
+        "heading": "",
+        "aspect_ratio": "16:9",
+        "video_url": "https:\/\/www.youtube.com\/watch?v=_9VUPq3SxOc",
+        "html5_video": "",
+        "description": "This video used as the default placeholder video in Shopify themes.",
+        "autoplay": true,
+        "autoloop": false,
+        "mute_video": true
+      }
+    },
+    "rich_text_xYiM3W": {
+      "type": "rich-text",
+      "blocks": {
+        "heading_7rRDmB": {
+          "type": "heading",
+          "settings": {
+            "content": "Sustainable living",
+            "size_desktop": "medium",
+            "size_mobile": "same_as_desktop"
+          }
+        },
+        "text_pLiWtK": {
+          "type": "text",
+          "settings": {
+            "content": "<p>At United By Blue, we believe business not only has the ability to be a part of environmental solutions, but also a moral responsibility to address them. This is the motivation behind our B Corp status, a certification we have proudly held since 2011.<\/p>",
+            "size": "large"
+          }
+        }
+      },
+      "block_order": [
+        "heading_7rRDmB",
+        "text_pLiWtK"
+      ],
+      "settings": {
+        "wide": false,
+        "content_display": "center",
+        "text_alignment": "center",
+        "add_space_to_top": true,
+        "add_space_to_bottom": true,
+        "background_color": "#ffffff",
+        "text_color": "#000000"
+      }
+    },
+    "image_with_text_YtbqMm": {
+      "type": "image-with-text",
+      "blocks": {
+        "image_fxmwdA": {
+          "type": "image",
+          "settings": {
+          }
+        },
+        "heading_xaUCU4": {
+          "type": "heading",
+          "settings": {
+            "content": "Trusted pieces",
+            "size_desktop": "medium",
+            "size_mobile": "same_as_desktop"
+          }
+        },
+        "text_PpTiYy": {
+          "type": "text",
+          "settings": {
+            "content": "<p>Our products are made in GOTS-certified factories from sustainably-sourced fabrics. We create them to last, because the best way to be a conscious consumer is to ultimately consume <\/p>",
+            "size": "small"
+          }
+        }
+      },
+      "block_order": [
+        "image_fxmwdA",
+        "heading_xaUCU4",
+        "text_PpTiYy"
+      ],
+      "settings": {
+        "wide": false,
+        "image": "shopify:\/\/shop_images\/Spring_summer_banner__3ai-03.jpg",
+        "image_height_desktop": "natural",
+        "image_height_mobile": "natural",
+        "image_width": "50",
+        "image_position": "left",
+        "image_style": "normal",
+        "text_alignment": "left",
+        "color_background": "#ffffff",
+        "color_text": "#222222"
+      }
+    },
+    "promotions_grid_i9XWHY": {
+      "type": "promotions-grid",
+      "blocks": {
+        "text_JMHEGy": {
+          "type": "text",
+          "settings": {
+            "block_width": "4",
+            "block_height": "400px",
+            "color_text": "#FFFFFF",
+            "background_color": "#0f3d51",
+            "background_gradient": "",
+            "position": "bottom_left",
+            "preheading": "",
+            "size_preheading": "large",
+            "bolder_preheading": false,
+            "uppercase_preheading": true,
+            "heading": "Our promise to the future",
+            "size_heading": "medium",
+            "text": "<p>We are proud of our B Corp status and committing to a future of sustainable fashion.<\/p>",
+            "size_text": "small",
+            "button_text_1": "Lear more",
+            "button_link_1": "",
+            "button_style_1": "primary",
+            "color_main_1": "#ffffff",
+            "color_contrast_1": "#000000",
+            "button_text_2": "",
+            "button_link_2": "",
+            "button_style_2": "secondary",
+            "color_main_2": "#ffffff",
+            "color_contrast_2": "#000000"
+          }
+        },
+        "image_BBqaJQ": {
+          "type": "image",
+          "settings": {
+            "block_width": "8",
+            "block_height": "700px",
+            "overlay_color": "#000000",
+            "overlay_gradient": "",
+            "color_overlay_opacity": 20
+          }
+        }
+      },
+      "block_order": [
+        "text_JMHEGy",
+        "image_BBqaJQ"
+      ],
+      "settings": {
+        "heading": "",
+        "wide": false,
+        "spacing": true,
+        "text_alignment": "left"
+      }
+    },
+    "blog_posts_ARWrRy": {
+      "type": "blog-posts",
+      "settings": {
+        "heading": "The Editorial",
+        "subheading": "Other reading",
+        "blog": "all",
+        "featured_article": "all\/gear-up-for-2021-with-our-collection-of-t-shirts",
+        "alternate_image": "shopify:\/\/shop_images\/SS21_TOPApparel_Web-89_800x992_44d126c4-f55a-48fb-91be-ccb40d7766d6.webp",
+        "show_featured_image": true,
+        "show_tags": true,
+        "show_excerpt": true,
+        "show_author": true,
+        "show_date": true
+      }
+    }
+  },
+  "order": [
+    "main",
+    "rich_text_e93HEX",
+    "video_YefhDe",
+    "rich_text_xYiM3W",
+    "image_with_text_YtbqMm",
+    "promotions_grid_i9XWHY",
+    "blog_posts_ARWrRy"
+  ]
+}
