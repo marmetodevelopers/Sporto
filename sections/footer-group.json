@@ -8,21 +8,34 @@
         "logo": {
           "type": "logo",
           "settings": {
+            "size": "medium",
+            "alignment": "left",
+            "column_width": 17
           }
         },
         "menu": {
           "type": "menu",
           "settings": {
+            "heading": "Footer menu",
+            "linklist": "footer-menu-pt3",
+            "column_width": 17
           }
         },
         "about": {
           "type": "about",
           "settings": {
+            "heading": "About our store",
+            "content": "<p>Use this text area to tell your customers about your brand and vision.<\/p>",
+            "show_social_icons": true,
+            "column_width": 33
           }
         },
         "newsletter": {
           "type": "footer_email_form",
           "settings": {
+            "heading": "Subscribe and save",
+            "content": "<p>Subscribe to get notified about product launches, special offers and company news.<\/p>",
+            "column_width": 33
           }
         }
       },
@@ -33,6 +46,10 @@
         "newsletter"
       ],
       "settings": {
+        "show_payment_icons": true,
+        "enable_follow_on_shop": true,
+        "enable_language_selector": true,
+        "enable_country_selector": true
       }
     }
   },
