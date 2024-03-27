@@ -13,6 +13,7 @@
           "type": "heading",
           "settings": {
             "position": "center_center",
+            "content": "Talk about your brand",
             "size_desktop": "extra-large",
             "size_mobile": "large"
           }
@@ -22,6 +23,8 @@
           "settings": {
             "style": "primary",
             "position": "center_center",
+            "text": "Button",
+            "url": "",
             "color_main": "#ffffff",
             "color_contrast": "#000000"
           }
@@ -34,15 +37,21 @@
       "settings": {
         "wide": true,
         "desktop_height": "700",
+        "image": "shopify:\/\/shop_images\/Spring_summer_banner__3ai-02_1.jpg",
+        "mobile_image": "shopify:\/\/shop_images\/thumbnail_Banner_2.jpg",
         "text_alignment": "center",
         "color_overlay_foreground": "#ffffff",
         "overlay_color": "#000000",
-        "color_overlay_opacity": 9
+        "overlay_gradient": "",
+        "color_overlay_opacity": 100
       }
     },
     "16467603298a5c3a73": {
       "type": "featured-collection",
       "settings": {
+        "heading": "Featured collection",
+        "subheading": "Highlight a buying property or value proposition",
+        "collection": "athletic-shorts",
         "limit": 10,
         "show_view_all_button": true,
         "cards_per_group": "4"
@@ -62,16 +71,21 @@
           "settings": {
             "block_width": "6",
             "block_height": "700px",
+            "heading": "Editorial",
             "position_heading": "center_center",
             "size_heading": "large",
+            "text": "<p>Use this section to welcome customers to your store, say a bit about your brand, or share promotions.<\/p>",
             "position_text": "center_center",
             "size_text": "medium",
+            "block_link": "",
+            "button_text": "Button",
             "button_style": "primary",
             "position_button": "center_center",
             "color_button_main": "#ffffff",
             "color_button_contrast": "#000000",
             "color_text": "#ffffff",
             "overlay_color": "#000000",
+            "overlay_gradient": "",
             "color_overlay_opacity": 10
           }
         },
@@ -80,16 +94,21 @@
           "settings": {
             "block_width": "6",
             "block_height": "550px",
+            "heading": "Editorial",
             "position_heading": "center_center",
             "size_heading": "large",
+            "text": "<p>Use this section to welcome customers to your store, say a bit about your brand, or share promotions.<\/p>",
             "position_text": "center_center",
             "size_text": "medium",
+            "block_link": "",
+            "button_text": "Button",
             "button_style": "primary",
             "position_button": "center_center",
             "color_button_main": "#ffffff",
             "color_button_contrast": "#000000",
             "color_text": "#ffffff",
             "overlay_color": "#000000",
+            "overlay_gradient": "",
             "color_overlay_opacity": 10
           }
         }
@@ -99,6 +118,7 @@
         "164995235449c7556c-2"
       ],
       "settings": {
+        "heading": "Heading",
         "wide": true,
         "spacing": false,
         "text_alignment": "center"
@@ -110,6 +130,7 @@
         "template--15886227210428__fe0e2a0c-0af7-4863-9fa4-da3cf81d05f9-1666983419e48ab7c2-1": {
           "type": "heading",
           "settings": {
+            "content": "Talk about your brand",
             "size_desktop": "large",
             "size_mobile": "small"
           }
@@ -117,18 +138,25 @@
         "0b5adf1a-0e61-4edf-a8da-182c818173f8": {
           "type": "text",
           "settings": {
+            "content": "<p>Share information about your brand with your customers. Describe a product, make announcements, or welcome customers to your store.<\/p>",
             "size": "medium"
           }
         },
         "template--15886227210428__fe0e2a0c-0af7-4863-9fa4-da3cf81d05f9-1666983419e48ab7c2-3": {
           "type": "button_group",
           "settings": {
+            "text_1": "Button",
+            "url_1": "",
             "style_1": "secondary",
             "color_main_1": "#000000",
             "color_contrast_1": "#ffffff",
+            "text_2": "Button",
+            "url_2": "",
             "style_2": "primary",
             "color_main_2": "#000000",
             "color_contrast_2": "#ffffff",
+            "text_3": "Button",
+            "url_3": "",
             "style_3": "primary",
             "color_main_3": "#000000",
             "color_contrast_3": "#ffffff"
@@ -156,6 +184,7 @@
         "1646759815c7a295e7-0": {
           "type": "heading",
           "settings": {
+            "content": "Talk about your brand",
             "size_desktop": "large",
             "size_mobile": "same_as_desktop"
           }
@@ -163,12 +192,15 @@
         "1646759815c7a295e7-1": {
           "type": "text",
           "settings": {
+            "content": "<p>Share information about your brand with your customers. Describe a product, make announcements, or welcome customers to your store.<\/p>",
             "size": "large"
           }
         },
         "1646759815c7a295e7-2": {
           "type": "button",
           "settings": {
+            "text": "Button",
+            "url": "",
             "style": "primary",
             "color_main": "#ffffff",
             "color_contrast": "#000000"
@@ -206,16 +238,21 @@
           "settings": {
             "block_width": "4",
             "block_height": "550px",
+            "heading": "Editorial",
             "position_heading": "bottom_center",
             "size_heading": "medium",
+            "text": "<p>Use this section to welcome customers to your store, say a bit about your brand, or share promotions.<\/p>",
             "position_text": "bottom_center",
             "size_text": "medium",
+            "block_link": "",
+            "button_text": "Button",
             "button_style": "primary",
             "position_button": "bottom_center",
             "color_button_main": "#ffffff",
             "color_button_contrast": "#000000",
             "color_text": "#ffffff",
             "overlay_color": "#000000",
+            "overlay_gradient": "",
             "color_overlay_opacity": 0
           }
         },
@@ -224,16 +261,21 @@
           "settings": {
             "block_width": "4",
             "block_height": "550px",
+            "heading": "Editorial",
             "position_heading": "bottom_center",
             "size_heading": "medium",
+            "text": "<p>Use this section to welcome customers to your store, say a bit about your brand, or share promotions.<\/p>",
             "position_text": "bottom_center",
             "size_text": "medium",
+            "block_link": "",
+            "button_text": "Button",
             "button_style": "primary",
             "position_button": "bottom_center",
             "color_button_main": "#ffffff",
             "color_button_contrast": "#000000",
             "color_text": "#ffffff",
             "overlay_color": "#000000",
+            "overlay_gradient": "",
             "color_overlay_opacity": 0
           }
         },
@@ -242,16 +284,21 @@
           "settings": {
             "block_width": "4",
             "block_height": "550px",
+            "heading": "Editorial",
             "position_heading": "bottom_center",
             "size_heading": "medium",
+            "text": "<p>Use this section to welcome customers to your store, say a bit about your brand, or share promotions.<\/p>",
             "position_text": "bottom_center",
             "size_text": "medium",
+            "block_link": "",
+            "button_text": "Button",
             "button_style": "primary",
             "position_button": "bottom_center",
             "color_button_main": "#ffffff",
             "color_button_contrast": "#000000",
             "color_text": "#ffffff",
             "overlay_color": "#000000",
+            "overlay_gradient": "",
             "color_overlay_opacity": 0
           }
         }
@@ -262,6 +309,7 @@
         "template--15886227210428__a28b2358-0bef-414a-923a-0d17b9ef36ba-16669834192e8482c2-2"
       ],
       "settings": {
+        "heading": "Heading",
         "wide": false,
         "spacing": true,
         "text_alignment": "left"
@@ -279,6 +327,7 @@
         "474404ab-29d0-4ad9-8c4d-f9f2ac6fa0e2": {
           "type": "product_label",
           "settings": {
+            "label": "Product label",
             "label_style": "outlined",
             "label_size": "small"
           }
@@ -317,7 +366,9 @@
           "type": "size_guide",
           "disabled": true,
           "settings": {
-            "icon": "coat-hanger"
+            "text": "View size chart",
+            "icon": "coat-hanger",
+            "page": ""
           }
         },
         "1646761136c7b9cf90-4": {
@@ -335,7 +386,12 @@
           "type": "product_upsell",
           "settings": {
             "show_as_tab": false,
-            "show_tab_as_open": false
+            "show_tab_as_open": false,
+            "heading": "Style with",
+            "product_1": "",
+            "product_2": "",
+            "product_3": "",
+            "product_4": ""
           }
         }
       },
@@ -351,6 +407,7 @@
         "74be804e-e322-4790-83b9-5d28ed7a59c8"
       ],
       "settings": {
+        "product": "",
         "select_first_available_variant": true,
         "gallery_badges": "sale-custom",
         "gallery_size": "medium",
@@ -369,6 +426,9 @@
     "36fd29f3-e9a8-4f8b-8fc9-ed52cc65570d": {
       "type": "featured-collection",
       "settings": {
+        "heading": "Featured collection",
+        "subheading": "Highlight a buying property or value proposition",
+        "collection": "",
         "limit": 5,
         "show_view_all_button": false,
         "cards_per_group": "4"
@@ -386,6 +446,7 @@
         "1649952096dd7a0f36-0": {
           "type": "hotspot",
           "settings": {
+            "product": "",
             "color_main": "#edebe7",
             "color_contrast": "#ffffff",
             "x_axis": 35,
@@ -395,6 +456,7 @@
         "1649952096dd7a0f36-1": {
           "type": "hotspot",
           "settings": {
+            "product": "",
             "color_main": "#edebe7",
             "color_contrast": "#ffffff",
             "x_axis": 44,
@@ -404,6 +466,7 @@
         "1649952096dd7a0f36-2": {
           "type": "hotspot",
           "settings": {
+            "product": "",
             "color_main": "#edebe7",
             "color_contrast": "#ffffff",
             "x_axis": 61,
@@ -413,6 +476,7 @@
         "d0a55a3b-f972-4cc6-956d-958959ef16f1": {
           "type": "hotspot",
           "settings": {
+            "product": "",
             "color_main": "#edebe7",
             "color_contrast": "#ffffff",
             "x_axis": 63,
@@ -428,6 +492,8 @@
       ],
       "settings": {
         "wide": true,
+        "heading": "Shop the look",
+        "view_in_list_cta_text": "Shop the look",
         "product_option_style": "radio",
         "sold_out_options": "selectable",
         "swatches_enable": true,
@@ -446,6 +512,7 @@
         "1646759489d76d9601-1": {
           "type": "heading",
           "settings": {
+            "content": "Talk about your brand",
             "size_desktop": "medium",
             "size_mobile": "same_as_desktop"
           }
@@ -453,18 +520,25 @@
         "1646759489d76d9601-2": {
           "type": "text",
           "settings": {
+            "content": "<p>Share information about your brand with your customers. Describe a product, make announcements, or welcome customers to your store.<\/p>",
             "size": "large"
           }
         },
         "6b1deed6-b42e-49de-ad01-2a2e2566160d": {
           "type": "button_group",
           "settings": {
+            "text_1": "Button",
+            "url_1": "",
             "style_1": "secondary",
             "color_main_1": "#131313",
             "color_contrast_1": "#ffffff",
+            "text_2": "Button",
+            "url_2": "",
             "style_2": "secondary",
             "color_main_2": "#131313",
             "color_contrast_2": "#ffffff",
+            "text_3": "Button",
+            "url_3": "",
             "style_3": "primary",
             "color_main_3": "#000000",
             "color_contrast_3": "#ffffff"
@@ -495,6 +569,10 @@
     "1646763777f14ce855": {
       "type": "blog-posts",
       "settings": {
+        "heading": "The Editorial",
+        "subheading": "Other reading",
+        "blog": "",
+        "featured_article": "",
         "show_featured_image": true,
         "show_tags": false,
         "show_excerpt": true,
