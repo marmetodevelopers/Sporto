@@ -38,6 +38,7 @@
         "wide": true,
         "desktop_height": "700",
         "image": "shopify:\/\/shop_images\/Spring_summer_banner__3ai-02_1.jpg",
+        "image_2": "shopify:\/\/shop_images\/thumbnail_Banner_2.jpg",
         "mobile_image": "shopify:\/\/shop_images\/thumbnail_Banner_2.jpg",
         "text_alignment": "center",
         "color_overlay_foreground": "#ffffff",
@@ -51,7 +52,7 @@
       "settings": {
         "heading": "Featured collection",
         "subheading": "Highlight a buying property or value proposition",
-        "collection": "athletic-shorts",
+        "collection": "athletic",
         "limit": 10,
         "show_view_all_button": true,
         "cards_per_group": "4"
@@ -585,6 +586,20 @@
       "settings": {
         "spacing": "none"
       }
+    },
+    "video_HdnpBk": {
+      "type": "video",
+      "settings": {
+        "wide": true,
+        "heading": "Video",
+        "aspect_ratio": "16:9",
+        "video_url": "https:\/\/www.youtube.com\/watch?v=_9VUPq3SxOc",
+        "html5_video": "",
+        "description": "This video used as the default placeholder video in Shopify themes.",
+        "autoplay": false,
+        "autoloop": true,
+        "mute_video": false
+      }
     }
   },
   "order": [
@@ -606,6 +621,7 @@
     "16467594894f8a1238",
     "0054a7c9-f220-4008-87f9-bac633a05118",
     "1646763777f14ce855",
-    "16499526332eb062b9"
+    "16499526332eb062b9",
+    "video_HdnpBk"
   ]
 }
